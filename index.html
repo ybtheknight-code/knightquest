@@ -3,918 +3,251 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Knight Tycoon V5.0 — Ultimate Edition</title>
+<title>Knight Tycoon V5.5 — Real Consequences Edition</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* ============================================
-   KNIGHT TYCOON V5.0 - ULTIMATE EDITION
-   Beautiful, Addictive, Bulletproof
-============================================ */
+/*============================================
+  KNIGHT TYCOON V5.5 - REAL CONSEQUENCES
+  - Yearly turns with actual salary
+  - Trap cards that punish spam
+  - Real expenses and consequences
+  - Smooth Jazz background
+============================================*/
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { height:100%; overflow:hidden; }
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 50%, #0a0a12 100%);
-  color: #fff;
-  line-height: 1.4;
-}
-#root { height: 100%; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,#0a0a12 0%,#1a1a2e 50%,#0a0a12 100%);color:#fff;line-height:1.4}
+#root{height:100%}
 
-:root {
-  --gold: #F6C343;
-  --gold-dark: #D4A030;
-  --gold-light: #FFD970;
-  --bg: #0a0a12;
-  --card: #16162a;
-  --card-hover: #1e1e3a;
-  --card-border: rgba(246, 195, 67, 0.15);
-  --text: #FFFFFF;
-  --text-muted: rgba(255,255,255,0.7);
-  --text-dim: rgba(255,255,255,0.4);
-  --green: #10B981;
-  --green-bg: rgba(16,185,129,0.15);
-  --red: #EF4444;
-  --red-bg: rgba(239,68,68,0.15);
-  --blue: #3B82F6;
-  --blue-bg: rgba(59,130,246,0.15);
-  --purple: #8B5CF6;
-  --purple-bg: rgba(139,92,246,0.15);
-  --pink: #EC4899;
-  --yellow: #FBBF24;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --shadow-gold: 0 4px 24px rgba(246,195,67,0.2);
-  --radius: 16px;
-  --radius-sm: 10px;
+:root{
+--gold:#F6C343;--gold-dark:#D4A030;--gold-light:#FFD970;
+--bg:#0a0a12;--card:#16162a;--card-hover:#1e1e3a;--card-border:rgba(246,195,67,0.15);
+--text:#fff;--text-muted:rgba(255,255,255,0.7);--text-dim:rgba(255,255,255,0.4);
+--green:#10B981;--green-bg:rgba(16,185,129,0.15);
+--red:#EF4444;--red-bg:rgba(239,68,68,0.15);
+--blue:#3B82F6;--blue-bg:rgba(59,130,246,0.15);
+--purple:#8B5CF6;--purple-bg:rgba(139,92,246,0.15);
+--orange:#F97316;--orange-bg:rgba(249,115,22,0.15);
+--yellow:#FBBF24;
+--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow-gold:0 4px 24px rgba(246,195,67,0.2);
+--radius:16px;--radius-sm:10px;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gold-dark);border-radius:4px}
 
-/* App Container */
-.app {
-  max-width: 440px;
-  margin: 0 auto;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
-}
+.app{max-width:440px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:12px;gap:10px;position:relative;overflow:hidden}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:20px;-webkit-overflow-scrolling:touch}
 
-.scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 20px;
-  -webkit-overflow-scrolling: touch;
-}
+.header{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--card-border)}
+.logo{font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.5px}
+.header-actions{display:flex;gap:6px;align-items:center}
+.icon-btn{width:38px;height:38px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--card-border);color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.icon-btn:hover,.icon-btn:active{background:var(--card-hover);color:var(--gold);border-color:var(--gold)}
+.icon-btn.active{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.version{font-size:9px;color:var(--text-dim);background:var(--card);padding:4px 8px;border-radius:6px;font-weight:600}
 
-/* ============ HEADER ============ */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--card-border);
-}
-.logo {
-  font-size: 18px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-}
-.header-actions {
-  display: flex;
-  gap: 6px;
-}
-.icon-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  color: var(--text-muted);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.icon-btn:hover, .icon-btn:active {
-  background: var(--card-hover);
-  color: var(--gold);
-  border-color: var(--gold);
-}
-.icon-btn.active {
-  background: var(--gold);
-  color: var(--bg);
-  border-color: var(--gold);
-}
-.version {
-  font-size: 9px;
-  color: var(--text-dim);
-  background: var(--card);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 600;
-}
+.btn{padding:14px 24px;border-radius:var(--radius);font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s;border:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#000;box-shadow:var(--shadow-gold)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(246,195,67,0.35)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{background:transparent;border:2px solid var(--gold);color:var(--gold)}
+.btn-secondary:hover{background:rgba(246,195,67,0.1)}
+.btn-ghost{background:var(--card);border:1px solid var(--card-border);color:var(--text-muted)}
+.btn-ghost:hover{background:var(--card-hover);color:var(--text)}
+.btn-danger{background:var(--red-bg);border:1px solid var(--red);color:var(--red)}
+.btn-sm{padding:10px 16px;font-size:12px}
+.btn-full{width:100%}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
 
-/* ============ BUTTONS ============ */
-.btn {
-  padding: 14px 24px;
-  border-radius: var(--radius);
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.btn-primary {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  box-shadow: var(--shadow-gold);
-}
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(246,195,67,0.35); }
-.btn-primary:active { transform: translateY(0); }
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
 
-.btn-secondary {
-  background: transparent;
-  border: 2px solid var(--gold);
-  color: var(--gold);
-}
-.btn-secondary:hover { background: rgba(246,195,67,0.1); }
+.title-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:20px;padding:20px}
+.title-crown{font-size:64px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.title-main{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.title-sub{font-size:14px;color:var(--text-muted);font-weight:500;letter-spacing:2px;text-transform:uppercase}
+.title-features{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.title-feature{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted)}
+.title-feature-icon{width:32px;height:32px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.title-buttons{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px}
 
-.btn-ghost {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  color: var(--text-muted);
-}
-.btn-ghost:hover { background: var(--card-hover); color: var(--text); }
+.setup-step{animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.setup-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.setup-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:16px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:block}
+.form-input{width:100%;padding:14px 16px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.05);color:var(--text);font-size:15px;font-weight:500;outline:none;transition:all 0.2s}
+.form-input:focus{border-color:var(--gold);background:rgba(246,195,67,0.05)}
+.form-input::placeholder{color:var(--text-dim)}
 
-.btn-danger {
-  background: var(--red-bg);
-  border: 1px solid var(--red);
-  color: var(--red);
-}
+.option-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.option{background:var(--card);border:2px solid transparent;border-radius:var(--radius-sm);padding:14px 10px;text-align:center;cursor:pointer;transition:all 0.2s}
+.option:hover{background:var(--card-hover)}
+.option.selected{border-color:var(--gold);background:rgba(246,195,67,0.1)}
+.option-icon{font-size:24px;margin-bottom:6px}
+.option-title{font-size:13px;font-weight:700}
+.option-desc{font-size:10px;color:var(--text-dim);margin-top:4px}
 
-.btn-sm { padding: 10px 16px; font-size: 12px; }
-.btn-full { width: 100%; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.char-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.char-option{display:flex;flex-direction:column;align-items:center;padding:10px 6px;background:var(--card);border:2px solid transparent;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s}
+.char-option:hover{background:var(--card-hover)}
+.char-option.selected{border-color:var(--gold);background:rgba(246,195,67,0.1)}
+.char-name{font-size:9px;color:var(--text-muted);margin-top:6px}
 
-/* ============ CARDS ============ */
-.card {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-}
-.card-glow {
-  background: linear-gradient(135deg, var(--card) 0%, rgba(246,195,67,0.05) 100%);
-  border-color: rgba(246,195,67,0.25);
-}
+.pixel-char{image-rendering:pixelated;border-radius:6px;background:rgba(0,0,0,0.3);border:2px solid var(--gold-dark);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pixel-char.sm{width:32px;height:42px;border-width:1px}
+.pixel-char.md{width:48px;height:64px}
+.pixel-char.lg{width:72px;height:96px;border-width:3px}
 
-/* ============ TITLE SCREEN ============ */
-.title-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-  gap: 20px;
-  padding: 20px;
-}
-.title-crown {
-  font-size: 64px;
-  animation: float 3s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.title-main {
-  font-size: 32px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-}
-.title-sub {
-  font-size: 14px;
-  color: var(--text-muted);
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-.title-features {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 16px 0;
-}
-.title-feature {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.title-feature-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--card);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-.title-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  max-width: 280px;
-}
+.player-bar{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:var(--radius);border:1px solid var(--card-border)}
+.player-info{flex:1;min-width:0}
+.player-name{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.player-meta-item{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px}
+.gen-badge{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#000;font-size:11px;font-weight:800;padding:6px 12px;border-radius:8px}
 
-/* ============ SETUP SCREEN ============ */
-.setup-step {
-  animation: fadeIn 0.3s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.setup-title {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-.setup-subtitle {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-}
-.form-group {
-  margin-bottom: 16px;
-}
-.form-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  display: block;
-}
-.form-input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--card-border);
-  background: rgba(255,255,255,0.05);
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 500;
-  outline: none;
-  transition: all 0.2s;
-}
-.form-input:focus {
-  border-color: var(--gold);
-  background: rgba(246,195,67,0.05);
-}
-.form-input::placeholder { color: var(--text-dim); }
+.year-summary{background:linear-gradient(135deg,var(--card),rgba(246,195,67,0.05));border:1px solid var(--gold);border-radius:var(--radius-sm);padding:12px;margin-top:8px}
+.year-title{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px}
+.year-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.year-row:last-child{border-bottom:none}
+.year-row.total{font-weight:800;font-size:14px;border-top:1px solid var(--gold);margin-top:8px;padding-top:8px}
+.year-positive{color:var(--green)}
+.year-negative{color:var(--red)}
 
-/* Option Grid */
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-.option-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.option-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;cursor:pointer;transition:all 0.2s}
+.stat-card:hover{background:var(--card-hover)}
+.stat-icon{font-size:14px;margin-bottom:2px}
+.stat-value{font-size:15px;font-weight:800}
+.stat-value.positive{color:var(--green)}
+.stat-value.negative{color:var(--red)}
+.stat-label{font-size:9px;color:var(--text-dim);text-transform:uppercase;margin-top:2px}
+.stat-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:6px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width 0.3s ease}
 
-.option {
-  background: var(--card);
-  border: 2px solid transparent;
-  border-radius: var(--radius-sm);
-  padding: 14px 10px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.option:hover { background: var(--card-hover); }
-.option.selected {
-  border-color: var(--gold);
-  background: rgba(246,195,67,0.1);
-}
-.option-icon { font-size: 24px; margin-bottom: 6px; }
-.option-title { font-size: 13px; font-weight: 700; }
-.option-desc { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+.badges-row{display:flex;flex-wrap:wrap;gap:6px}
+.badge{font-size:10px;font-weight:600;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:4px}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(139,92,246,0.3)}
+.badge-yellow{background:rgba(251,191,36,0.15);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
+.badge-orange{background:var(--orange-bg);color:var(--orange);border:1px solid rgba(249,115,22,0.3)}
 
-/* Character Grid */
-.char-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-.char-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 6px;
-  background: var(--card);
-  border: 2px solid transparent;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.char-option:hover { background: var(--card-hover); }
-.char-option.selected {
-  border-color: var(--gold);
-  background: rgba(246,195,67,0.1);
-}
-.char-name { font-size: 9px; color: var(--text-muted); margin-top: 6px; }
+.economy-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--card-border)}
+.economy-phase{display:flex;align-items:center;gap:8px;font-size:12px}
+.economy-dot{width:10px;height:10px;border-radius:50%}
+.economy-dot.boom{background:var(--green);box-shadow:0 0 8px var(--green)}
+.economy-dot.stable{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.economy-dot.recession{background:var(--red);box-shadow:0 0 8px var(--red)}
+.economy-dot.recovery{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
 
-/* ============ PIXEL CHARACTER ============ */
-.pixel-char {
-  image-rendering: pixelated;
-  border-radius: 6px;
-  background: rgba(0,0,0,0.3);
-  border: 2px solid var(--gold-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.pixel-char.sm { width: 32px; height: 42px; border-width: 1px; }
-.pixel-char.md { width: 48px; height: 64px; }
-.pixel-char.lg { width: 72px; height: 96px; border-width: 3px; }
-.pixel-char.xl { width: 96px; height: 128px; border-width: 3px; }
+.family-bar{background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--card-border);padding:10px 12px}
+.family-header{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px}
+.family-kids{display:flex;flex-wrap:wrap;gap:6px}
+.kid-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);padding:6px 10px;border-radius:8px;font-size:11px}
+.kid-invested{color:var(--gold);font-weight:600}
 
-/* ============ GAME SCREEN ============ */
-.player-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--card);
-  border-radius: var(--radius);
-  border: 1px solid var(--card-border);
-}
-.player-info { flex: 1; min-width: 0; }
-.player-name {
-  font-size: 16px;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.player-meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-.player-meta-item {
-  font-size: 11px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.gen-badge {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 6px 12px;
-  border-radius: 8px;
-}
+.jail-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));border:1px solid var(--red);border-radius:var(--radius-sm)}
+.jail-icon{font-size:24px}
+.jail-info{flex:1;font-size:13px;font-weight:600}
+.jail-time{font-size:14px;font-weight:800;color:var(--red)}
 
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 10px 8px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.stat-card:hover { background: var(--card-hover); }
-.stat-card.clickable { cursor: pointer; }
-.stat-icon { font-size: 14px; margin-bottom: 2px; }
-.stat-value { font-size: 15px; font-weight: 800; }
-.stat-value.positive { color: var(--green); }
-.stat-value.negative { color: var(--red); }
-.stat-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
-.stat-bar {
-  height: 4px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 2px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-.stat-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.3s ease;
-}
+.card-area{position:relative;height:300px;margin:8px 0;perspective:1000px}
+.swipe-card{position:absolute;inset:0;background:linear-gradient(145deg,var(--card) 0%,#1a1a35 100%);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;cursor:grab;touch-action:none;transition:transform 0.15s ease,box-shadow 0.15s ease}
+.swipe-card:active{cursor:grabbing}
+.swipe-card.swipe-left{border-color:var(--red);box-shadow:-4px 0 20px rgba(239,68,68,0.3)}
+.swipe-card.swipe-right{border-color:var(--green);box-shadow:4px 0 20px rgba(16,185,129,0.3)}
 
-/* Badges Row */
-.badges-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
-.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-.badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
-.badge-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); }
-.badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+.swipe-card.trap{border-left:4px solid var(--orange);background:linear-gradient(145deg,#2a1a10 0%,#1a1a25 100%)}
+.swipe-card.crime{border-left:4px solid var(--red);background:linear-gradient(145deg,#2a1515 0%,#1a1a25 100%)}
+.swipe-card.jail{border-left:4px solid #666;background:linear-gradient(145deg,#1a1a1a 0%,#0a0a0a 100%)}
+.swipe-card.business{border-left:4px solid var(--purple)}
+.swipe-card.opportunity{border-left:4px solid var(--green)}
+.swipe-card.danger{border-left:4px solid var(--red)}
 
-/* Economy Bar */
-.economy-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: var(--card);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--card-border);
-}
-.economy-phase {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-.economy-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-.economy-dot.boom { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.economy-dot.stable { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
-.economy-dot.recession { background: var(--red); box-shadow: 0 0 8px var(--red); }
-.economy-dot.recovery { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
-.economy-income {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--gold);
-}
+.card-category{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.card-icon{font-size:36px;line-height:1}
+.card-title{font-size:20px;font-weight:900;margin-top:4px;line-height:1.2}
+.card-desc{font-size:13px;color:var(--text-muted);line-height:1.5;flex:1;margin-top:8px}
+.card-warning{font-size:11px;color:var(--orange);margin-top:8px;padding:8px;background:var(--orange-bg);border-radius:6px;display:flex;align-items:center;gap:6px}
 
-/* Family Bar */
-.family-bar {
-  background: var(--card);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--card-border);
-  padding: 10px 12px;
-}
-.family-header {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.family-kids {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.kid-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--card-border);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 11px;
-}
-.kid-invested {
-  color: var(--gold);
-  font-weight: 600;
-}
+.card-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}
+.card-choice{padding:12px;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:var(--radius-sm)}
+.card-choice.left{border-top:3px solid var(--red)}
+.card-choice.right{border-top:3px solid var(--green)}
+.card-choice.trap-right{border-top:3px solid var(--orange)}
+.choice-label{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px}
+.choice-effect{font-size:10px;color:var(--text-dim);margin-top:4px;line-height:1.3}
 
-/* Jail Bar */
-.jail-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
-  border: 1px solid var(--red);
-  border-radius: var(--radius-sm);
-}
-.jail-icon { font-size: 24px; }
-.jail-info { flex: 1; font-size: 13px; font-weight: 600; }
-.jail-time { font-size: 14px; font-weight: 800; color: var(--red); }
+.action-buttons{display:flex;gap:12px;justify-content:center;padding:8px 0}
+.action-btn{width:64px;height:64px;border-radius:50%;border:none;font-size:24px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.action-btn.no{background:linear-gradient(135deg,#3a1515,#2a0f0f);border:2px solid var(--red);color:var(--red)}
+.action-btn.yes{background:linear-gradient(135deg,#153a1a,#0f2a12);border:2px solid var(--green);color:var(--green)}
+.action-btn:hover{transform:scale(1.1)}
+.action-btn:active{transform:scale(0.95)}
 
-/* ============ SWIPE CARD ============ */
-.card-area {
-  position: relative;
-  height: 280px;
-  margin: 8px 0;
-  perspective: 1000px;
-}
-.swipe-card {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(145deg, var(--card) 0%, #1a1a35 100%);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  cursor: grab;
-  touch-action: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.swipe-card:active { cursor: grabbing; }
-.swipe-card.swipe-left {
-  border-color: var(--red);
-  box-shadow: -4px 0 20px rgba(239,68,68,0.3);
-}
-.swipe-card.swipe-right {
-  border-color: var(--green);
-  box-shadow: 4px 0 20px rgba(16,185,129,0.3);
-}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;padding:12px;z-index:100;animation:fadeIn 0.2s ease}
+.modal{width:100%;max-width:440px;max-height:85vh;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius) var(--radius) 0 0;padding:20px;overflow-y:auto;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:18px;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:var(--text-muted);font-size:18px;cursor:pointer}
+.modal-divider{height:1px;background:var(--card-border);margin:16px 0}
 
-/* Card Types */
-.swipe-card.event { border-left: 4px solid var(--blue); }
-.swipe-card.poverty { border-left: 4px solid var(--yellow); }
-.swipe-card.crime { border-left: 4px solid var(--red); background: linear-gradient(145deg, #2a1515 0%, #1a1a25 100%); }
-.swipe-card.jail { border-left: 4px solid #666; background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 100%); }
-.swipe-card.business { border-left: 4px solid var(--purple); }
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+.toggle{width:48px;height:28px;border-radius:14px;background:rgba(255,255,255,0.15);border:none;cursor:pointer;position:relative;transition:all 0.2s}
+.toggle.on{background:var(--gold)}
+.toggle-knob{width:22px;height:22px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:all 0.2s;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+.toggle.on .toggle-knob{left:23px}
 
-.card-category {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-.card-icon {
-  font-size: 36px;
-  line-height: 1;
-}
-.card-title {
-  font-size: 20px;
-  font-weight: 900;
-  margin-top: 4px;
-  line-height: 1.2;
-}
-.card-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  flex: 1;
-  margin-top: 8px;
-}
+.debt-amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 
-.card-choices {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: auto;
-}
-.card-choice {
-  padding: 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-}
-.card-choice.left { border-top: 3px solid var(--red); }
-.card-choice.right { border-top: 3px solid var(--green); }
-.choice-label {
-  font-size: 12px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.choice-effect {
-  font-size: 10px;
-  color: var(--text-dim);
-  margin-top: 4px;
-  line-height: 1.3;
-}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--card-border);padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;box-shadow:var(--shadow);z-index:200;animation:toastIn 0.3s ease}
+.toast.positive{border-color:var(--green);color:var(--green)}
+.toast.negative{border-color:var(--red);color:var(--red)}
+.toast.warning{border-color:var(--orange);color:var(--orange)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* Event Card Effects */
-.event-effects {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 12px;
-}
-.effect-tag {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-.effect-tag.positive { background: var(--green-bg); color: var(--green); }
-.effect-tag.negative { background: var(--red-bg); color: var(--red); }
+.achievement-popup{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#000;padding:14px 24px;border-radius:var(--radius-sm);font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-gold);z-index:200;animation:achievementIn 0.5s ease}
+@keyframes achievementIn{0%{opacity:0;transform:translateX(-50%) translateY(-50px) scale(0.8)}50%{transform:translateX(-50%) translateY(0) scale(1.1)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.achievement-icon{font-size:24px}
 
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  padding: 8px 0;
-}
-.action-btn {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.action-btn.no {
-  background: linear-gradient(135deg, #3a1515, #2a0f0f);
-  border: 2px solid var(--red);
-  color: var(--red);
-}
-.action-btn.yes {
-  background: linear-gradient(135deg, #153a1a, #0f2a12);
-  border: 2px solid var(--green);
-  color: var(--green);
-}
-.action-btn:hover { transform: scale(1.1); }
-.action-btn:active { transform: scale(0.95); }
+.end-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:16px;padding:20px}
+.end-icon{font-size:72px}
+.end-title{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--gold-light),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.end-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:300px}
+.end-stat{background:var(--card);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--card-border)}
+.end-stat-value{font-size:18px;font-weight:800}
+.end-stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase}
 
-/* ============ MODALS ============ */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 12px;
-  z-index: 100;
-  animation: fadeIn 0.2s ease;
-}
-.modal {
-  width: 100%;
-  max-width: 440px;
-  max-height: 85vh;
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius) var(--radius) 0 0;
-  padding: 20px;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-}
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.modal-title {
-  font-size: 18px;
-  font-weight: 800;
-}
-.modal-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.1);
-  border: none;
-  color: var(--text-muted);
-  font-size: 18px;
-  cursor: pointer;
-}
-.modal-divider {
-  height: 1px;
-  background: var(--card-border);
-  margin: 16px 0;
-}
-
-/* Settings Modal */
-.setting-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-}
-.toggle {
-  width: 48px;
-  height: 28px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.15);
-  border: none;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s;
-}
-.toggle.on { background: var(--gold); }
-.toggle-knob {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #fff;
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-.toggle.on .toggle-knob { left: 23px; }
-
-/* Debt Modal */
-.debt-amounts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-/* ============ TOAST ============ */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  padding: 12px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  box-shadow: var(--shadow);
-  z-index: 200;
-  animation: toastIn 0.3s ease;
-}
-.toast.positive { border-color: var(--green); color: var(--green); }
-.toast.negative { border-color: var(--red); color: var(--red); }
-@keyframes toastIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-/* Achievement Popup */
-.achievement-popup {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  padding: 14px 24px;
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: var(--shadow-gold);
-  z-index: 200;
-  animation: achievementIn 0.5s ease;
-}
-@keyframes achievementIn {
-  0% { opacity: 0; transform: translateX(-50%) translateY(-50px) scale(0.8); }
-  50% { transform: translateX(-50%) translateY(0) scale(1.1); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-}
-.achievement-icon { font-size: 24px; }
-
-/* ============ DYNASTY SCREEN ============ */
-.dynasty-tree {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.dynasty-member {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-}
-.dynasty-member.current {
-  border-color: var(--gold);
-  background: rgba(246,195,67,0.05);
-}
-
-/* ============ END SCREEN ============ */
-.end-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-  gap: 16px;
-  padding: 20px;
-}
-.end-icon { font-size: 72px; }
-.end-title {
-  font-size: 28px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--gold-light), var(--gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.end-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  width: 100%;
-  max-width: 300px;
-}
-.end-stat {
-  background: var(--card);
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--card-border);
-}
-.end-stat-value { font-size: 18px; font-weight: 800; }
-.end-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
-
-/* Animations */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  75% { transform: translateX(8px); }
-}
-.shake { animation: shake 0.3s ease; }
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-.pulse { animation: pulse 1.5s ease infinite; }
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shake{animation:shake 0.3s ease}
 </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
 // ============================================
-// SOUND SYSTEM
+// JAZZ MUSIC SYSTEM
 // ============================================
-class SFX {
+class JazzSFX {
   constructor() {
     this.ctx = null;
     this.on = true;
     this.musicOn = true;
     this.loop = null;
+    this.bassLoop = null;
   }
   
   init() {
@@ -925,58 +258,100 @@ class SFX {
   
   tone(freq, dur = 0.1, type = 'sine', vol = 0.08, delay = 0) {
     if (!this.ctx || !this.on) return;
-    const o = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    const t = this.ctx.currentTime + delay;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g);
-    g.connect(this.ctx.destination);
-    o.start(t);
-    o.stop(t + dur);
+    try {
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      const t = this.ctx.currentTime + delay;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g);
+      g.connect(this.ctx.destination);
+      o.start(t);
+      o.stop(t + dur + 0.1);
+    } catch(e) {}
   }
   
-  click() { this.tone(600, 0.03, 'sine', 0.06); }
-  yes() { this.tone(523, 0.08); this.tone(659, 0.08, 'sine', 0.08, 0.06); this.tone(784, 0.1, 'sine', 0.07, 0.12); }
-  no() { this.tone(330, 0.08); this.tone(294, 0.1, 'sine', 0.08, 0.06); }
-  draw() { this.tone(880, 0.03, 'sine', 0.05); }
-  good() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.1, 'sine', 0.07, i * 0.04)); }
-  bad() { this.tone(220, 0.15, 'triangle', 0.08); this.tone(196, 0.2, 'triangle', 0.06, 0.1); }
-  money() { this.tone(1047, 0.06); this.tone(1318, 0.08, 'sine', 0.07, 0.04); }
-  debt() { this.tone(175, 0.2, 'triangle', 0.08); }
-  ach() { [523, 659, 784, 1047, 1318].forEach((f, i) => this.tone(f, 0.12, 'sine', 0.08, i * 0.06)); }
-  lvl() { this.tone(392, 0.15); this.tone(523, 0.15, 'sine', 0.1, 0.12); this.tone(659, 0.2, 'sine', 0.1, 0.24); }
-  marry() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.15, 'sine', 0.08, i * 0.1)); }
-  baby() { this.tone(880, 0.08); this.tone(1047, 0.08, 'sine', 0.08, 0.06); this.tone(1318, 0.1, 'sine', 0.07, 0.12); }
-  crime() { this.tone(196, 0.12, 'sawtooth', 0.06); this.tone(175, 0.15, 'sawtooth', 0.05, 0.1); }
-  caught() { this.tone(150, 0.25, 'square', 0.1); this.tone(110, 0.3, 'square', 0.08, 0.2); }
-  free() { this.tone(392, 0.12); this.tone(523, 0.12, 'sine', 0.1, 0.1); this.tone(659, 0.15, 'sine', 0.1, 0.2); }
+  // Jazz chord with slight detuning for warmth
+  jazzChord(notes, dur = 0.4, vol = 0.025) {
+    notes.forEach((n, i) => {
+      this.tone(n, dur, 'sine', vol, i * 0.008);
+      this.tone(n * 1.002, dur * 0.8, 'sine', vol * 0.3, i * 0.008); // slight detune
+    });
+  }
   
-  startMusic() {
+  // Sound effects
+  click() { this.tone(600, 0.03, 'sine', 0.06); }
+  yes() { this.tone(523, 0.08); this.tone(659, 0.08, 'sine', 0.07, 0.06); this.tone(784, 0.1, 'sine', 0.06, 0.12); }
+  no() { this.tone(330, 0.08); this.tone(294, 0.12, 'sine', 0.07, 0.06); }
+  draw() { this.tone(880, 0.04, 'sine', 0.05); }
+  good() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.12, 'sine', 0.06, i * 0.05)); }
+  bad() { this.tone(220, 0.2, 'triangle', 0.08); this.tone(196, 0.25, 'triangle', 0.06, 0.12); }
+  money() { this.tone(1047, 0.06); this.tone(1318, 0.08, 'sine', 0.06, 0.04); }
+  trap() { this.tone(220, 0.15, 'sawtooth', 0.06); this.tone(277, 0.12, 'sawtooth', 0.05, 0.08); }
+  ach() { [523, 659, 784, 1047, 1318].forEach((f, i) => this.tone(f, 0.14, 'sine', 0.07, i * 0.07)); }
+  lvl() { this.tone(392, 0.18); this.tone(523, 0.18, 'sine', 0.09, 0.14); this.tone(659, 0.22, 'sine', 0.09, 0.28); }
+  marry() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.18, 'sine', 0.07, i * 0.12)); }
+  baby() { this.tone(880, 0.1); this.tone(1047, 0.1, 'sine', 0.07, 0.08); }
+  crime() { this.tone(196, 0.15, 'sawtooth', 0.06); this.tone(175, 0.18, 'sawtooth', 0.05, 0.12); }
+  caught() { this.tone(150, 0.3, 'square', 0.09); this.tone(110, 0.35, 'square', 0.07, 0.25); }
+  free() { this.tone(392, 0.15); this.tone(523, 0.15, 'sine', 0.09, 0.12); this.tone(659, 0.18, 'sine', 0.09, 0.24); }
+  lose() { [294, 262, 220, 196].forEach((f, i) => this.tone(f, 0.2, 'triangle', 0.07, i * 0.15)); }
+  
+  // Jazz background music - ii-V-I progressions
+  startJazz() {
     if (!this.ctx || !this.musicOn || this.loop) return;
-    const chords = [[262, 330, 392], [294, 370, 440], [330, 415, 494], [294, 370, 440]];
-    const bass = [65, 73, 82, 73];
-    let i = 0;
+    
+    // Jazz chord progressions (Dm7 - G7 - Cmaj7 - Am7)
+    const progressions = [
+      [[293, 349, 440, 523], [392, 494, 587, 698], [262, 330, 392, 494], [220, 262, 330, 415]], // ii-V-I-vi
+      [[349, 440, 523, 659], [392, 494, 587, 698], [262, 330, 392, 494], [293, 349, 440, 523]], // IV-V-I-ii
+      [[220, 262, 330, 415], [293, 349, 440, 523], [392, 494, 587, 698], [262, 330, 392, 494]], // vi-ii-V-I
+    ];
+    
+    const bassNotes = [
+      [147, 196, 131, 110], // D-G-C-A
+      [175, 196, 131, 147], // F-G-C-D
+      [110, 147, 196, 131], // A-D-G-C
+    ];
+    
+    let prog = 0;
+    let beat = 0;
+    
     this.loop = setInterval(() => {
       if (!this.musicOn) return;
-      this.tone(bass[i % bass.length], 0.25, 'triangle', 0.03);
-      chords[i % chords.length].forEach((f, ix) => this.tone(f, 0.2, 'sine', 0.02, ix * 0.02));
-      i++;
-    }, 500);
+      
+      const chords = progressions[prog % progressions.length];
+      const bass = bassNotes[prog % bassNotes.length];
+      
+      // Play chord
+      this.jazzChord(chords[beat % 4], 0.5, 0.018);
+      
+      // Walking bass
+      this.tone(bass[beat % 4], 0.35, 'triangle', 0.04);
+      
+      // Occasional piano run
+      if (Math.random() < 0.15) {
+        const run = [523, 587, 659, 698, 784];
+        run.forEach((n, i) => this.tone(n, 0.08, 'sine', 0.015, i * 0.06));
+      }
+      
+      beat++;
+      if (beat % 4 === 0) prog++;
+    }, 600);
   }
   
-  stopMusic() {
+  stopJazz() {
     if (this.loop) { clearInterval(this.loop); this.loop = null; }
   }
   
-  toggleMusic(v) { this.musicOn = v; v ? this.startMusic() : this.stopMusic(); }
+  toggleMusic(v) { this.musicOn = v; v ? this.startJazz() : this.stopJazz(); }
   toggleSFX(v) { this.on = v; }
 }
 
-const sfx = new SFX();
+const sfx = new JazzSFX();
 
 // ============================================
 // UTILITIES
@@ -1022,20 +397,29 @@ const CHAR_STYLES = {
   ],
 };
 
+// YEARLY salaries and expenses
 const CAREERS = [
-  { id: 'trades', icon: '🔧', name: 'Trades', desc: 'Electrician, Plumber', start: 3200, cap: 7500, edu: 12000, time: 2 },
-  { id: 'business', icon: '💼', name: 'Business', desc: 'Sales, Management', start: 3000, cap: 12000, edu: 50000, time: 4 },
-  { id: 'tech', icon: '💻', name: 'Tech', desc: 'Software, IT', start: 4500, cap: 15000, edu: 60000, time: 4 },
-  { id: 'healthcare', icon: '🏥', name: 'Healthcare', desc: 'Nursing, Therapy', start: 3800, cap: 9000, edu: 45000, time: 4 },
-  { id: 'creative', icon: '🎨', name: 'Creative', desc: 'Design, Media', start: 2500, cap: 20000, edu: 40000, time: 4 },
-  { id: 'finance', icon: '📊', name: 'Finance', desc: 'Banking, Investing', start: 4000, cap: 18000, edu: 70000, time: 4 },
+  { id: 'trades', icon: '🔧', name: 'Trades', desc: 'Electrician, Plumber', salary: 48000, cap: 85000, edu: 15000, time: 2 },
+  { id: 'business', icon: '💼', name: 'Business', desc: 'Sales, Management', salary: 42000, cap: 120000, edu: 55000, time: 4 },
+  { id: 'tech', icon: '💻', name: 'Tech', desc: 'Software, IT', salary: 65000, cap: 180000, edu: 70000, time: 4 },
+  { id: 'healthcare', icon: '🏥', name: 'Healthcare', desc: 'Nursing, Therapy', salary: 52000, cap: 95000, edu: 50000, time: 4 },
+  { id: 'creative', icon: '🎨', name: 'Creative', desc: 'Design, Media', salary: 38000, cap: 150000, edu: 45000, time: 4 },
+  { id: 'finance', icon: '📊', name: 'Finance', desc: 'Banking, Investing', salary: 58000, cap: 200000, edu: 80000, time: 4 },
 ];
 
+// YEARLY expenses
+const EXPENSES = {
+  parents: { housing: 3600, name: 'Living with Parents' },
+  rent: { housing: 18000, name: 'Renting' },
+  own: { housing: 24000, name: 'Homeowner' },
+  base: { food: 6000, transport: 4800, utilities: 2400, insurance: 3600, misc: 3600 }, // 20,400/year base
+};
+
 const ECONOMY = [
-  { id: 'boom', name: 'Bull Market', color: 'boom', invMult: 1.015, jobRisk: 0.02 },
-  { id: 'stable', name: 'Stable', color: 'stable', invMult: 1.005, jobRisk: 0.05 },
-  { id: 'recession', name: 'Recession', color: 'recession', invMult: 0.985, jobRisk: 0.12 },
-  { id: 'recovery', name: 'Recovery', color: 'recovery', invMult: 1.008, jobRisk: 0.07 },
+  { id: 'boom', name: 'Bull Market', color: 'boom', invMult: 1.12, salaryMult: 1.03, expenseMult: 1.02 },
+  { id: 'stable', name: 'Stable', color: 'stable', invMult: 1.06, salaryMult: 1.01, expenseMult: 1.01 },
+  { id: 'recession', name: 'Recession', color: 'recession', invMult: 0.88, salaryMult: 0.98, expenseMult: 1.04 },
+  { id: 'recovery', name: 'Recovery', color: 'recovery', invMult: 1.08, salaryMult: 1.02, expenseMult: 1.01 },
 ];
 
 const ACHIEVEMENTS = [
@@ -1057,388 +441,426 @@ const KID_NAMES = {
 };
 
 // ============================================
-// CARD GENERATOR
+// CARD GENERATOR - WITH TRAP CARDS
 // ============================================
-const generateCard = (st, ch, econ, hidden) => {
+const generateCard = (st, ch, econ, year) => {
   const cards = [];
-  const poor = st.cash < 500 && st.income < 2500;
-  const veryPoor = st.cash < 100 && st.income < 2000;
+  const poor = st.cash < 2000 && st.salary < 45000;
+  const veryPoor = st.cash < 500;
+  const wealthy = st.cash > 50000;
   const careerData = CAREERS.find(c => c.id === ch.career) || CAREERS[0];
+  const canRaise = st.salary < careerData.cap;
   
-  // JAIL - Override everything
+  // ========== JAIL OVERRIDE ==========
   if (ch.inJail && ch.jailTime > 0) {
     return {
       key: 'jail_serve',
       cat: '⛓️ Jail',
       icon: '🔒',
       title: 'Behind Bars',
-      desc: `${ch.jailTime} year${ch.jailTime > 1 ? 's' : ''} remaining. Serve your time.`,
+      desc: `${ch.jailTime} year${ch.jailTime > 1 ? 's' : ''} remaining. No income while incarcerated.`,
       type: 'jail',
-      isEvent: false,
-      left: { label: 'Serve Time', effect: '-1 Year, -10 Happy', imp: { happy: -10 }, serveTime: true },
-      right: { label: 'Serve Time', effect: '-1 Year, -10 Happy', imp: { happy: -10 }, serveTime: true },
+      left: { label: 'Serve Time', effect: '-1 Year, -$0 income', imp: { happy: -10 }, serveTime: true },
+      right: { label: 'Serve Time', effect: '-1 Year, -$0 income', imp: { happy: -10 }, serveTime: true },
     };
   }
   
-  // POVERTY BENEFITS
+  // ========== TRAP CARDS (Look good, are bad) ==========
+  
+  // Payday Loan Trap
+  if (poor && Math.random() < 0.3) {
+    cards.push({
+      key: 'trap_payday',
+      cat: '⚠️ "Opportunity"',
+      icon: '💸',
+      title: 'Quick Cash Loan!',
+      desc: 'Get $2,000 TODAY! No credit check! "Easy" weekly payments.',
+      type: 'trap',
+      isTrap: true,
+      warning: '⚠️ 400% APR hidden in fine print',
+      left: { label: 'Decline', effect: 'Keep looking for real solutions', imp: { happy: -2 } },
+      right: { label: 'Get Cash!', effect: '+$2K now, +$8K debt (trap!)', imp: { cash: 2000, debt: 8000, credit: -30 }, trapEffect: true },
+    });
+  }
+  
+  // MLM Trap
+  if (Math.random() < 0.2) {
+    cards.push({
+      key: 'trap_mlm',
+      cat: '⚠️ "Business Opportunity"',
+      icon: '🎯',
+      title: 'Be Your Own Boss!',
+      desc: 'Join my team! Unlimited income potential! Just need $3,000 starter kit.',
+      type: 'trap',
+      isTrap: true,
+      warning: '⚠️ 99% of MLM participants lose money',
+      left: { label: 'No Thanks', effect: '+5 Wisdom', imp: { happy: 2 } },
+      right: { label: 'Sign Me Up!', effect: '-$3K, false hope', imp: { cash: -3000, happy: -15 }, trapEffect: true },
+    });
+  }
+  
+  // Crypto Scam
+  if (st.cash > 1000 && Math.random() < 0.2) {
+    cards.push({
+      key: 'trap_crypto',
+      cat: '⚠️ "Investment"',
+      icon: '🚀',
+      title: 'GUARANTEED 10X Returns!',
+      desc: 'New crypto coin "SafeMoonRocket" - early investors get rich! DM for details.',
+      type: 'trap',
+      isTrap: true,
+      warning: '⚠️ If it sounds too good to be true...',
+      left: { label: 'Scam Alert', effect: 'Dodged a bullet', imp: { happy: 3 } },
+      right: { label: 'YOLO!', effect: 'Lose it all', imp: { cash: -Math.min(st.cash * 0.5, 5000) }, trapEffect: true },
+    });
+  }
+  
+  // Lifestyle Inflation Trap
+  if (st.salary > 60000 && Math.random() < 0.25) {
+    cards.push({
+      key: 'trap_lifestyle',
+      cat: '⚠️ Lifestyle',
+      icon: '🏎️',
+      title: 'You Deserve It!',
+      desc: 'Luxury car lease - only $800/month! Show everyone you made it!',
+      type: 'trap',
+      isTrap: true,
+      warning: '⚠️ $9,600/year for depreciating asset',
+      left: { label: 'Stay Humble', effect: '+10 Happy (real)', imp: { happy: 10 } },
+      right: { label: 'Flex Time', effect: '-$9.6K/yr expense forever', imp: { expenses: 9600, happy: 5, credit: -5 }, addExpense: { type: 'car', amount: 9600 } },
+    });
+  }
+  
+  // Timeshare Trap
+  if (st.cash > 5000 && Math.random() < 0.15) {
+    cards.push({
+      key: 'trap_timeshare',
+      cat: '⚠️ "Vacation Deal"',
+      icon: '🏖️',
+      title: 'FREE Vacation! Just Attend...',
+      desc: 'Free weekend getaway! Just sit through a "brief" presentation. What could go wrong?',
+      type: 'trap',
+      isTrap: true,
+      warning: '⚠️ High-pressure sales tactics ahead',
+      left: { label: 'Hard Pass', effect: 'Sanity preserved', imp: {} },
+      right: { label: 'Free Trip!', effect: '-$15K timeshare, +$2.4K/yr fees', imp: { cash: -15000, expenses: 2400 }, addExpense: { type: 'timeshare', amount: 2400 } },
+    });
+  }
+  
+  // Extended Warranty Trap
+  if (Math.random() < 0.2) {
+    cards.push({
+      key: 'trap_warranty',
+      cat: '⚠️ "Protection"',
+      icon: '📋',
+      title: 'Extended Warranty Expiring!',
+      desc: "Your car's warranty is expiring! (It's not) Act NOW or face huge repair bills!",
+      type: 'trap',
+      isTrap: true,
+      left: { label: 'Hang Up', effect: 'Peace of mind', imp: { happy: 1 } },
+      right: { label: 'Better Safe...', effect: '-$2K for nothing', imp: { cash: -2000 }, trapEffect: true },
+    });
+  }
+  
+  // Rent-to-Own Trap
+  if (poor && Math.random() < 0.25) {
+    cards.push({
+      key: 'trap_renttoown',
+      cat: '⚠️ "Affordable"',
+      icon: '📺',
+      title: 'New TV - Only $20/week!',
+      desc: 'Rent-to-own! No credit check! Take it home today! (Total: $2,400 for $600 TV)',
+      type: 'trap',
+      isTrap: true,
+      warning: '⚠️ 300% markup',
+      left: { label: 'Save Up Instead', effect: '+2 Discipline', imp: { happy: 2 } },
+      right: { label: 'I Want It Now', effect: '-$2.4K over time', imp: { debt: 2400, happy: 5 }, trapEffect: true },
+    });
+  }
+  
+  // ========== REAL OPPORTUNITIES ==========
+  
+  // Legitimate raise (requires good performance)
+  if (canRaise && !ch.record && ch.performance >= 70 && Math.random() < 0.3) {
+    const raise = rand(3000, 8000);
+    cards.push({
+      key: 'career_raise',
+      cat: '💼 Career',
+      icon: '📈',
+      title: 'Performance Review',
+      desc: `Your hard work paid off. ${raise > 5000 ? 'Significant' : 'Modest'} raise offered.`,
+      type: 'opportunity',
+      left: { label: 'Decline', effect: 'Stay comfortable', imp: {} },
+      right: { label: 'Accept', effect: `+${fmt(raise)}/yr salary`, imp: { salary: raise, happy: 8 } },
+    });
+  }
+  
+  // Side hustle (real work required)
+  if (Math.random() < 0.25) {
+    const extra = rand(2000, 6000);
+    cards.push({
+      key: 'work_sidehustle',
+      cat: '💼 Work',
+      icon: '🌙',
+      title: 'Freelance Opportunity',
+      desc: `${extra > 4000 ? 'Major' : 'Small'} project available. Requires evenings/weekends.`,
+      left: { label: 'Too Busy', effect: '+5 Health, +5 Happy', imp: { health: 5, happy: 5 } },
+      right: { label: 'Take It', effect: `+${fmt(extra)} one-time, -10 Health`, imp: { cash: extra, health: -10, happy: -3 } },
+    });
+  }
+  
+  // ========== POVERTY CARDS ==========
+  
   if (veryPoor && !ch.foodStamps) {
     cards.push({
       key: 'benefit_snap',
       cat: '🏛️ Benefits',
       icon: '🍎',
       title: 'SNAP Benefits',
-      desc: 'You qualify for food assistance. It can help stabilize your situation.',
-      type: 'poverty',
-      left: { label: 'Decline', effect: '-10 Happy, keep pride', imp: { happy: -10 } },
-      right: { label: 'Apply', effect: '+$300/mo saved', imp: { income: 300, happy: 5 }, setFoodStamps: true },
+      desc: 'You qualify for food assistance. Saves ~$3,600/year on groceries.',
+      type: 'opportunity',
+      left: { label: 'Decline', effect: 'Keep struggling', imp: { happy: -5 } },
+      right: { label: 'Apply', effect: '-$3.6K/yr food costs', imp: { happy: 8, expenses: -3600 }, setFoodStamps: true },
     });
   }
   
-  if (poor && ch.housing === 'rent' && !ch.section8) {
+  if (poor && ch.housing === 'rent' && !ch.section8 && Math.random() < 0.3) {
     cards.push({
       key: 'benefit_section8',
       cat: '🏛️ Benefits',
       icon: '🏠',
-      title: 'Section 8 Housing',
-      desc: 'Housing assistance can significantly reduce your monthly burden.',
-      type: 'poverty',
+      title: 'Section 8 Waitlist',
+      desc: 'Housing assistance available. Long waitlist but worth it.',
       left: { label: 'Skip', effect: 'No change', imp: {} },
-      right: { label: 'Apply', effect: '+$600/mo saved', imp: { income: 600, happy: 8 }, setSection8: true },
+      right: { label: 'Apply', effect: '-$7.2K/yr housing (eventually)', imp: { happy: 5 }, setSection8: true },
     });
   }
   
-  // POVERTY JOBS
-  if (poor && st.income < 3000) {
-    cards.push({
-      key: 'work_jobfair',
-      cat: '💼 Work',
-      icon: '🎪',
-      title: 'Job Fair',
-      desc: 'Community job fair with multiple employers looking to hire.',
-      type: 'poverty',
-      left: { label: 'Skip', effect: 'No change', imp: {} },
-      right: { label: 'Attend', effect: '+$300/mo, +8 Happy', imp: { income: 300, happy: 8 } },
-    });
-  }
+  // ========== CRIME CARDS ==========
   
-  if (poor) {
-    cards.push({
-      key: 'work_temp',
-      cat: '💼 Work',
-      icon: '🏭',
-      title: 'Temp Staffing',
-      desc: 'Temp agency has immediate work. Long hours but steady income.',
-      type: 'poverty',
-      left: { label: 'Pass', effect: 'Rest', imp: { health: 3 } },
-      right: { label: 'Work', effect: '+$200/mo, -5 Health', imp: { income: 200, health: -5 } },
-    });
-  }
-  
-  if (veryPoor) {
-    cards.push({
-      key: 'work_daylabor',
-      cat: '💼 Work',
-      icon: '📦',
-      title: 'Day Labor',
-      desc: 'Moving company needs help today. Cash under table.',
-      type: 'poverty',
-      left: { label: 'Pass', effect: 'No change', imp: {} },
-      right: { label: 'Work', effect: '+$150 cash, -8 Health', imp: { cash: 150, health: -8 } },
-    });
-  }
-  
-  // CRIME (Only when desperate)
-  if (poor && hidden.stress > 40) {
+  if (poor && Math.random() < 0.2) {
     cards.push({
       key: 'crime_quick',
       cat: '⚠️ Risk',
       icon: '💰',
       title: 'Quick Money',
-      desc: 'Friend offers easy cash. Selling "stuff". Risky but tempting...',
+      desc: 'Someone offers easy cash. You know it\'s not legal.',
       type: 'crime',
-      left: { label: 'Walk Away', effect: '+5 Discipline', imp: { happy: 2 }, addDiscipline: 5 },
-      right: { label: 'Do It', effect: '+$800 (25% caught)', crime: { reward: 800, risk: 0.25, jail: 2 } },
-    });
-    
-    cards.push({
-      key: 'crime_register',
-      cat: '⚠️ Risk',
-      icon: '🏪',
-      title: 'Desperate Times',
-      desc: 'You could take from the register... No one would know.',
-      type: 'crime',
-      left: { label: 'Stay Honest', effect: '+3 Happy', imp: { happy: 3 }, addDiscipline: 3 },
-      right: { label: 'Take It', effect: '+$300 (35% caught)', crime: { reward: 300, risk: 0.35, jail: 1 } },
+      left: { label: 'Walk Away', effect: '+5 Happy, clean conscience', imp: { happy: 5 } },
+      right: { label: 'Do It', effect: '+$3K (30% caught)', crime: { reward: 3000, risk: 0.30, jail: 2 } },
     });
   }
   
-  if (poor && st.debt > 10000) {
+  if (st.debt > 20000 && Math.random() < 0.15) {
     cards.push({
       key: 'crime_fraud',
       cat: '⚠️ Risk',
       icon: '💳',
-      title: 'Fraud Scheme',
-      desc: 'Someone offers to "clear" your debt illegally.',
+      title: 'Debt "Solution"',
+      desc: 'Someone offers to make your debt "disappear". Definitely illegal.',
       type: 'crime',
-      left: { label: 'Refuse', effect: '+5 Discipline', imp: {}, addDiscipline: 5 },
-      right: { label: 'Do It', effect: 'Clear $15K debt (40% caught)', crime: { debtClear: 15000, risk: 0.40, jail: 3 } },
+      left: { label: 'Do It Right', effect: 'Keep your integrity', imp: { happy: 3 } },
+      right: { label: 'Do It', effect: 'Clear $20K debt (40% caught)', crime: { debtClear: 20000, risk: 0.40, jail: 3 } },
     });
   }
   
-  // CAREER
-  if (!ch.record && st.income < careerData.cap && Math.random() < 0.3) {
-    const raise = rand(300, 600);
-    cards.push({
-      key: 'career_promo',
-      cat: '💼 Career',
-      icon: '📈',
-      title: 'Promotion',
-      desc: 'Management recognizes your work. Better title, better pay.',
-      left: { label: 'Decline', effect: '+5 Happy', imp: { happy: 5 } },
-      right: { label: 'Accept', effect: `+$${raise}/mo, +10 Happy`, imp: { income: raise, happy: 10 } },
-    });
-  }
+  // ========== HEALTH CARDS ==========
   
-  if (ch.record && Math.random() < 0.4) {
+  if (st.health < 50) {
     cards.push({
-      key: 'career_bgcheck',
-      cat: '💼 Career',
-      icon: '📋',
-      title: 'Background Check',
-      desc: 'New opportunity requires background check. Your record...',
-      left: { label: 'Skip It', effect: '-10 Happy', imp: { happy: -10 } },
-      right: { label: 'Try Anyway', effect: '50% chance hired', bgCheck: true },
-    });
-  }
-  
-  // SIDE HUSTLE
-  if (Math.random() < 0.25) {
-    const earn = rand(100, 300);
-    cards.push({
-      key: 'work_sidehustle',
-      cat: '💼 Work',
-      icon: '🌙',
-      title: 'Side Hustle',
-      desc: 'Extra work opportunity on weekends.',
-      left: { label: 'Rest', effect: '+5 Health', imp: { health: 5 } },
-      right: { label: 'Hustle', effect: `+$${earn}, -3 Health`, imp: { cash: earn, health: -3 } },
-    });
-  }
-  
-  // CREDIT
-  if (st.credit < 650 && Math.random() < 0.3) {
-    cards.push({
-      key: 'credit_secured',
-      cat: '📊 Credit',
-      icon: '💳',
-      title: 'Secured Card',
-      desc: 'Build credit with a secured card. Requires deposit.',
-      left: { label: 'Skip', effect: 'No change', imp: {} },
-      right: { label: 'Apply', effect: '-$500, +25 Credit', imp: { cash: -500, credit: 25 } },
-    });
-  }
-  
-  if (Math.random() < 0.2) {
-    cards.push({
-      key: 'credit_error',
-      cat: '📊 Credit',
-      icon: '⚠️',
-      title: 'Credit Error',
-      desc: 'You found an error on your credit report.',
-      left: { label: 'Ignore', effect: 'No change', imp: {} },
-      right: { label: 'Dispute', effect: '+15 Credit', imp: { credit: 15 } },
-    });
-  }
-  
-  // INVESTMENTS
-  if (st.cash > 1000 && st.credit >= 640 && Math.random() < 0.3) {
-    const amt = pick([500, 1000, 2000, 3000]);
-    cards.push({
-      key: 'invest_index',
-      cat: '📈 Invest',
-      icon: '📊',
-      title: 'Index Funds',
-      desc: 'Diversified investment opportunity.',
-      left: { label: 'Skip', effect: 'Keep cash', imp: {} },
-      right: { label: 'Invest', effect: `-$${amt} → investments`, imp: { cash: -amt, invest: amt } },
-    });
-  }
-  
-  if (econ.id === 'recession' && st.cash > 1500 && Math.random() < 0.35) {
-    const amt = pick([1000, 2000, 3000]);
-    cards.push({
-      key: 'invest_dip',
-      cat: '📈 Invest',
-      icon: '📉',
-      title: 'Buy The Dip',
-      desc: 'Market is down. History says this is opportunity.',
-      left: { label: 'Hold Cash', effect: 'Safety', imp: {} },
-      right: { label: 'Buy', effect: `Invest $${amt}`, imp: { cash: -amt, invest: amt } },
-    });
-  }
-  
-  // HEALTH
-  if (st.health < 60 && Math.random() < 0.4) {
-    cards.push({
-      key: 'health_doctor',
+      key: 'health_crisis',
       cat: '❤️ Health',
       icon: '🏥',
-      title: 'Doctor Visit',
-      desc: 'Your health is suffering. Time to see someone.',
-      left: { label: 'Skip', effect: '-10 Health', imp: { health: -10 } },
-      right: { label: 'Go', effect: '-$300, +15 Health', imp: { cash: -300, health: 15 } },
+      title: 'Health Crisis',
+      desc: 'Your body is breaking down. Medical attention required.',
+      type: 'danger',
+      left: { label: 'Ignore It', effect: '-20 Health (dangerous!)', imp: { health: -20 } },
+      right: { label: 'Get Help', effect: '-$5K, +30 Health', imp: { cash: -5000, health: 30 } },
     });
-  }
-  
-  if (st.happy < 45 && Math.random() < 0.35) {
+  } else if (st.health < 70 && Math.random() < 0.35) {
     cards.push({
-      key: 'health_therapy',
+      key: 'health_checkup',
       cat: '❤️ Health',
-      icon: '🧠',
-      title: 'Therapy',
-      desc: 'Mental health affects everything. Support is available.',
-      left: { label: 'Not Now', effect: '-5 Happy', imp: { happy: -5 } },
-      right: { label: 'Try It', effect: '-$200, +12 Happy', imp: { cash: -200, happy: 12, health: 5 } },
+      icon: '🩺',
+      title: 'Annual Checkup',
+      desc: 'Doctor recommends a full checkup. Prevention is cheaper than cure.',
+      left: { label: 'Skip It', effect: '-5 Health', imp: { health: -5 } },
+      right: { label: 'Go', effect: '-$800, +15 Health', imp: { cash: -800, health: 15 } },
     });
   }
   
-  // RELATIONSHIPS
-  if (ch.rel === 'single' && ch.age >= 20 && ch.age <= 45 && st.happy > 40 && Math.random() < 0.25) {
+  // ========== RELATIONSHIP CARDS ==========
+  
+  if (ch.rel === 'single' && ch.age >= 22 && ch.age <= 45 && st.happy > 35 && Math.random() < 0.2) {
     cards.push({
       key: 'rel_meet',
       cat: '💕 Love',
       icon: '💍',
       title: 'Someone Special',
-      desc: "You've met someone amazing. Could this be love?",
-      left: { label: 'Not Ready', effect: '+3 Happy', imp: { happy: 3 } },
-      right: { label: 'Get Engaged', effect: '-$500, engaged', imp: { cash: -500, happy: 15 }, setRel: 'engaged' },
+      desc: 'You\'ve connected with someone. Could lead somewhere.',
+      left: { label: 'Not Ready', effect: 'Focus on yourself', imp: { happy: 2 } },
+      right: { label: 'Pursue It', effect: '-$2K dating, engaged', imp: { cash: -2000, happy: 15 }, setRel: 'engaged' },
     });
   }
   
   if (ch.rel === 'engaged' && Math.random() < 0.35) {
-    const spouse = rand(800, 1500);
+    const spouseIncome = rand(25000, 55000);
     cards.push({
       key: 'rel_wedding',
       cat: '💕 Love',
       icon: '💒',
-      title: 'Wedding Day',
-      desc: 'Time to tie the knot!',
-      left: { label: 'Delay', effect: '-5 Happy', imp: { happy: -5 } },
-      right: { label: 'Marry', effect: `-$8K, spouse +$${spouse}/mo`, imp: { cash: -8000, income: spouse, happy: 20 }, setRel: 'married' },
+      title: 'Wedding Planning',
+      desc: `Ready to commit? Spouse earns ~${fmt(spouseIncome)}/yr.`,
+      left: { label: 'Not Yet', effect: '-10 Happy', imp: { happy: -10 } },
+      right: { label: 'Get Married', effect: `-$15K wedding, +${fmt(spouseIncome)}/yr income`, imp: { cash: -15000, salary: spouseIncome, happy: 20 }, setRel: 'married' },
     });
   }
   
-  if (ch.rel === 'married' && st.happy < 40 && Math.random() < 0.3) {
+  if (ch.rel === 'married' && st.happy < 35 && Math.random() < 0.3) {
     cards.push({
-      key: 'rel_counsel',
+      key: 'rel_trouble',
       cat: '💕 Love',
       icon: '💔',
       title: 'Marriage Trouble',
-      desc: 'Things are rocky. Counseling might help.',
-      left: { label: 'Ignore', effect: 'Divorce risk up', imp: { happy: -8 }, addDivorceRisk: true },
-      right: { label: 'Counseling', effect: '-$1500, +15 Happy', imp: { cash: -1500, happy: 15 } },
+      desc: 'Things are strained. Counseling or it might end.',
+      type: 'danger',
+      left: { label: 'Ignore It', effect: '50% divorce risk', imp: { happy: -10 }, divorceRisk: true },
+      right: { label: 'Counseling', effect: '-$3K, save marriage', imp: { cash: -3000, happy: 15 } },
     });
   }
   
-  // KIDS
-  if (ch.rel === 'married' && ch.age >= 23 && ch.age <= 42 && Math.random() < 0.25) {
+  // ========== KIDS CARDS ==========
+  
+  if (ch.rel === 'married' && ch.age >= 24 && ch.age <= 42 && Math.random() < 0.25) {
     cards.push({
       key: 'family_baby',
       cat: '👶 Family',
       icon: '👶',
-      title: 'Have a Baby?',
-      desc: 'Your family could grow. Kids are expensive but rewarding.',
-      left: { label: 'Not Now', effect: '+3 Happy', imp: { happy: 3 } },
-      right: { label: 'Yes!', effect: '+baby, +$1500/mo costs, +20 Happy', imp: { income: -1500, happy: 20 }, spawnKid: true },
+      title: 'Start a Family?',
+      desc: 'Kids cost ~$15K/year but create legacy value.',
+      left: { label: 'Not Now', effect: 'Save money', imp: { happy: -3 } },
+      right: { label: 'Have Baby', effect: '+$15K/yr expenses, +kid', imp: { expenses: 15000, happy: 20 }, spawnKid: true },
     });
   }
   
-  // KID EVENTS
   if (ch.kids.length > 0 && Math.random() < 0.4) {
     const kid = pick(ch.kids);
     const events = [
-      { key: 'kid_school', icon: '🎒', title: `School Choice (${kid.name})`, desc: 'Public is free. Private costs more but may help.',
-        left: { label: 'Public', effect: 'Free', imp: {} },
-        right: { label: 'Private', effect: '-$800/mo, invest in future', imp: { income: -800 }, kidInvest: { id: kid.id, amt: 3000 } }
+      { title: `${kid.name}'s Education`, desc: 'Private school vs public?', 
+        left: { label: 'Public', effect: 'Save money', imp: {} },
+        right: { label: 'Private', effect: '-$12K/yr, +$5K kid invest', imp: { expenses: 12000 }, kidInvest: { id: kid.id, amt: 5000 } }
       },
-      { key: 'kid_activity', icon: '⚽', title: `Activities (${kid.name})`, desc: 'Sports, music, or clubs?',
-        left: { label: 'Skip', effect: '-2 Happy', imp: { happy: -2 } },
-        right: { label: 'Enroll', effect: '-$200, invest in future', imp: { cash: -200, happy: 3 }, kidInvest: { id: kid.id, amt: 1000 } }
+      { title: `${kid.name}'s Activities`, desc: 'Sports, music, or tutoring?',
+        left: { label: 'Skip', effect: '-3 Happy', imp: { happy: -3 } },
+        right: { label: 'Enroll', effect: '-$3K, +$2K kid invest', imp: { cash: -3000 }, kidInvest: { id: kid.id, amt: 2000 } }
       },
-      { key: 'kid_tutor', icon: '📚', title: `Tutoring (${kid.name})`, desc: 'Extra academic support available.',
-        left: { label: 'No', effect: 'No change', imp: {} },
-        right: { label: 'Yes', effect: '-$400, invest', imp: { cash: -400 }, kidInvest: { id: kid.id, amt: 2000 } }
+      { title: `${kid.name} Needs Help`, desc: 'Struggling in school. Tutor?',
+        left: { label: 'Figure It Out', effect: '-5 Happy', imp: { happy: -5 } },
+        right: { label: 'Hire Tutor', effect: '-$4K, +$3K kid invest', imp: { cash: -4000 }, kidInvest: { id: kid.id, amt: 3000 } }
       },
     ];
     const evt = pick(events);
-    cards.push({ ...evt, cat: '👶 Family', type: 'kid' });
+    cards.push({ key: 'kid_' + uid(), cat: '👶 Family', icon: '📚', ...evt });
   }
   
-  // HOUSING
-  if (ch.housing === 'parents' && st.cash > 500 && Math.random() < 0.25) {
+  // ========== HOUSING CARDS ==========
+  
+  if (ch.housing === 'parents' && ch.age >= 22 && Math.random() < 0.3) {
     cards.push({
       key: 'house_moveout',
       cat: '🏠 Housing',
       icon: '🏢',
-      title: 'Move Out?',
-      desc: 'Independence awaits. But rent adds up.',
-      left: { label: 'Stay', effect: 'Save money', imp: {} },
-      right: { label: 'Rent', effect: 'Expenses up, +freedom', imp: { income: -1400, happy: 8 }, setHousing: 'rent' },
+      title: 'Time to Move Out?',
+      desc: 'Parents dropping hints. Rent is ~$18K/year.',
+      left: { label: 'Stay', effect: 'Save money, -10 Happy', imp: { happy: -10 } },
+      right: { label: 'Move Out', effect: '+$14.4K/yr housing cost', imp: { happy: 15 }, setHousing: 'rent' },
     });
   }
   
-  if (ch.housing !== 'own' && st.credit >= 680 && st.cash >= 25000 && Math.random() < 0.2) {
+  if (ch.housing !== 'own' && st.credit >= 680 && st.cash >= 40000 && Math.random() < 0.2) {
     cards.push({
       key: 'house_buy',
       cat: '🏠 Housing',
       icon: '🏠',
       title: 'Buy a Home?',
-      desc: 'Build equity instead of paying rent.',
-      left: { label: 'Not Yet', effect: 'Keep flexibility', imp: {} },
-      right: { label: 'Buy', effect: '-$25K down, mortgage', imp: { cash: -25000, mortgage: 200000, equity: 25000, happy: 15 }, setHousing: 'own' },
+      desc: 'Build equity instead of renting. $40K down payment.',
+      type: 'opportunity',
+      left: { label: 'Keep Renting', effect: 'Stay flexible', imp: {} },
+      right: { label: 'Buy', effect: '-$40K down, +equity', imp: { cash: -40000, mortgage: 250000, equity: 40000, happy: 20 }, setHousing: 'own' },
     });
   }
   
-  // BUSINESS (Millionaire path)
-  if (!ch.biz && st.cash >= 5000 && st.credit >= 650 && hidden.discipline >= 45 && Math.random() < 0.2) {
+  // ========== INVESTMENT CARDS ==========
+  
+  if (st.cash > 5000 && st.credit >= 650 && Math.random() < 0.25) {
+    const amt = pick([2000, 5000, 10000]);
+    cards.push({
+      key: 'invest_index',
+      cat: '📈 Invest',
+      icon: '📊',
+      title: 'Index Fund Opportunity',
+      desc: `Invest ${fmt(amt)} in diversified funds. Historical ~7%/yr returns.`,
+      type: 'opportunity',
+      left: { label: 'Keep Cash', effect: 'Liquidity', imp: {} },
+      right: { label: 'Invest', effect: `-${fmt(amt)} → investments`, imp: { cash: -amt, invest: amt } },
+    });
+  }
+  
+  if (econ.id === 'recession' && st.cash > 10000 && Math.random() < 0.3) {
+    cards.push({
+      key: 'invest_dip',
+      cat: '📈 Invest',
+      icon: '📉',
+      title: 'Buy The Dip?',
+      desc: 'Market crashed. Warren Buffett says be greedy when others are fearful.',
+      type: 'opportunity',
+      left: { label: 'Too Risky', effect: 'Stay safe', imp: {} },
+      right: { label: 'Buy Aggressively', effect: '-$10K → investments (brave!)', imp: { cash: -10000, invest: 10000 } },
+    });
+  }
+  
+  // ========== BUSINESS CARDS ==========
+  
+  if (!ch.biz && st.cash >= 20000 && st.credit >= 680 && Math.random() < 0.15) {
     cards.push({
       key: 'biz_start',
       cat: '🏢 Business',
       icon: '🚀',
-      title: 'Start a Business',
-      desc: 'Jobs are capped. Business can scale. Risk and reward.',
+      title: 'Start a Business?',
+      desc: 'Real opportunity to build wealth. High risk, high reward.',
       type: 'business',
-      left: { label: 'Not Ready', effect: '+3 Discipline', imp: {}, addDiscipline: 3 },
-      right: { label: 'Start', effect: '-$5K, start business', imp: { cash: -5000 }, startBiz: true },
+      left: { label: 'Too Risky', effect: 'Keep job security', imp: {} },
+      right: { label: 'Start It', effect: '-$20K, start business', imp: { cash: -20000 }, startBiz: true },
     });
   }
   
   if (ch.biz && Math.random() < 0.4) {
-    const bizEvents = [
-      { key: 'biz_reinvest', icon: '💹', title: 'Reinvest Profits', desc: 'Put money back in or take it out?',
-        left: { label: 'Take Profit', effect: '+$2K cash', imp: { cash: 2000 }, bizDecision: 'profit' },
-        right: { label: 'Reinvest', effect: 'Grow business', imp: {}, bizDecision: 'reinvest' }
+    const bizCards = [
+      { title: 'Reinvest or Pay Yourself?', desc: 'Business is profitable. Grow or cash out?',
+        left: { label: 'Pay Myself', effect: '+$15K cash', imp: { cash: 15000 } },
+        right: { label: 'Reinvest', effect: 'Business grows 20%', bizGrow: 0.20 }
       },
-      { key: 'biz_hire', icon: '👥', title: 'Hire Help', desc: 'More employees, more capacity, more costs.',
-        left: { label: 'Stay Lean', effect: '+stress', imp: { happy: -3 } },
-        right: { label: 'Hire', effect: '-$1K/mo, grow capacity', imp: { income: -1000 }, bizDecision: 'hire' }
+      { title: 'Hire Help?', desc: 'Business needs employees to grow.',
+        left: { label: 'Stay Solo', effect: '+Stress, limited growth', imp: { happy: -5, health: -5 } },
+        right: { label: 'Hire', effect: '-$40K/yr payroll, +growth', imp: { expenses: 40000 }, bizGrow: 0.15 }
       },
     ];
-    const evt = pick(bizEvents);
-    cards.push({ ...evt, cat: '🏢 Business', type: 'business' });
+    const evt = pick(bizCards);
+    cards.push({ key: 'biz_' + uid(), cat: '🏢 Business', icon: '💼', type: 'business', ...evt });
   }
   
-  // RANDOM EVENTS
-  if (Math.random() < 0.15) {
+  // ========== RANDOM EVENTS ==========
+  
+  if (Math.random() < 0.2) {
     const events = [
-      { icon: '🎉', title: 'Work Bonus!', desc: 'Great performance recognized!', imp: { cash: 2000 }, positive: true },
-      { icon: '📈', title: 'Market Surge', desc: 'Your investments grew!', imp: { invest: 1500 }, positive: true },
-      { icon: '💳', title: 'Cashback Rewards', desc: 'Credit card rewards payout.', imp: { cash: 250 }, positive: true },
-      { icon: '🍀', title: 'Lucky Find', desc: 'Found money in old jacket!', imp: { cash: 100 }, positive: true },
-      { icon: '🤒', title: 'Got Sick', desc: 'Unexpected illness.', imp: { cash: -500, health: -15 }, positive: false },
-      { icon: '🚗', title: 'Car Trouble', desc: 'Repairs needed.', imp: { cash: -800 }, positive: false },
-      { icon: '📉', title: 'Market Dip', desc: 'Investments dropped.', imp: { invest: -2000 }, positive: false },
-      { icon: '🔧', title: 'Appliance Broke', desc: 'Fridge died.', imp: { cash: -600 }, positive: false },
+      { icon: '🎉', title: 'Year-End Bonus!', desc: 'Company had a great year!', imp: { cash: rand(2000, 8000) }, positive: true },
+      { icon: '📈', title: 'Tax Refund', desc: 'Bigger refund than expected.', imp: { cash: rand(1000, 4000) }, positive: true },
+      { icon: '🍀', title: 'Found Money', desc: 'Old savings account discovered!', imp: { cash: rand(500, 2000) }, positive: true },
+      { icon: '🤒', title: 'Medical Emergency', desc: 'Unexpected hospital visit.', imp: { cash: -rand(3000, 8000), health: -10 }, positive: false },
+      { icon: '🚗', title: 'Car Broke Down', desc: 'Major repairs needed.', imp: { cash: -rand(1500, 4000) }, positive: false },
+      { icon: '🔧', title: 'Home Repair', desc: ch.housing === 'own' ? 'Roof needs fixing.' : 'Appliance died.', imp: { cash: -rand(800, 3000) }, positive: false },
+      { icon: '📉', title: 'Layoff Scare', desc: 'Company doing cutbacks. You survived but...', imp: { happy: -15, salary: -rand(2000, 5000) }, positive: false },
+      { icon: '⚡', title: 'Utility Spike', desc: 'Energy prices jumped.', imp: { expenses: 1200 }, positive: false },
     ];
     const evt = pick(events);
     return {
@@ -1453,16 +875,17 @@ const generateCard = (st, ch, econ, hidden) => {
     };
   }
   
-  // DEFAULT
+  // ========== DEFAULT CARD ==========
+  
   if (cards.length === 0) {
     cards.push({
       key: 'life_normal',
       cat: '🌟 Life',
       icon: '☀️',
-      title: 'Normal Day',
-      desc: 'Nothing special today. Small choices compound.',
-      left: { label: 'Relax', effect: '+3 Happy', imp: { happy: 3 } },
-      right: { label: 'Work Extra', effect: '+$100', imp: { cash: 100 } },
+      title: 'Quiet Year',
+      desc: 'Nothing major. Focus on basics or take a risk?',
+      left: { label: 'Stay Steady', effect: '+5 Health, +5 Happy', imp: { health: 5, happy: 5 } },
+      right: { label: 'Work Harder', effect: '+$2K, -5 Health', imp: { cash: 2000, health: -5 } },
     });
   }
   
@@ -1470,17 +893,16 @@ const generateCard = (st, ch, econ, hidden) => {
 };
 
 // ============================================
-// PIXEL CHARACTER COMPONENT
+// PIXEL CHARACTER
 // ============================================
 const PixelChar = ({ style, gender, size = 'md' }) => {
   const s = style || (CHAR_STYLES[gender] || CHAR_STYLES.m)[0];
-  const scale = size === 'sm' ? 2 : size === 'md' ? 3 : size === 'lg' ? 4 : 6;
+  const scale = size === 'sm' ? 2 : size === 'md' ? 3 : 4;
   const isMale = gender === 'm';
   
   return (
     <div className={`pixel-char ${size}`}>
       <svg width={scale * 10} height={scale * 14} viewBox="0 0 10 14" style={{ imageRendering: 'pixelated' }}>
-        {/* Hair */}
         <rect x="2" y="0" width="6" height="3" fill={s.hair} />
         <rect x="1" y="1" width="1" height="2" fill={s.hair} />
         <rect x="8" y="1" width="1" height="2" fill={s.hair} />
@@ -1488,16 +910,12 @@ const PixelChar = ({ style, gender, size = 'md' }) => {
           <rect x="0" y="2" width="1" height="4" fill={s.hair} />
           <rect x="9" y="2" width="1" height="4" fill={s.hair} />
         </>}
-        {/* Face */}
         <rect x="2" y="2" width="6" height="5" fill={s.skin} />
-        {/* Eyes */}
         <rect x="3" y="4" width="1" height="1" fill="#1a1a1a" />
         <rect x="6" y="4" width="1" height="1" fill="#1a1a1a" />
-        {/* Shirt */}
         <rect x="2" y="7" width="6" height="4" fill={s.shirt} />
         <rect x="1" y="8" width="1" height="2" fill={s.shirt} />
         <rect x="8" y="8" width="1" height="2" fill={s.shirt} />
-        {/* Pants */}
         <rect x="2" y="11" width="3" height="3" fill={s.pants} />
         <rect x="5" y="11" width="3" height="3" fill={s.pants} />
       </svg>
@@ -1508,37 +926,21 @@ const PixelChar = ({ style, gender, size = 'md' }) => {
 // ============================================
 // SAVE SYSTEM
 // ============================================
-const SAVE_KEY = 'kt_v5_save';
-
-const saveGame = (state) => {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-    return true;
-  } catch { return false; }
-};
-
-const loadGame = () => {
-  try {
-    const data = localStorage.getItem(SAVE_KEY);
-    return data ? JSON.parse(data) : null;
-  } catch { return null; }
-};
-
-const clearSave = () => {
-  try { localStorage.removeItem(SAVE_KEY); } catch {}
-};
+const SAVE_KEY = 'kt_v55_save';
+const saveGame = (state) => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch {} };
+const loadGame = () => { try { const d = localStorage.getItem(SAVE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } };
+const clearSave = () => { try { localStorage.removeItem(SAVE_KEY); } catch {} };
 
 // ============================================
-// MAIN GAME COMPONENT
+// MAIN GAME
 // ============================================
 function Game() {
-  // Screen state
   const [screen, setScreen] = useState('title');
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState(null);
   const [achievement, setAchievement] = useState(null);
   
-  // Setup state
+  // Setup
   const [setupStep, setSetupStep] = useState(0);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -1549,78 +951,55 @@ function Game() {
   // Game state
   const [char, setChar] = useState(null);
   const [st, setSt] = useState(null);
-  const [hidden, setHidden] = useState({ discipline: 50, reputation: 50, stress: 30, heat: 0 });
   const [econ, setEcon] = useState(ECONOMY[1]);
   const [econTimer, setEconTimer] = useState(0);
   const [gen, setGen] = useState(1);
   const [hist, setHist] = useState([]);
-  const [dynWealth, setDynWealth] = useState(0);
   const [achs, setAchs] = useState([]);
+  const [year, setYear] = useState(0);
   
   // Card state
   const [card, setCard] = useState(null);
   const [cardOffset, setCardOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [yearSummary, setYearSummary] = useState(null);
   
   // Settings
   const [musicOn, setMusicOn] = useState(true);
   const [sfxOn, setSfxOn] = useState(true);
   
-  // Heir setup
+  // Heir
   const [heirName, setHeirName] = useState('');
   const [heirGender, setHeirGender] = useState('m');
   const [heirStyle, setHeirStyle] = useState(null);
   const [heirCareer, setHeirCareer] = useState(null);
   
-  // Refs
   const startX = useRef(0);
   
-  // Check for saved game
-  useEffect(() => {
-    const saved = loadGame();
-    if (saved && saved.char && saved.st) {
-      // Don't auto-load, just mark that save exists
-    }
-  }, []);
-  
-  // Initialize audio
+  // Init audio
   useEffect(() => {
     sfx.init();
-    if (musicOn) sfx.startMusic();
-    return () => sfx.stopMusic();
+    if (musicOn) sfx.startJazz();
+    return () => sfx.stopJazz();
   }, []);
   
-  // Music toggle
-  useEffect(() => {
-    sfx.toggleMusic(musicOn);
-  }, [musicOn]);
-  
-  // SFX toggle
-  useEffect(() => {
-    sfx.toggleSFX(sfxOn);
-  }, [sfxOn]);
+  useEffect(() => { sfx.toggleMusic(musicOn); }, [musicOn]);
+  useEffect(() => { sfx.toggleSFX(sfxOn); }, [sfxOn]);
   
   // Auto-save
   useEffect(() => {
     if (screen === 'game' && char && st) {
-      saveGame({ char, st, hidden, econ, econTimer, gen, hist, dynWealth, achs, lastName });
+      saveGame({ char, st, econ, econTimer, gen, hist, achs, lastName, year });
     }
-  }, [char, st, hidden, econ, gen, hist, achs]);
+  }, [char, st, econ, gen, year]);
   
   // Toast timeout
   useEffect(() => {
-    if (toast) {
-      const t = setTimeout(() => setToast(null), 2000);
-      return () => clearTimeout(t);
-    }
+    if (toast) { const t = setTimeout(() => setToast(null), 2500); return () => clearTimeout(t); }
   }, [toast]);
   
-  // Achievement timeout
   useEffect(() => {
-    if (achievement) {
-      const t = setTimeout(() => setAchievement(null), 3000);
-      return () => clearTimeout(t);
-    }
+    if (achievement) { const t = setTimeout(() => setAchievement(null), 3500); return () => clearTimeout(t); }
   }, [achievement]);
   
   // Check achievements
@@ -1634,15 +1013,61 @@ function Game() {
     });
   }, [achs]);
   
-  // Draw new card
-  const drawCard = useCallback((currentSt, currentChar, currentHidden, currentEcon) => {
+  // Calculate yearly finances
+  const calcYearlyFinances = (currentSt, currentChar, currentEcon) => {
+    // Income
+    let income = currentSt.salary || 0;
+    if (currentChar.biz) income += currentChar.biz.profit || 0;
+    income = Math.round(income * currentEcon.salaryMult);
+    
+    // Expenses
+    const housingCost = currentChar.housing === 'own' ? 24000 : currentChar.housing === 'rent' ? 18000 : 3600;
+    const baseCost = 20400; // food, transport, utilities, etc
+    let extraExpenses = currentSt.extraExpenses || 0;
+    
+    // Kids cost
+    const kidsCost = currentChar.kids.length * 15000;
+    
+    // Total expenses
+    let totalExpenses = Math.round((housingCost + baseCost + extraExpenses + kidsCost) * currentEcon.expenseMult);
+    
+    // Food stamps reduction
+    if (currentChar.foodStamps) totalExpenses -= 3600;
+    // Section 8 reduction
+    if (currentChar.section8) totalExpenses -= 7200;
+    
+    totalExpenses = Math.max(0, totalExpenses);
+    
+    // Net
+    const netCashflow = income - totalExpenses;
+    
+    // Debt interest (yearly)
+    const debtInterest = Math.round(currentSt.debt * 0.18); // 18% APR
+    const mortgagePayment = currentSt.mortgage > 0 ? Math.min(18000, currentSt.mortgage * 0.06) : 0;
+    
+    return {
+      income,
+      housing: housingCost,
+      living: baseCost,
+      kids: kidsCost,
+      extra: extraExpenses,
+      totalExpenses,
+      netCashflow,
+      debtInterest,
+      mortgagePayment,
+      finalNet: netCashflow - debtInterest - mortgagePayment,
+    };
+  };
+  
+  // Draw card
+  const drawCard = useCallback((currentSt, currentChar, currentEcon, currentYear) => {
     sfx.draw();
-    const newCard = generateCard(currentSt, currentChar, currentEcon, currentHidden);
+    const newCard = generateCard(currentSt, currentChar, currentEcon, currentYear);
     setCard(newCard);
     setCardOffset(0);
   }, []);
   
-  // Start new game
+  // Start game
   const startGame = () => {
     if (!firstName || !lastName || !career || !charStyle) return;
     
@@ -1667,11 +1092,12 @@ function Game() {
       jailTime: 0,
       record: false,
       biz: null,
+      performance: 60,
     };
     
     const newSt = {
-      cash: 500,
-      income: careerData.start,
+      cash: 2000,
+      salary: careerData.salary,
       debt: careerData.edu,
       invest: 0,
       credit: 620,
@@ -1679,140 +1105,123 @@ function Game() {
       happy: 70,
       equity: 0,
       mortgage: 0,
+      extraExpenses: 0,
     };
-    
-    const newHidden = { discipline: 50, reputation: 50, stress: 30, heat: 0 };
     
     setChar(newChar);
     setSt(newSt);
-    setHidden(newHidden);
     setGen(1);
     setHist([]);
-    setDynWealth(0);
     setAchs([]);
     setEcon(ECONOMY[1]);
     setEconTimer(0);
+    setYear(0);
+    setYearSummary(null);
     setScreen('game');
     
-    setTimeout(() => drawCard(newSt, newChar, newHidden, ECONOMY[1]), 200);
+    setTimeout(() => drawCard(newSt, newChar, ECONOMY[1], 0), 200);
   };
   
-  // Continue saved game
+  // Continue
   const continueGame = () => {
     const saved = loadGame();
     if (saved) {
       setChar(saved.char);
       setSt(saved.st);
-      setHidden(saved.hidden || { discipline: 50, reputation: 50, stress: 30, heat: 0 });
       setEcon(saved.econ || ECONOMY[1]);
       setEconTimer(saved.econTimer || 0);
       setGen(saved.gen || 1);
       setHist(saved.hist || []);
-      setDynWealth(saved.dynWealth || 0);
       setAchs(saved.achs || []);
       setLastName(saved.lastName || '');
+      setYear(saved.year || 0);
       setScreen('game');
       sfx.init();
-      setTimeout(() => drawCard(saved.st, saved.char, saved.hidden || { discipline: 50, reputation: 50, stress: 30, heat: 0 }, saved.econ || ECONOMY[1]), 200);
+      setTimeout(() => drawCard(saved.st, saved.char, saved.econ || ECONOMY[1], saved.year || 0), 200);
     }
   };
   
-  // Process monthly
-  const processMonth = (currentSt, currentChar, currentHidden, currentEcon) => {
-    let newSt = { ...currentSt };
-    let newChar = { ...currentChar };
-    let newHidden = { ...currentHidden };
+  // Process year end
+  const processYearEnd = (newSt, newChar, newEcon) => {
+    const finances = calcYearlyFinances(newSt, newChar, newEcon);
     
-    // Skip if in jail
-    if (newChar.inJail) {
-      newChar.age += 1;
-      newChar.kids = newChar.kids.map(k => ({ ...k, age: k.age + 1 }));
-      return { st: newSt, char: newChar, hidden: newHidden };
-    }
+    // Apply cash change
+    newSt.cash += finances.finalNet;
     
-    // Income
-    let monthlyIncome = newSt.income;
+    // Debt grows with interest
+    newSt.debt = Math.max(0, newSt.debt + finances.debtInterest - Math.min(5000, newSt.debt * 0.1));
     
-    // Business income
-    if (newChar.biz) {
-      const bizProfit = rand(500, 2000);
-      monthlyIncome += bizProfit;
-    }
-    
-    // Expenses
-    let expenses = 0;
-    if (newChar.housing === 'rent') expenses += 1400;
-    else if (newChar.housing === 'own') expenses += 2000;
-    else expenses += 300;
-    
-    // Debt payments
-    const debtPayment = Math.min(newSt.debt, Math.max(100, newSt.debt * 0.02));
-    expenses += debtPayment;
-    newSt.debt = Math.max(0, newSt.debt - debtPayment);
-    
-    // Mortgage
+    // Mortgage payment reduces principal
     if (newSt.mortgage > 0) {
-      const mortPay = Math.min(1500, newSt.mortgage * 0.005);
-      expenses += mortPay;
-      newSt.mortgage = Math.max(0, newSt.mortgage - mortPay * 0.3);
-      newSt.equity += mortPay * 0.3;
-    }
-    
-    // Apply cashflow
-    newSt.cash += (monthlyIncome - expenses);
-    
-    // Negative cash becomes debt
-    if (newSt.cash < 0) {
-      newSt.debt += Math.abs(newSt.cash);
-      newSt.cash = 0;
+      newSt.mortgage = Math.max(0, newSt.mortgage - finances.mortgagePayment * 0.4);
+      newSt.equity += finances.mortgagePayment * 0.4;
     }
     
     // Investments grow
-    newSt.invest = Math.round(newSt.invest * currentEcon.invMult);
+    newSt.invest = Math.round(newSt.invest * newEcon.invMult);
     
-    // Home equity appreciation
+    // Equity appreciation if homeowner
     if (newChar.housing === 'own') {
-      const appreciation = currentEcon.id === 'boom' ? 0.003 : currentEcon.id === 'recession' ? -0.001 : 0.002;
+      const appreciation = newEcon.id === 'boom' ? 0.05 : newEcon.id === 'recession' ? -0.02 : 0.03;
       newSt.equity = Math.round(newSt.equity * (1 + appreciation));
     }
     
-    // Credit score adjustments
-    if (newSt.debt > 50000) newSt.credit = clamp(newSt.credit - 2, 300, 850);
-    else if (newSt.debt < 5000) newSt.credit = clamp(newSt.credit + 1, 300, 850);
+    // Credit adjustments
+    if (newSt.cash < 0) {
+      newSt.debt += Math.abs(newSt.cash);
+      newSt.cash = 0;
+      newSt.credit = clamp(newSt.credit - 30, 300, 850);
+    } else if (newSt.debt > 50000) {
+      newSt.credit = clamp(newSt.credit - 10, 300, 850);
+    } else if (newSt.debt < 5000 && newSt.cash > 10000) {
+      newSt.credit = clamp(newSt.credit + 5, 300, 850);
+    }
     
     // Age
     newChar.age += 1;
     newChar.kids = newChar.kids.map(k => ({ ...k, age: k.age + 1 }));
     
-    // Hidden score drift
-    if (newSt.cash > 10000) newHidden.stress = clamp(newHidden.stress - 2, 0, 100);
-    if (newSt.debt > 30000) newHidden.stress = clamp(newHidden.stress + 1, 0, 100);
-    newHidden.heat = clamp(newHidden.heat - 1, 0, 100);
+    // Performance drift
+    newChar.performance = clamp(newChar.performance + rand(-5, 5), 30, 100);
     
-    return { st: newSt, char: newChar, hidden: newHidden };
+    // Business profit
+    if (newChar.biz) {
+      newChar.biz.profit = Math.round(newChar.biz.revenue * rand(10, 30) / 100);
+      newChar.biz.revenue = Math.round(newChar.biz.revenue * (1 + rand(-5, 15) / 100));
+    }
+    
+    return { newSt, newChar, finances };
   };
   
-  // Handle swipe
+  // Swipe handler
   const swipe = (dir) => {
     if (!card) return;
     
     const choice = dir === 'right' ? card.right : card.left;
     
-    // Play sound
-    if (dir === 'right') sfx.yes();
-    else sfx.no();
+    // Play sound based on card type
+    if (card.isTrap && dir === 'right') {
+      sfx.trap();
+      setToast({ text: '⚠️ You fell for a trap!', type: 'warning' });
+    } else if (dir === 'right') {
+      sfx.yes();
+    } else {
+      sfx.no();
+    }
     
     let newSt = { ...st };
     let newChar = { ...char };
-    let newHidden = { ...hidden };
     let newEcon = econ;
     let newEconTimer = econTimer + 1;
+    let newYear = year + 1;
     
     // Event cards
     if (card.isEvent) {
       if (card.imp) {
         Object.entries(card.imp).forEach(([k, v]) => {
-          if (k in newSt) newSt[k] = Math.max(k === 'credit' ? 300 : 0, newSt[k] + v);
+          if (k === 'salary') newSt.salary = Math.max(0, (newSt.salary || 0) + v);
+          else if (k === 'expenses') newSt.extraExpenses = (newSt.extraExpenses || 0) + v;
+          else if (k in newSt) newSt[k] = k === 'credit' ? clamp(newSt[k] + v, 300, 850) : Math.max(k === 'health' ? 0 : -Infinity, newSt[k] + v);
         });
       }
       if (card.positive) sfx.good();
@@ -1821,14 +1230,30 @@ function Game() {
       // Apply impacts
       if (choice.imp) {
         Object.entries(choice.imp).forEach(([k, v]) => {
-          if (k in newSt) newSt[k] = Math.max(k === 'credit' ? 300 : 0, newSt[k] + v);
+          if (k === 'salary') newSt.salary = Math.max(0, (newSt.salary || 0) + v);
+          else if (k === 'expenses') newSt.extraExpenses = (newSt.extraExpenses || 0) + v;
+          else if (k in newSt) newSt[k] = k === 'credit' ? clamp(newSt[k] + v, 300, 850) : Math.max(k === 'health' ? 0 : -Infinity, newSt[k] + v);
         });
+      }
+      
+      // Add recurring expense
+      if (choice.addExpense) {
+        newSt.extraExpenses = (newSt.extraExpenses || 0) + choice.addExpense.amount;
       }
       
       // Relationship
       if (choice.setRel) {
         newChar.rel = choice.setRel;
         if (choice.setRel === 'married') sfx.marry();
+      }
+      
+      // Divorce risk
+      if (choice.divorceRisk && Math.random() < 0.5) {
+        newChar.rel = 'single';
+        newSt.cash = Math.round(newSt.cash * 0.5);
+        newSt.salary = Math.max(newSt.salary - 30000, CAREERS.find(c => c.id === newChar.career)?.salary || 40000);
+        setToast({ text: '💔 Divorce finalized...', type: 'negative' });
+        sfx.bad();
       }
       
       // Housing
@@ -1853,9 +1278,6 @@ function Game() {
         );
       }
       
-      // Discipline
-      if (choice.addDiscipline) newHidden.discipline = clamp(newHidden.discipline + choice.addDiscipline, 0, 100);
-      
       // Crime
       if (choice.crime) {
         sfx.crime();
@@ -1869,83 +1291,62 @@ function Game() {
           newChar.record = true;
           newSt.happy = clamp(newSt.happy - 30, 0, 100);
           newSt.credit = clamp(newSt.credit - 50, 300, 850);
-          newSt.income = Math.round(newSt.income * 0.7);
-          newHidden.heat = clamp(newHidden.heat + 30, 0, 100);
-          newHidden.reputation = clamp(newHidden.reputation - 20, 0, 100);
+          newSt.salary = Math.round(newSt.salary * 0.6);
           setToast({ text: '🚔 CAUGHT! Going to jail...', type: 'negative' });
         } else {
           if (reward) newSt.cash += reward;
           if (debtClear) newSt.debt = Math.max(0, newSt.debt - debtClear);
-          newHidden.heat = clamp(newHidden.heat + 15, 0, 100);
-          newHidden.stress = clamp(newHidden.stress + 10, 0, 100);
-          newHidden.discipline = clamp(newHidden.discipline - 5, 0, 100);
           sfx.money();
+          setToast({ text: '💰 Got away with it... this time', type: 'warning' });
         }
       }
       
       // Jail serve time
       if (choice.serveTime && newChar.inJail) {
         newChar.jailTime -= 1;
+        newSt.salary = 0; // No income in jail
         if (newChar.jailTime <= 0) {
           newChar.inJail = false;
           newChar.jailTime = 0;
+          newSt.salary = Math.round((CAREERS.find(c => c.id === newChar.career)?.salary || 40000) * 0.5);
           sfx.free();
-          setToast({ text: '🎉 Released from jail!', type: 'positive' });
-        }
-      }
-      
-      // Background check
-      if (choice.bgCheck) {
-        if (Math.random() < 0.5) {
-          newSt.income += 400;
-          newSt.happy += 15;
-          sfx.good();
-          setToast({ text: '✅ Hired despite record!', type: 'positive' });
-        } else {
-          newSt.happy -= 15;
-          sfx.bad();
-          setToast({ text: '❌ Rejected due to record', type: 'negative' });
+          setToast({ text: '🎉 Released! Starting over...', type: 'positive' });
         }
       }
       
       // Business
       if (choice.startBiz) {
-        newChar.biz = { stage: 'starter', revenue: rand(15000, 25000), employees: 0 };
-        newHidden.discipline = clamp(newHidden.discipline + 5, 0, 100);
+        newChar.biz = { revenue: rand(50000, 100000), profit: 0 };
         sfx.good();
       }
       
-      if (choice.bizDecision) {
-        if (choice.bizDecision === 'reinvest' && newChar.biz) {
-          newChar.biz.revenue = Math.round(newChar.biz.revenue * 1.15);
-        }
-        if (choice.bizDecision === 'hire' && newChar.biz) {
-          newChar.biz.employees = (newChar.biz.employees || 0) + 1;
-        }
+      if (choice.bizGrow && newChar.biz) {
+        newChar.biz.revenue = Math.round(newChar.biz.revenue * (1 + choice.bizGrow));
       }
     }
     
-    // Process monthly
-    if (!newChar.inJail || (card.left && card.left.serveTime)) {
-      const processed = processMonth(newSt, newChar, newHidden, newEcon);
-      newSt = processed.st;
-      newChar = processed.char;
-      newHidden = processed.hidden;
-    }
-    
     // Economy cycle
-    if (newEconTimer >= rand(8, 15)) {
+    if (newEconTimer >= rand(4, 8)) {
       const idx = ECONOMY.findIndex(e => e.id === newEcon.id);
       newEcon = ECONOMY[(idx + 1) % ECONOMY.length];
       newEconTimer = 0;
+      setToast({ text: `📊 Economy shifts to ${newEcon.name}`, type: newEcon.id === 'recession' ? 'negative' : 'positive' });
     }
+    
+    // Process year end (REAL SALARY AND EXPENSES)
+    const yearResult = processYearEnd(newSt, newChar, newEcon);
+    newSt = yearResult.newSt;
+    newChar = yearResult.newChar;
+    
+    // Show year summary
+    setYearSummary(yearResult.finances);
     
     // Update state
     setSt(newSt);
     setChar(newChar);
-    setHidden(newHidden);
     setEcon(newEcon);
     setEconTimer(newEconTimer);
+    setYear(newYear);
     
     // Check achievements
     checkAchievements(newSt, newChar, gen);
@@ -1955,11 +1356,14 @@ function Game() {
       endGame('retire');
     } else if (newSt.health <= 0) {
       endGame('health');
-    } else if (netWorth(newSt) < -150000) {
+    } else if (netWorth(newSt) < -200000) {
+      sfx.lose();
       endGame('bankrupt');
     } else {
-      // Draw next card
-      setTimeout(() => drawCard(newSt, newChar, newHidden, newEcon), 300);
+      setTimeout(() => {
+        setYearSummary(null);
+        drawCard(newSt, newChar, newEcon, newYear);
+      }, 1500);
     }
   };
   
@@ -1969,28 +1373,17 @@ function Game() {
     const kidInvest = char.kids.reduce((a, k) => a + (k.invested || 0), 0);
     
     setHist(prev => [...prev, {
-      gen,
-      name: char.name,
-      age: char.age,
-      reason,
-      netWorth: nw,
-      kids: char.kids.length,
-      kidInvest,
-      record: char.record,
+      gen, name: char.name, age: char.age, reason, netWorth: nw,
+      kids: char.kids.length, kidInvest, record: char.record,
     }]);
     
-    setDynWealth(prev => prev + Math.max(0, nw));
-    
-    if (reason === 'retire') {
-      sfx.lvl();
-    } else {
-      sfx.bad();
-    }
+    if (reason === 'retire') sfx.lvl();
+    else sfx.bad();
     
     setScreen('transition');
   };
   
-  // Start next generation
+  // Next generation
   const nextGen = () => {
     if (!heirName || !heirCareer || !heirStyle) return;
     
@@ -1999,75 +1392,48 @@ function Game() {
     const nw = netWorth(st);
     const kidInvest = char.kids.reduce((a, k) => a + (k.invested || 0), 0);
     const inheritance = Math.round(nw * 0.6) + Math.round(kidInvest * 0.5);
-    const familySupport = char.kids.length * 200;
-    const wisdom = Math.round((st.health + st.happy) / 4);
+    const familySupport = char.kids.length * 3000;
     
     const careerData = CAREERS.find(c => c.id === heirCareer);
     const style = CHAR_STYLES[heirGender].find(s => s.id === heirStyle);
     
     const newChar = {
-      name: heirName,
-      gender: heirGender,
-      style,
-      age: 18 + careerData.time,
-      career: heirCareer,
-      rel: 'single',
-      kids: [],
-      housing: 'parents',
-      foodStamps: false,
-      section8: false,
-      inJail: false,
-      jailTime: 0,
-      record: false,
-      biz: null,
+      name: heirName, gender: heirGender, style,
+      age: 18 + careerData.time, career: heirCareer,
+      rel: 'single', kids: [], housing: 'parents',
+      foodStamps: false, section8: false,
+      inJail: false, jailTime: 0, record: false, biz: null,
+      performance: 60,
     };
     
     const newSt = {
-      cash: Math.max(0, inheritance) + 500,
-      income: careerData.start + familySupport + Math.round(wisdom * 10),
+      cash: Math.max(0, inheritance) + 2000,
+      salary: careerData.salary + familySupport,
       debt: careerData.edu + (inheritance < 0 ? Math.abs(inheritance) * 0.3 : 0),
       invest: 0,
-      credit: clamp(620 + Math.round(wisdom / 2), 300, 850),
-      health: 100,
-      happy: 70,
-      equity: 0,
-      mortgage: 0,
+      credit: clamp(620 + Math.round((st.health + st.happy) / 8), 300, 850),
+      health: 100, happy: 70,
+      equity: 0, mortgage: 0, extraExpenses: 0,
     };
-    
-    const newHidden = { discipline: 50, reputation: 50, stress: 30, heat: 0 };
     
     setChar(newChar);
     setSt(newSt);
-    setHidden(newHidden);
     setGen(prev => prev + 1);
     setEcon(ECONOMY[1]);
     setEconTimer(0);
-    setHeirName('');
-    setHeirGender('m');
-    setHeirStyle(null);
-    setHeirCareer(null);
+    setYear(0);
+    setHeirName(''); setHeirGender('m'); setHeirStyle(null); setHeirCareer(null);
     setScreen('game');
     
-    setTimeout(() => drawCard(newSt, newChar, newHidden, ECONOMY[1]), 200);
+    setTimeout(() => drawCard(newSt, newChar, ECONOMY[1], 0), 200);
   };
   
   // Drag handlers
-  const handleDragStart = (clientX) => {
-    startX.current = clientX;
-    setDragging(true);
-  };
-  
-  const handleDragMove = (clientX) => {
-    if (!dragging) return;
-    const diff = clientX - startX.current;
-    setCardOffset(diff);
-  };
-  
+  const handleDragStart = (clientX) => { startX.current = clientX; setDragging(true); };
+  const handleDragMove = (clientX) => { if (dragging) setCardOffset(clientX - startX.current); };
   const handleDragEnd = () => {
     setDragging(false);
-    if (Math.abs(cardOffset) > 80) {
-      swipe(cardOffset > 0 ? 'right' : 'left');
-    }
+    if (Math.abs(cardOffset) > 80) swipe(cardOffset > 0 ? 'right' : 'left');
     setCardOffset(0);
   };
   
@@ -2079,13 +1445,12 @@ function Game() {
       ...prev,
       cash: prev.cash - payment,
       debt: Math.max(0, prev.debt - payment),
-      credit: clamp(prev.credit + Math.floor(payment / 200), prev.credit, 850),
+      credit: clamp(prev.credit + Math.floor(payment / 500), prev.credit, 850),
     }));
     sfx.money();
     setToast({ text: `Paid ${fmt(payment)} toward debt!`, type: 'positive' });
   };
   
-  // Render helpers
   const hasSave = loadGame() !== null;
   
   // ============================================
@@ -2093,47 +1458,31 @@ function Game() {
   // ============================================
   return (
     <div className="app">
-      {/* ===== TITLE SCREEN ===== */}
+      {/* TITLE */}
       {screen === 'title' && (
         <div className="title-screen">
           <div className="title-crown">👑</div>
           <div className="title-main">KNIGHT TYCOON</div>
-          <div className="title-sub">Ultimate Edition</div>
-          <div className="version">V5.0</div>
+          <div className="title-sub">Real Consequences Edition</div>
+          <div className="version">V5.5</div>
           
           <div className="title-features">
-            <div className="title-feature">
-              <div className="title-feature-icon">💰</div>
-              <span>Build generational wealth</span>
-            </div>
-            <div className="title-feature">
-              <div className="title-feature-icon">👨‍👩‍👧‍👦</div>
-              <span>Start a family, invest in kids</span>
-            </div>
-            <div className="title-feature">
-              <div className="title-feature-icon">🏢</div>
-              <span>Start a business, become a millionaire</span>
-            </div>
-            <div className="title-feature">
-              <div className="title-feature-icon">⚖️</div>
-              <span>Crime is tempting but risky</span>
-            </div>
+            <div className="title-feature"><div className="title-feature-icon">💰</div><span>Yearly salary actually pays out</span></div>
+            <div className="title-feature"><div className="title-feature-icon">⚠️</div><span>Trap cards punish spam clicking</span></div>
+            <div className="title-feature"><div className="title-feature-icon">📉</div><span>Real expenses drain your money</span></div>
+            <div className="title-feature"><div className="title-feature-icon">🎷</div><span>Smooth jazz soundtrack</span></div>
           </div>
           
           <div className="title-buttons">
-            {hasSave && (
-              <button className="btn btn-primary btn-full" onClick={continueGame}>
-                ▶️ Continue Game
-              </button>
-            )}
+            {hasSave && <button className="btn btn-primary btn-full" onClick={continueGame}>▶️ Continue</button>}
             <button className={`btn ${hasSave ? 'btn-secondary' : 'btn-primary'} btn-full`} onClick={() => { sfx.click(); setScreen('setup'); setSetupStep(0); }}>
-              {hasSave ? 'New Game' : 'Start New Dynasty'}
+              {hasSave ? 'New Game' : 'Start Dynasty'}
             </button>
           </div>
         </div>
       )}
       
-      {/* ===== SETUP SCREEN ===== */}
+      {/* SETUP */}
       {screen === 'setup' && (
         <div className="scroll">
           <div className="header">
@@ -2195,7 +1544,7 @@ function Game() {
             <div className="setup-step">
               <div className="card" style={{ marginTop: 12 }}>
                 <div className="setup-title">Choose Your Path</div>
-                <div className="setup-subtitle">Select a career to start</div>
+                <div className="setup-subtitle">Salary is YEARLY (paid each turn)</div>
                 
                 <div className="form-group">
                   <label className="form-label">Career Path</label>
@@ -2204,9 +1553,9 @@ function Game() {
                       <div key={c.id} className={`option ${career === c.id ? 'selected' : ''}`} onClick={() => { sfx.click(); setCareer(c.id); }}>
                         <div className="option-icon">{c.icon}</div>
                         <div className="option-title">{c.name}</div>
-                        <div className="option-desc">{c.desc}</div>
-                        <div style={{ fontSize: 10, color: 'var(--gold)', marginTop: 6 }}>${c.start.toLocaleString()}/mo</div>
-                        <div style={{ fontSize: 9, color: 'var(--text-dim)' }}>{c.time}yr • {fmt(c.edu)} debt</div>
+                        <div style={{ fontSize: 11, color: 'var(--gold)', marginTop: 6 }}>{fmt(c.salary)}/yr</div>
+                        <div style={{ fontSize: 9, color: 'var(--text-dim)' }}>Cap: {fmt(c.cap)}</div>
+                        <div style={{ fontSize: 9, color: 'var(--red)' }}>{fmt(c.edu)} debt</div>
                       </div>
                     ))}
                   </div>
@@ -2229,16 +1578,14 @@ function Game() {
         </div>
       )}
       
-      {/* ===== GAME SCREEN ===== */}
+      {/* GAME */}
       {screen === 'game' && char && st && (
         <>
           <div className="header">
             <div className="logo">Knight Tycoon</div>
             <div className="header-actions">
               <span style={{ fontSize: 10, color: 'var(--green)', marginRight: 4 }}>✓ Saved</span>
-              <button className={`icon-btn ${musicOn ? 'active' : ''}`} onClick={() => setMusicOn(!musicOn)}>
-                {musicOn ? '🎵' : '🔇'}
-              </button>
+              <button className={`icon-btn ${musicOn ? 'active' : ''}`} onClick={() => setMusicOn(!musicOn)}>🎷</button>
               <button className="icon-btn" onClick={() => setModal('settings')}>⚙️</button>
             </div>
           </div>
@@ -2251,7 +1598,7 @@ function Game() {
                 <div className="player-name">{char.name} {lastName}</div>
                 <div className="player-meta">
                   <span className="player-meta-item">Age {char.age}</span>
-                  <span className="player-meta-item">{char.rel === 'married' ? '💍' : char.rel === 'engaged' ? '💕' : ''}</span>
+                  <span className="player-meta-item">Year {year}</span>
                   <span className="player-meta-item">{CAREERS.find(c => c.id === char.career)?.icon}</span>
                 </div>
               </div>
@@ -2259,30 +1606,29 @@ function Game() {
             </div>
             
             {/* Badges */}
-            {(char.foodStamps || char.section8 || char.rel === 'married' || char.kids.length > 0 || char.record || char.biz) && (
-              <div className="badges-row" style={{ marginTop: 8 }}>
-                {char.foodStamps && <span className="badge badge-yellow">🍎 SNAP</span>}
-                {char.section8 && <span className="badge badge-blue">🏠 Section 8</span>}
-                {char.rel === 'married' && <span className="badge badge-purple">💍 Married</span>}
-                {char.kids.length > 0 && <span className="badge badge-blue">👶 {char.kids.length} Kid{char.kids.length > 1 ? 's' : ''}</span>}
-                {char.record && !char.inJail && <span className="badge badge-red">📋 Record</span>}
-                {char.biz && <span className="badge badge-green">🏢 Business</span>}
-              </div>
-            )}
+            <div className="badges-row" style={{ marginTop: 8 }}>
+              {char.foodStamps && <span className="badge badge-yellow">🍎 SNAP</span>}
+              {char.section8 && <span className="badge badge-blue">🏠 Section 8</span>}
+              {char.rel === 'married' && <span className="badge badge-purple">💍 Married</span>}
+              {char.kids.length > 0 && <span className="badge badge-blue">👶 {char.kids.length} Kid{char.kids.length > 1 ? 's' : ''}</span>}
+              {char.record && !char.inJail && <span className="badge badge-red">📋 Record</span>}
+              {char.biz && <span className="badge badge-green">🏢 Business</span>}
+              {st.extraExpenses > 5000 && <span className="badge badge-orange">💸 High Expenses</span>}
+            </div>
             
-            {/* Jail Bar */}
+            {/* Jail */}
             {char.inJail && (
               <div className="jail-bar" style={{ marginTop: 8 }}>
                 <div className="jail-icon">⛓️</div>
-                <div className="jail-info">Currently Incarcerated</div>
-                <div className="jail-time">{char.jailTime} yr{char.jailTime > 1 ? 's' : ''} left</div>
+                <div className="jail-info">Incarcerated (No Income)</div>
+                <div className="jail-time">{char.jailTime} yr left</div>
               </div>
             )}
             
-            {/* Family Bar */}
+            {/* Family */}
             {char.kids.length > 0 && (
               <div className="family-bar" style={{ marginTop: 8 }}>
-                <div className="family-header">👨‍👩‍👧‍👦 Family</div>
+                <div className="family-header">👨‍👩‍👧‍👦 Family (-$15K/kid/yr)</div>
                 <div className="family-kids">
                   {char.kids.map(k => (
                     <div key={k.id} className="kid-chip">
@@ -2294,16 +1640,32 @@ function Game() {
               </div>
             )}
             
-            {/* Economy Bar */}
+            {/* Economy */}
             <div className="economy-bar" style={{ marginTop: 8 }}>
               <div className="economy-phase">
                 <div className={`economy-dot ${econ.color}`}></div>
                 <span>{econ.name}</span>
               </div>
-              <div className="economy-income">${st.income.toLocaleString()}/mo</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--gold)' }}>{fmt(st.salary)}/yr</div>
             </div>
             
-            {/* Stats Grid */}
+            {/* Year Summary */}
+            {yearSummary && (
+              <div className="year-summary">
+                <div className="year-title">📊 Year {year} Summary</div>
+                <div className="year-row"><span>Gross Income</span><span className="year-positive">+{fmt(yearSummary.income)}</span></div>
+                <div className="year-row"><span>Housing</span><span className="year-negative">-{fmt(yearSummary.housing)}</span></div>
+                <div className="year-row"><span>Living Expenses</span><span className="year-negative">-{fmt(yearSummary.living)}</span></div>
+                {yearSummary.kids > 0 && <div className="year-row"><span>Kids</span><span className="year-negative">-{fmt(yearSummary.kids)}</span></div>}
+                {yearSummary.extra > 0 && <div className="year-row"><span>Extra Expenses</span><span className="year-negative">-{fmt(yearSummary.extra)}</span></div>}
+                {yearSummary.debtInterest > 0 && <div className="year-row"><span>Debt Interest</span><span className="year-negative">-{fmt(yearSummary.debtInterest)}</span></div>}
+                <div className={`year-row total ${yearSummary.finalNet >= 0 ? 'year-positive' : 'year-negative'}`}>
+                  <span>Net Change</span><span>{yearSummary.finalNet >= 0 ? '+' : ''}{fmt(yearSummary.finalNet)}</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Stats */}
             <div className="stats-grid" style={{ marginTop: 8 }}>
               <div className="stat-card">
                 <div className="stat-icon">💵</div>
@@ -2315,10 +1677,10 @@ function Game() {
                 <div className="stat-value positive">{fmt(st.invest)}</div>
                 <div className="stat-label">Invested</div>
               </div>
-              <div className="stat-card clickable" onClick={() => st.debt > 0 && setModal('debt')}>
+              <div className="stat-card" onClick={() => st.debt > 0 && setModal('debt')}>
                 <div className="stat-icon">💳</div>
                 <div className={`stat-value ${st.debt > 0 ? 'negative' : ''}`}>{fmt(st.debt)}</div>
-                <div className="stat-label">{st.debt > 0 ? '↓ Tap to Pay' : 'Debt'}</div>
+                <div className="stat-label">{st.debt > 0 ? '↓ Tap Pay' : 'Debt'}</div>
               </div>
             </div>
             
@@ -2327,99 +1689,94 @@ function Game() {
                 <div className="stat-icon">📊</div>
                 <div className="stat-value">{st.credit}</div>
                 <div className="stat-label">Credit</div>
-                <div className="stat-bar">
-                  <div className="stat-bar-fill" style={{ width: `${((st.credit - 300) / 550) * 100}%`, background: 'linear-gradient(90deg, var(--red), var(--gold), var(--green))' }}></div>
-                </div>
+                <div className="stat-bar"><div className="stat-bar-fill" style={{ width: `${((st.credit - 300) / 550) * 100}%`, background: 'linear-gradient(90deg, var(--red), var(--gold), var(--green))' }}></div></div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">❤️</div>
                 <div className={`stat-value ${st.health < 30 ? 'negative' : ''}`}>{st.health}%</div>
                 <div className="stat-label">Health</div>
-                <div className="stat-bar">
-                  <div className="stat-bar-fill" style={{ width: `${st.health}%`, background: st.health > 50 ? 'var(--green)' : 'var(--red)' }}></div>
-                </div>
+                <div className="stat-bar"><div className="stat-bar-fill" style={{ width: `${st.health}%`, background: st.health > 50 ? 'var(--green)' : 'var(--red)' }}></div></div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">😊</div>
                 <div className="stat-value">{st.happy}%</div>
                 <div className="stat-label">Happy</div>
-                <div className="stat-bar">
-                  <div className="stat-bar-fill" style={{ width: `${st.happy}%`, background: st.happy > 50 ? 'var(--blue)' : 'var(--red)' }}></div>
-                </div>
+                <div className="stat-bar"><div className="stat-bar-fill" style={{ width: `${st.happy}%`, background: st.happy > 50 ? 'var(--blue)' : 'var(--red)' }}></div></div>
               </div>
             </div>
             
-            {/* Swipe Card */}
-            <div className="card-area">
-              {card && (
-                <div
-                  className={`swipe-card ${card.type || ''} ${cardOffset < -20 ? 'swipe-left' : ''} ${cardOffset > 20 ? 'swipe-right' : ''}`}
-                  style={{
-                    transform: `translateX(${cardOffset}px) rotate(${cardOffset * 0.03}deg)`,
-                    transition: dragging ? 'none' : 'transform 0.2s ease',
-                  }}
-                  onMouseDown={e => handleDragStart(e.clientX)}
-                  onMouseMove={e => handleDragMove(e.clientX)}
-                  onMouseUp={handleDragEnd}
-                  onMouseLeave={() => dragging && handleDragEnd()}
-                  onTouchStart={e => handleDragStart(e.touches[0].clientX)}
-                  onTouchMove={e => handleDragMove(e.touches[0].clientX)}
-                  onTouchEnd={handleDragEnd}
-                >
-                  <div className="card-header">
-                    <div>
-                      <div className="card-category">{card.cat}</div>
-                      <div className="card-title">{card.title}</div>
+            {/* Card */}
+            {!yearSummary && (
+              <div className="card-area">
+                {card && (
+                  <div
+                    className={`swipe-card ${card.type || ''} ${cardOffset < -20 ? 'swipe-left' : ''} ${cardOffset > 20 ? 'swipe-right' : ''}`}
+                    style={{ transform: `translateX(${cardOffset}px) rotate(${cardOffset * 0.03}deg)`, transition: dragging ? 'none' : 'transform 0.2s ease' }}
+                    onMouseDown={e => handleDragStart(e.clientX)}
+                    onMouseMove={e => handleDragMove(e.clientX)}
+                    onMouseUp={handleDragEnd}
+                    onMouseLeave={() => dragging && handleDragEnd()}
+                    onTouchStart={e => handleDragStart(e.touches[0].clientX)}
+                    onTouchMove={e => handleDragMove(e.touches[0].clientX)}
+                    onTouchEnd={handleDragEnd}
+                  >
+                    <div className="card-header">
+                      <div>
+                        <div className="card-category">{card.cat}</div>
+                        <div className="card-title">{card.title}</div>
+                      </div>
+                      <div className="card-icon">{card.icon}</div>
                     </div>
-                    <div className="card-icon">{card.icon}</div>
+                    
+                    <div className="card-desc">{card.desc}</div>
+                    
+                    {card.warning && <div className="card-warning">{card.warning}</div>}
+                    
+                    {card.isEvent ? (
+                      <div style={{ marginTop: 'auto', paddingTop: 12 }}>
+                        {Object.entries(card.imp).map(([k, v]) => (
+                          <span key={k} style={{ display: 'inline-block', padding: '6px 12px', borderRadius: 6, marginRight: 8, marginBottom: 8, background: v > 0 ? 'var(--green-bg)' : 'var(--red-bg)', color: v > 0 ? 'var(--green)' : 'var(--red)', fontSize: 12, fontWeight: 700 }}>
+                            {k === 'cash' && `${v > 0 ? '+' : ''}${fmt(v)}`}
+                            {k === 'salary' && `${v > 0 ? '+' : ''}${fmt(v)}/yr`}
+                            {k === 'expenses' && `${v > 0 ? '+' : ''}${fmt(v)}/yr costs`}
+                            {k === 'invest' && `${v > 0 ? '+' : ''}${fmt(v)} inv`}
+                            {k === 'health' && `${v > 0 ? '+' : ''}${v} hp`}
+                            {k === 'happy' && `${v > 0 ? '+' : ''}${v} 😊`}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="card-choices">
+                        <div className="card-choice left">
+                          <div className="choice-label">← {card.left?.label}</div>
+                          <div className="choice-effect">{card.left?.effect}</div>
+                        </div>
+                        <div className={`card-choice ${card.isTrap ? 'trap-right' : 'right'}`}>
+                          <div className="choice-label">{card.right?.label} →</div>
+                          <div className="choice-effect">{card.right?.effect}</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="card-desc">{card.desc}</div>
-                  
-                  {card.isEvent ? (
-                    <div className="event-effects">
-                      {Object.entries(card.imp).map(([k, v]) => (
-                        <span key={k} className={`effect-tag ${v > 0 ? 'positive' : 'negative'}`}>
-                          {k === 'cash' && `${v > 0 ? '+' : ''}${fmt(v)}`}
-                          {k === 'invest' && `${v > 0 ? '+' : ''}${fmt(v)} inv`}
-                          {k === 'income' && `${v > 0 ? '+' : ''}$${v}/mo`}
-                          {k === 'credit' && `${v > 0 ? '+' : ''}${v} cr`}
-                          {k === 'health' && `${v > 0 ? '+' : ''}${v} hp`}
-                          {k === 'happy' && `${v > 0 ? '+' : ''}${v} 😊`}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="card-choices">
-                      <div className="card-choice left">
-                        <div className="choice-label">← {card.left?.label}</div>
-                        <div className="choice-effect">{card.left?.effect}</div>
-                      </div>
-                      <div className="card-choice right">
-                        <div className="choice-label">{card.right?.label} →</div>
-                        <div className="choice-effect">{card.right?.effect}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
             
             {/* Action Buttons */}
-            {card && !card.isEvent && card.type !== 'jail' && (
+            {!yearSummary && card && !card.isEvent && card.type !== 'jail' && (
               <div className="action-buttons">
                 <button className="action-btn no" onClick={() => swipe('left')}>✕</button>
                 <button className="action-btn yes" onClick={() => swipe('right')}>✓</button>
               </div>
             )}
             
-            {card?.isEvent && (
+            {!yearSummary && card?.isEvent && (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
                 <button className="btn btn-primary" onClick={() => swipe('right')}>Continue</button>
               </div>
             )}
             
-            {card?.type === 'jail' && (
+            {!yearSummary && card?.type === 'jail' && (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
                 <button className="btn btn-ghost" onClick={() => swipe('right')}>Serve Time</button>
               </div>
@@ -2428,33 +1785,21 @@ function Game() {
         </>
       )}
       
-      {/* ===== TRANSITION SCREEN ===== */}
+      {/* TRANSITION */}
       {screen === 'transition' && char && (
         <div className="scroll">
           <div className="end-screen" style={{ height: 'auto', paddingTop: 40 }}>
-            <div className="end-icon">{char.age >= 65 ? '🌅' : '💫'}</div>
-            <div className="end-title">{char.age >= 65 ? 'Retirement' : 'End of Era'}</div>
+            <div className="end-icon">{char.age >= 65 ? '🌅' : st.health <= 0 ? '💔' : '📉'}</div>
+            <div className="end-title">{char.age >= 65 ? 'Retirement' : st.health <= 0 ? 'Health Declined' : 'Bankruptcy'}</div>
             <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>{char.name} {lastName} • Age {char.age}</div>
             
             <PixelChar style={char.style} gender={char.gender} size="lg" />
             
             <div className="end-stats">
-              <div className="end-stat">
-                <div className="end-stat-value">{fmt(netWorth(st))}</div>
-                <div className="end-stat-label">Net Worth</div>
-              </div>
-              <div className="end-stat">
-                <div className="end-stat-value">{char.kids.length}</div>
-                <div className="end-stat-label">Children</div>
-              </div>
-              <div className="end-stat">
-                <div className="end-stat-value">{fmt(char.kids.reduce((a, k) => a + (k.invested || 0), 0))}</div>
-                <div className="end-stat-label">Kid Investments</div>
-              </div>
-              <div className="end-stat">
-                <div className="end-stat-value">{st.credit}</div>
-                <div className="end-stat-label">Credit Score</div>
-              </div>
+              <div className="end-stat"><div className={`end-stat-value ${netWorth(st) >= 0 ? '' : 'negative'}`}>{fmt(netWorth(st))}</div><div className="end-stat-label">Net Worth</div></div>
+              <div className="end-stat"><div className="end-stat-value">{char.kids.length}</div><div className="end-stat-label">Children</div></div>
+              <div className="end-stat"><div className="end-stat-value">{fmt(char.kids.reduce((a, k) => a + (k.invested || 0), 0))}</div><div className="end-stat-label">Kid Investments</div></div>
+              <div className="end-stat"><div className="end-stat-value">{st.credit}</div><div className="end-stat-label">Credit Score</div></div>
             </div>
           </div>
           
@@ -2470,14 +1815,8 @@ function Game() {
             <div className="form-group">
               <label className="form-label">Gender</label>
               <div className="option-grid">
-                <div className={`option ${heirGender === 'm' ? 'selected' : ''}`} onClick={() => { sfx.click(); setHeirGender('m'); setHeirStyle(null); }}>
-                  <div className="option-icon">👨</div>
-                  <div className="option-title">Male</div>
-                </div>
-                <div className={`option ${heirGender === 'f' ? 'selected' : ''}`} onClick={() => { sfx.click(); setHeirGender('f'); setHeirStyle(null); }}>
-                  <div className="option-icon">👩</div>
-                  <div className="option-title">Female</div>
-                </div>
+                <div className={`option ${heirGender === 'm' ? 'selected' : ''}`} onClick={() => { sfx.click(); setHeirGender('m'); setHeirStyle(null); }}><div className="option-icon">👨</div><div className="option-title">Male</div></div>
+                <div className={`option ${heirGender === 'f' ? 'selected' : ''}`} onClick={() => { sfx.click(); setHeirGender('f'); setHeirStyle(null); }}><div className="option-icon">👩</div><div className="option-title">Female</div></div>
               </div>
             </div>
             
@@ -2512,7 +1851,7 @@ function Game() {
         </div>
       )}
       
-      {/* ===== MODALS ===== */}
+      {/* MODALS */}
       {modal === 'settings' && (
         <div className="modal-backdrop" onClick={() => setModal(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -2522,17 +1861,13 @@ function Game() {
             </div>
             
             <div className="setting-row">
-              <span>🎵 Music</span>
-              <button className={`toggle ${musicOn ? 'on' : ''}`} onClick={() => setMusicOn(!musicOn)}>
-                <div className="toggle-knob"></div>
-              </button>
+              <span>🎷 Jazz Music</span>
+              <button className={`toggle ${musicOn ? 'on' : ''}`} onClick={() => setMusicOn(!musicOn)}><div className="toggle-knob"></div></button>
             </div>
             
             <div className="setting-row">
               <span>🔊 Sound Effects</span>
-              <button className={`toggle ${sfxOn ? 'on' : ''}`} onClick={() => setSfxOn(!sfxOn)}>
-                <div className="toggle-knob"></div>
-              </button>
+              <button className={`toggle ${sfxOn ? 'on' : ''}`} onClick={() => setSfxOn(!sfxOn)}><div className="toggle-knob"></div></button>
             </div>
             
             <div className="modal-divider"></div>
@@ -2557,13 +1892,13 @@ function Game() {
             </div>
             
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Current Debt</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Current Debt (18% APR)</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--red)' }}>{fmt(st.debt)}</div>
               <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Available: {fmt(st.cash)}</div>
             </div>
             
             <div className="debt-amounts">
-              {[500, 1000, 2500, 5000, 10000].map(amt => (
+              {[1000, 5000, 10000, 25000, 50000].map(amt => (
                 <button key={amt} className="btn btn-ghost btn-sm" onClick={() => { payDebt(amt); setModal(null); }} disabled={st.cash < amt || st.debt <= 0}>
                   {fmt(amt)}
                 </button>
@@ -2577,24 +1912,14 @@ function Game() {
       )}
       
       {/* Toast */}
-      {toast && (
-        <div className={`toast ${toast.type || ''}`}>{toast.text}</div>
-      )}
+      {toast && <div className={`toast ${toast.type || ''}`}>{toast.text}</div>}
       
-      {/* Achievement Popup */}
-      {achievement && (
-        <div className="achievement-popup">
-          <div className="achievement-icon">{achievement.icon}</div>
-          <div>{achievement.title}</div>
-        </div>
-      )}
+      {/* Achievement */}
+      {achievement && <div className="achievement-popup"><div className="achievement-icon">{achievement.icon}</div><div>{achievement.title}</div></div>}
     </div>
   );
 }
 
-// ============================================
-// RENDER
-// ============================================
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Game />);
 </script>
