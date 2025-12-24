@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Knight Tycoon - Build Your Legacy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Knight Tycoon - Build Your Dynasty</title>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,6 +13,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     :root {
@@ -27,6 +28,7 @@
       --green: #4ADE80;
       --red: #F87171;
       --blue: #60A5FA;
+      --purple: #A78BFA;
     }
 
     body {
@@ -34,26 +36,31 @@
       background: var(--bg-dark);
       color: var(--text-primary);
       min-height: 100vh;
-      overflow-x: hidden;
+      overflow: hidden;
+      touch-action: pan-y;
     }
 
     .game-container {
-      max-width: 480px;
+      max-width: 420px;
       margin: 0 auto;
-      padding: 20px;
-      min-height: 100vh;
+      padding: 16px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .header {
       text-align: center;
-      padding: 20px 0;
+      padding: 12px 0;
       border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-      margin-bottom: 24px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
     }
 
     .logo {
       font-family: 'Playfair Display', serif;
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 700;
       color: var(--gold);
       letter-spacing: 2px;
@@ -63,38 +70,345 @@
       color: var(--text-primary);
     }
 
-    .tagline {
+    /* Abstract Avatar System */
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 12px;
+      position: relative;
+      border: 3px solid var(--gold);
+    }
+
+    .avatar-small {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      border-width: 2px;
+    }
+
+    .avatar-tiny {
+      width: 28px;
+      height: 28px;
+      font-size: 12px;
+      border-width: 1px;
+    }
+
+    /* Character Info Bar */
+    .character-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+
+    .character-info {
+      flex: 1;
+    }
+
+    .character-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .character-age {
       font-size: 12px;
       color: var(--text-secondary);
-      margin-top: 4px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
     }
 
-    .screen {
-      animation: fadeIn 0.3s ease;
+    .generation-badge {
+      background: var(--gold);
+      color: var(--bg-dark);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 12px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
     }
 
-    .title-screen {
+    .stat-box {
+      background: var(--bg-card);
+      padding: 10px 6px;
+      border-radius: 8px;
       text-align: center;
-      padding: 40px 0;
     }
 
-    .title-screen h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 42px;
+    .stat-icon {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 13px;
+      font-weight: 600;
       color: var(--gold);
+    }
+
+    .stat-value.positive { color: var(--green); }
+    .stat-value.negative { color: var(--red); }
+
+    .stat-label {
+      font-size: 9px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Swipe Card Area */
+    .card-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 280px;
+    }
+
+    .swipe-card {
+      position: absolute;
+      width: 100%;
+      max-width: 340px;
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      cursor: grab;
+      user-select: none;
+      transition: box-shadow 0.2s;
+    }
+
+    .swipe-card:active {
+      cursor: grabbing;
+    }
+
+    .swipe-card.swiping-left {
+      border-color: var(--red);
+      box-shadow: -8px 0 24px rgba(248, 113, 113, 0.3);
+    }
+
+    .swipe-card.swiping-right {
+      border-color: var(--green);
+      box-shadow: 8px 0 24px rgba(74, 222, 128, 0.3);
+    }
+
+    .card-icon {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      text-align: center;
       margin-bottom: 8px;
     }
 
-    .title-screen p {
+    .card-desc {
+      font-size: 14px;
       color: var(--text-secondary);
-      margin-bottom: 40px;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .card-choices {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .choice-hint {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .choice-hint.left {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      color: var(--red);
+    }
+
+    .choice-hint.right {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: var(--green);
+    }
+
+    .swipe-indicators {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      margin-bottom: 8px;
+    }
+
+    .swipe-indicator {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Action Buttons (for non-touch) */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      padding: 16px 0;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid;
+      background: transparent;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-btn.decline {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .action-btn.decline:hover {
+      background: var(--red);
+      color: var(--bg-dark);
+    }
+
+    .action-btn.accept {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .action-btn.accept:hover {
+      background: var(--green);
+      color: var(--bg-dark);
+    }
+
+    /* Family Tree */
+    .family-tree {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .tree-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .tree-members {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tree-member {
+      text-align: center;
+      opacity: 0.5;
+    }
+
+    .tree-member.current {
+      opacity: 1;
+    }
+
+    .tree-member-name {
+      font-size: 9px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Transition Screens */
+    .transition-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .transition-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+
+    .transition-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: var(--gold);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .transition-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .inheritance-box {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 24px;
+    }
+
+    .inheritance-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .inheritance-row:last-child {
+      border-bottom: none;
     }
 
     .btn {
@@ -121,18 +435,65 @@
       color: var(--gold);
     }
 
-    .btn-secondary:hover {
-      background: rgba(212, 175, 55, 0.1);
+    /* Title Screen */
+    .title-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 24px;
     }
 
-    .btn-small {
-      padding: 10px 20px;
+    .title-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .title-tagline {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
       font-size: 14px;
+    }
+
+    .title-avatars {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .how-to-play {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 24px 0;
+      text-align: left;
+      max-width: 320px;
+    }
+
+    .how-to-play h3 {
+      font-size: 14px;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .how-to-play p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Setup Screen */
+    .setup-screen {
+      padding: 20px 0;
+      overflow-y: auto;
     }
 
     .input-group {
       margin-bottom: 20px;
-      text-align: left;
     }
 
     .input-group label {
@@ -160,363 +521,148 @@
       border-color: var(--gold);
     }
 
-    .stat-bar {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .stat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .stat-value {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--gold);
-    }
-
-    .stat-value.positive {
-      color: var(--green);
-    }
-
-    .stat-value.negative {
-      color: var(--red);
-    }
-
-    .progress-bar {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
-      border-radius: 3px;
-      transition: width 0.5s ease;
-    }
-
-    .progress-fill.credit {
-      background: linear-gradient(90deg, var(--red), var(--gold), var(--green));
-    }
-
-    .wealth-tier {
-      text-align: center;
-      padding: 20px;
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-
-    .tier-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-
-    .tier-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px;
-      color: var(--gold);
-      margin-bottom: 4px;
-    }
-
-    .tier-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .month-display {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .month-number {
-      font-family: 'Playfair Display', serif;
-      font-size: 48px;
-      color: var(--gold);
-    }
-
-    .month-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .decision-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .decision-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .decision-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
-    .choice-btn {
-      width: 100%;
-      background: var(--bg-card-hover);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 14px 16px;
-      font-size: 14px;
-      color: var(--text-primary);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 8px;
-      text-align: left;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .choice-btn:hover {
-      border-color: var(--gold);
-      background: rgba(212, 175, 55, 0.1);
-    }
-
-    .choice-impact {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .event-card {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
-      border: 1px solid var(--gold);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .event-icon {
-      font-size: 40px;
-      margin-bottom: 12px;
-    }
-
-    .event-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px;
-      color: var(--gold);
-      margin-bottom: 8px;
-    }
-
-    .event-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .event-impact {
-      font-size: 14px;
-      font-weight: 600;
-      padding: 8px 16px;
-      border-radius: 20px;
-      display: inline-block;
-    }
-
-    .event-impact.positive {
-      background: rgba(74, 222, 128, 0.2);
-      color: var(--green);
-    }
-
-    .event-impact.negative {
-      background: rgba(248, 113, 113, 0.2);
-      color: var(--red);
-    }
-
-    .premium-banner {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .premium-badge {
-      background: var(--gold);
-      color: var(--bg-dark);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-    }
-
-    .premium-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .premium-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .locked-paths {
+    .avatar-picker {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 20px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
     }
 
-    .locked-path {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px dashed rgba(212, 175, 55, 0.3);
-      border-radius: 8px;
-      padding: 16px 12px;
-      text-align: center;
-      opacity: 0.7;
-    }
-
-    .locked-path-icon {
+    .avatar-option {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 24px;
-      margin-bottom: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
     }
 
-    .locked-path-name {
-      font-size: 12px;
-      color: var(--text-secondary);
+    .avatar-option:hover {
+      transform: scale(1.1);
     }
 
-    .lock-icon {
-      font-size: 10px;
-      color: var(--gold);
+    .avatar-option.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
     }
 
-    .game-over {
-      text-align: center;
-      padding: 40px 0;
+    .color-picker {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
     }
 
-    .game-over h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 32px;
-      color: var(--gold);
-      margin-bottom: 20px;
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
     }
 
-    .final-stats {
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: white;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Game Over */
+    .dynasty-summary {
       background: var(--bg-card);
       border-radius: 12px;
-      padding: 24px;
+      padding: 20px;
       margin: 20px 0;
+      max-width: 340px;
     }
 
-    .final-stat {
+    .dynasty-stat {
       display: flex;
       justify-content: space-between;
       padding: 12px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .final-stat:last-child {
+    .dynasty-stat:last-child {
       border-bottom: none;
     }
 
-    .share-btn {
-      margin-top: 20px;
-    }
-
-    .starting-options {
-      display: grid;
-      gap: 12px;
-      margin: 20px 0;
-    }
-
-    .start-option {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-    }
-
-    .start-option:hover {
-      border-color: var(--gold);
-      transform: translateY(-2px);
-    }
-
-    .start-option.selected {
-      border-color: var(--gold);
-      background: rgba(212, 175, 55, 0.1);
-    }
-
-    .start-option-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .start-option-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .start-option-stats {
-      margin-top: 12px;
-      font-size: 12px;
-      color: var(--gold);
-    }
-
-    .actions-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .actions-row .btn {
-      flex: 1;
-    }
-
-    .result-message {
-      background: var(--bg-card);
+    /* Premium Banner */
+    .premium-banner {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
       border-radius: 12px;
       padding: 16px;
-      margin-bottom: 16px;
+      margin-top: 16px;
       text-align: center;
     }
 
-    .result-message.positive {
-      border: 1px solid var(--green);
+    .premium-badge {
+      background: var(--gold);
+      color: var(--bg-dark);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 8px;
     }
 
-    .result-message.negative {
-      border: 1px solid var(--red);
+    .premium-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      margin-bottom: 6px;
     }
 
-    .result-message.neutral {
-      border: 1px solid var(--blue);
+    .premium-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .result-toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px 32px;
+      text-align: center;
+      z-index: 50;
+      animation: popIn 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .result-toast.positive {
+      border-color: var(--green);
+    }
+
+    .result-toast.negative {
+      border-color: var(--red);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .wisdom-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(167, 139, 250, 0.2);
+      color: var(--purple);
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -524,569 +670,772 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
-    // Game constants
-    const WEALTH_TIERS = [
-      { name: "Surviving", icon: "🏚️", desc: "Living paycheck to paycheck", minNetWorth: -Infinity, maxNetWorth: 999 },
-      { name: "Stable", icon: "🏠", desc: "Building your foundation", minNetWorth: 1000, maxNetWorth: 24999 },
-      { name: "Building", icon: "🏢", desc: "Growing your wealth", minNetWorth: 25000, maxNetWorth: 99999 },
-      { name: "Thriving", icon: "🏰", desc: "Multiple income streams", minNetWorth: 100000, maxNetWorth: 499999 },
-      { name: "Generational", icon: "👑", desc: "Legacy wealth achieved", minNetWorth: 500000, maxNetWorth: Infinity }
+    // Avatar symbols - abstract, non-racial
+    const AVATAR_SYMBOLS = ['◆', '●', '▲', '★', '◈', '✦', '⬡', '◉', '✧', '⬢'];
+    
+    const AVATAR_COLORS = [
+      '#D4AF37', // Gold
+      '#60A5FA', // Blue
+      '#4ADE80', // Green  
+      '#F87171', // Red
+      '#A78BFA', // Purple
+      '#FB923C', // Orange
+      '#2DD4BF', // Teal
+      '#F472B6', // Pink
+      '#FBBF24', // Yellow
+      '#94A3B8', // Gray
     ];
 
-    const STARTING_SCENARIOS = [
-      {
-        id: "minimum_wage",
-        title: "The Grind",
-        desc: "Starting from the bottom with a minimum wage job",
-        income: 1800,
-        savings: 200,
-        creditScore: 580,
-        debt: 500
-      },
-      {
-        id: "fresh_graduate",
-        title: "Fresh Graduate",
-        desc: "College degree in hand, student loans in tow",
-        income: 3500,
-        savings: 500,
-        creditScore: 650,
-        debt: 35000
-      },
-      {
-        id: "second_chance",
-        title: "Second Chance",
-        desc: "Rebuilding after bankruptcy",
-        income: 2800,
-        savings: 100,
-        creditScore: 500,
-        debt: 0
-      }
-    ];
-
+    // Game decisions with swipe choices
     const DECISIONS = [
       {
-        id: "car_trouble",
-        title: "Car Problems",
-        desc: "Your car needs a $800 repair. Without it, getting to work becomes difficult.",
-        choices: [
-          { text: "Pay for the repair", impact: { savings: -800 }, result: "You paid for repairs. Reliable transportation maintained." },
-          { text: "Use credit card", impact: { debt: 800, creditScore: -5 }, result: "Charged to credit. Your utilization increased." },
-          { text: "Ignore it and take the bus", impact: { income: -200 }, result: "Commute time doubled. Less overtime available." }
-        ]
+        id: 'overtime',
+        icon: '💼',
+        title: 'Extra Hours',
+        desc: 'Your boss offers overtime this weekend. More money, less rest.',
+        left: { text: 'Decline - Rest up', impact: { health: 5, happiness: 5 } },
+        right: { text: 'Accept - Get paid', impact: { wealth: 300, health: -5 } }
       },
       {
-        id: "side_hustle",
-        title: "Side Hustle Opportunity",
-        desc: "A friend offers you weekend work. It pays $400/month but takes time.",
-        choices: [
-          { text: "Take the extra work", impact: { income: 400 }, result: "Extra income secured! Hustle pays off." },
-          { text: "Focus on main job", impact: { creditScore: 5 }, result: "Stayed focused. Paid bills consistently." },
-          { text: "Start your own thing", impact: { savings: -500, income: 600 }, result: "Invested in yourself. Higher risk, higher reward." }
-        ]
+        id: 'investment',
+        icon: '📈',
+        title: 'Investment Tip',
+        desc: 'A friend recommends putting money in index funds.',
+        left: { text: 'Keep cash safe', impact: { wisdom: 2 } },
+        right: { text: 'Invest $500', impact: { wealth: -500, investments: 500 } }
       },
       {
-        id: "credit_card_offer",
-        title: "Credit Card Offer",
-        desc: "You received a pre-approved credit card with $5,000 limit and 22% APR.",
-        choices: [
-          { text: "Accept and use responsibly", impact: { creditScore: 15 }, result: "New credit line helps your score!" },
-          { text: "Accept but max it out", impact: { debt: 3000, creditScore: -25 }, result: "High utilization hurt your score." },
-          { text: "Decline the offer", impact: {}, result: "Played it safe. No change." }
-        ]
+        id: 'credit_card',
+        icon: '💳',
+        title: 'Credit Card Offer',
+        desc: 'Pre-approved for a $5,000 limit card. Could help or hurt.',
+        left: { text: 'Decline it', impact: { wisdom: 3 } },
+        right: { text: 'Accept wisely', impact: { credit: 15 } }
       },
       {
-        id: "investment_chance",
-        title: "Investment Opportunity",
-        desc: "A colleague recommends investing in index funds. Minimum $500.",
-        choices: [
-          { text: "Invest $500", impact: { savings: -500, netWorthBonus: 75 }, result: "Smart move! Investment growing." },
-          { text: "Invest $1000", impact: { savings: -1000, netWorthBonus: 175 }, result: "Aggressive play! Portfolio building." },
-          { text: "Keep cash for now", impact: {}, result: "Stayed liquid. Safe but no growth." }
-        ]
+        id: 'side_hustle',
+        icon: '🚀',
+        title: 'Side Business',
+        desc: 'You have an idea for a small business. Takes time and money to start.',
+        left: { text: 'Not now', impact: { happiness: -5 } },
+        right: { text: 'Go for it', impact: { wealth: -1000, income: 200 } }
       },
       {
-        id: "rent_increase",
-        title: "Rent Increase",
-        desc: "Your landlord is raising rent by $200/month. What do you do?",
-        choices: [
-          { text: "Pay the increase", impact: { savings: -200 }, result: "Absorbed the cost. Stability maintained." },
-          { text: "Negotiate", impact: { savings: -100 }, result: "Negotiated down to $100 increase!" },
-          { text: "Find cheaper place", impact: { savings: -1500, income: 100 }, result: "Moving costs hurt, but lower rent helps." }
-        ]
+        id: 'education',
+        icon: '📚',
+        title: 'Online Course',
+        desc: 'A certification could boost your career. Costs $800.',
+        left: { text: 'Self-teach free', impact: { income: 50, wisdom: 3 } },
+        right: { text: 'Get certified', impact: { wealth: -800, income: 150 } }
       },
       {
-        id: "medical_bill",
-        title: "Unexpected Medical Bill",
-        desc: "An ER visit left you with a $1,200 bill. Insurance covered only part.",
-        choices: [
-          { text: "Pay in full", impact: { savings: -1200 }, result: "Paid off. No debt incurred." },
-          { text: "Set up payment plan", impact: { debt: 1200 }, result: "Monthly payments added to expenses." },
-          { text: "Negotiate the bill down", impact: { savings: -600 }, result: "Negotiated 50% off! Always ask." }
-        ]
+        id: 'car_trouble',
+        icon: '🚗',
+        title: 'Car Problems',
+        desc: 'Your car needs $600 in repairs. Public transit is an option.',
+        left: { text: 'Take the bus', impact: { happiness: -10, income: -100 } },
+        right: { text: 'Fix the car', impact: { wealth: -600 } }
       },
       {
-        id: "job_offer",
-        title: "New Job Offer",
-        desc: "A competing company offers 20% more salary but less job security.",
-        choices: [
-          { text: "Take the new job", impact: { income: 600 }, result: "Risk paid off! Higher income secured." },
-          { text: "Use offer to negotiate raise", impact: { income: 300 }, result: "Got a counter-offer! Smart move." },
-          { text: "Stay loyal", impact: { creditScore: 5 }, result: "Stability maintained. Consistent payments." }
-        ]
+        id: 'medical',
+        icon: '🏥',
+        title: 'Health Checkup',
+        desc: "You've been putting off a doctor visit. Insurance covers most.",
+        left: { text: "I feel fine", impact: { health: -10 } },
+        right: { text: 'Get checked', impact: { wealth: -150, health: 15 } }
       },
       {
-        id: "dispute_error",
-        title: "Credit Report Error",
-        desc: "You found an error on your credit report - a debt that isn't yours.",
-        choices: [
-          { text: "Dispute it properly (FCRA)", impact: { creditScore: 40 }, result: "Disputed and removed! Score jumped." },
-          { text: "Ignore it", impact: { creditScore: -20 }, result: "Error stayed. Score suffered." },
-          { text: "Pay it to make it go away", impact: { savings: -800, creditScore: -10 }, result: "Paid someone else's debt. Bad move." }
-        ]
+        id: 'rent_vs_buy',
+        icon: '🏠',
+        title: 'Housing Decision',
+        desc: 'You could keep renting or save harder for a down payment.',
+        left: { text: 'Keep renting', impact: { happiness: 5 } },
+        right: { text: 'Save for home', impact: { wealth: -300, wisdom: 5 } }
       },
       {
-        id: "tax_refund",
-        title: "Tax Refund",
-        desc: "You received a $2,400 tax refund. How do you use it?",
-        choices: [
-          { text: "Pay down debt", impact: { debt: -2400, creditScore: 20 }, result: "Debt slashed! Utilization improved." },
-          { text: "Build emergency fund", impact: { savings: 2400 }, result: "Safety net established!" },
-          { text: "Treat yourself", impact: { savings: 800 }, result: "Enjoyed some, saved some." }
-        ]
+        id: 'family_loan',
+        icon: '👨‍👩‍👧',
+        title: 'Family Asks',
+        desc: 'A relative needs $500 for an emergency. They might pay back.',
+        left: { text: 'Decline kindly', impact: { happiness: -10, wisdom: 2 } },
+        right: { text: 'Help them out', impact: { wealth: -500, happiness: 10 } }
       },
       {
-        id: "education",
-        title: "Skill Development",
-        desc: "An online certification could boost your earning potential. Costs $800.",
-        choices: [
-          { text: "Invest in education", impact: { savings: -800, income: 400 }, result: "New skills = higher value!" },
-          { text: "Find free alternatives", impact: { income: 150 }, result: "Self-taught. Slower but free." },
-          { text: "Not right now", impact: {}, result: "Focused on current situation." }
-        ]
+        id: 'negotiate',
+        icon: '🤝',
+        title: 'Salary Review',
+        desc: "It's time to ask for a raise. Risky but could pay off.",
+        left: { text: 'Stay quiet', impact: { happiness: -5 } },
+        right: { text: 'Ask for more', impact: { income: 200, wisdom: 5 } }
+      },
+      {
+        id: 'debt_payoff',
+        icon: '📋',
+        title: 'Debt Strategy',
+        desc: 'Use your bonus to pay debt or invest for growth?',
+        left: { text: 'Pay down debt', impact: { debt: -1000, credit: 20 } },
+        right: { text: 'Invest it', impact: { investments: 1000 } }
+      },
+      {
+        id: 'insurance',
+        icon: '🛡️',
+        title: 'Life Insurance',
+        desc: 'An agent offers a policy. Good for family, costs monthly.',
+        left: { text: 'Not yet', impact: {} },
+        right: { text: 'Protect family', impact: { wealth: -50, wisdom: 10 } }
+      },
+      {
+        id: 'charity',
+        icon: '❤️',
+        title: 'Give Back',
+        desc: 'A cause you believe in is fundraising. Every bit helps.',
+        left: { text: 'Not this time', impact: { happiness: -3 } },
+        right: { text: 'Donate $100', impact: { wealth: -100, happiness: 15 } }
+      },
+      {
+        id: 'vacation',
+        icon: '✈️',
+        title: 'Time Off',
+        desc: "You need a break. Vacation costs but you'll feel refreshed.",
+        left: { text: 'Staycation', impact: { happiness: 5, health: 5 } },
+        right: { text: 'Take the trip', impact: { wealth: -800, happiness: 25, health: 10 } }
+      },
+      {
+        id: 'credit_error',
+        icon: '📊',
+        title: 'Credit Report Error',
+        desc: 'You spot a mistake on your credit report. Worth disputing?',
+        left: { text: 'Ignore it', impact: { credit: -15 } },
+        right: { text: 'Dispute it', impact: { credit: 30, wisdom: 10 } }
+      },
+      {
+        id: 'emergency_fund',
+        icon: '🏦',
+        title: 'Emergency Savings',
+        desc: 'Financial advisors say save 6 months expenses.',
+        left: { text: 'Live for today', impact: { happiness: 5 } },
+        right: { text: 'Build the fund', impact: { wealth: -200, wisdom: 8 } }
+      },
+      {
+        id: 'mentor',
+        icon: '🎓',
+        title: 'Mentorship',
+        desc: 'Someone successful offers to mentor you. Takes time.',
+        left: { text: 'Too busy', impact: {} },
+        right: { text: 'Learn from them', impact: { wisdom: 20, income: 100 } }
+      },
+      {
+        id: 'budget',
+        icon: '📝',
+        title: 'Budgeting',
+        desc: 'Time to track every dollar or keep things flexible?',
+        left: { text: 'Stay flexible', impact: { happiness: 3 } },
+        right: { text: 'Strict budget', impact: { wealth: 200, wisdom: 5 } }
       }
     ];
 
-    const RANDOM_EVENTS = [
-      { title: "Unexpected Bonus!", icon: "🎉", desc: "Your hard work got noticed.", impact: { savings: 1000 }, positive: true },
-      { title: "Car Accident", icon: "🚗", desc: "Minor fender bender. Insurance deductible due.", impact: { savings: -500 }, positive: false },
-      { title: "Utility Bill Spike", icon: "💡", desc: "Extreme weather drove up your bills.", impact: { savings: -200 }, positive: false },
-      { title: "Cash Back Rewards", icon: "💳", desc: "Your credit card rewards added up!", impact: { savings: 150 }, positive: true },
-      { title: "Identity Theft Scare", icon: "🔓", desc: "Caught early, but cost you time and money.", impact: { savings: -300, creditScore: -15 }, positive: false },
-      { title: "Referral Bonus", icon: "🤝", desc: "Referred a friend to your company.", impact: { savings: 500 }, positive: true },
-      { title: "Interest Rate Drop", icon: "📉", desc: "Refinanced debt at lower rate!", impact: { debt: -500, creditScore: 10 }, positive: true },
-      { title: "Medical Emergency", icon: "🏥", desc: "Unexpected health issue arose.", impact: { savings: -1500 }, positive: false }
-    ];
-
-    const LOCKED_PREMIUM_PATHS = [
-      { icon: "🏠", name: "Real Estate Mogul" },
-      { icon: "💼", name: "Entrepreneur Path" },
-      { icon: "📈", name: "Day Trader" },
-      { icon: "🎬", name: "Entertainer" }
+    // Life events that just happen
+    const LIFE_EVENTS = [
+      { icon: '🎉', title: 'Bonus!', desc: 'Your hard work paid off.', impact: { wealth: 1500 }, positive: true },
+      { icon: '💔', title: 'Heartbreak', desc: 'A relationship ended.', impact: { happiness: -20 }, positive: false },
+      { icon: '🎂', title: 'Birthday', desc: 'Another year wiser.', impact: { wisdom: 5, happiness: 5 }, positive: true },
+      { icon: '🏆', title: 'Recognition', desc: 'You won an award at work.', impact: { income: 100, happiness: 15 }, positive: true },
+      { icon: '😷', title: 'Got Sick', desc: 'Down for a week.', impact: { health: -15, wealth: -200 }, positive: false },
+      { icon: '🎰', title: 'Lucky Day', desc: 'Found money on the street!', impact: { wealth: 50, happiness: 5 }, positive: true },
+      { icon: '📉', title: 'Market Dip', desc: 'Investments took a hit.', impact: { investments: -200 }, positive: false },
+      { icon: '📈', title: 'Market Boom', desc: 'Your investments grew!', impact: { investments: 300 }, positive: true },
     ];
 
     // Utility functions
     const formatMoney = (amount) => {
-      const absAmount = Math.abs(amount);
-      if (absAmount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
-      if (absAmount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
-      return `$${amount.toLocaleString()}`;
+      if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
+      if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
+      return `$${Math.round(amount).toLocaleString()}`;
     };
 
-    const getWealthTier = (netWorth) => {
-      return WEALTH_TIERS.find(tier => netWorth >= tier.minNetWorth && netWorth <= tier.maxNetWorth) || WEALTH_TIERS[0];
+    const getNetWorth = (state) => {
+      return state.wealth + state.investments - state.debt;
     };
 
-    const calculateNetWorth = (savings, debt) => savings - debt;
+    const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
 
     // Main Game Component
     function KnightTycoon() {
-      const [screen, setScreen] = useState("title");
-      const [playerName, setPlayerName] = useState("");
-      const [selectedStart, setSelectedStart] = useState(null);
+      const [screen, setScreen] = useState('title');
+      const [familyName, setFamilyName] = useState('');
+      const [selectedSymbol, setSelectedSymbol] = useState(0);
+      const [selectedColor, setSelectedColor] = useState(0);
+      
+      // Dynasty tracking
+      const [generation, setGeneration] = useState(1);
+      const [familyHistory, setFamilyHistory] = useState([]);
+      const [dynastyWealth, setDynastyWealth] = useState(0);
+      
+      // Current character state
+      const [character, setCharacter] = useState(null);
       const [gameState, setGameState] = useState(null);
-      const [currentDecision, setCurrentDecision] = useState(null);
-      const [currentEvent, setCurrentEvent] = useState(null);
-      const [resultMessage, setResultMessage] = useState(null);
-      const [usedDecisions, setUsedDecisions] = useState([]);
+      
+      // Card state
+      const [currentCard, setCurrentCard] = useState(null);
+      const [cardOffset, setCardOffset] = useState(0);
+      const [isDragging, setIsDragging] = useState(false);
+      const [resultToast, setResultToast] = useState(null);
+      const [usedCards, setUsedCards] = useState([]);
+      
+      const cardRef = useRef(null);
+      const startX = useRef(0);
 
       const startGame = () => {
-        if (!playerName || !selectedStart) return;
-        
-        const scenario = STARTING_SCENARIOS.find(s => s.id === selectedStart);
-        setGameState({
-          month: 1,
-          income: scenario.income,
-          savings: scenario.savings,
-          creditScore: scenario.creditScore,
-          debt: scenario.debt,
-          investmentGains: 0
-        });
-        setUsedDecisions([]);
-        setScreen("game");
-        generateTurn();
+        if (!familyName) return;
+
+        const firstName = generateFirstName();
+        const newCharacter = {
+          name: firstName,
+          symbol: AVATAR_SYMBOLS[selectedSymbol],
+          color: AVATAR_COLORS[selectedColor],
+          age: 18,
+        };
+
+        const initialState = {
+          wealth: 500,
+          income: 2000,
+          debt: 0,
+          investments: 0,
+          credit: 600,
+          health: 100,
+          happiness: 70,
+          wisdom: 0,
+        };
+
+        setCharacter(newCharacter);
+        setGameState(initialState);
+        setGeneration(1);
+        setFamilyHistory([]);
+        setDynastyWealth(0);
+        setUsedCards([]);
+        setScreen('game');
+        drawCard();
       };
 
-      const generateTurn = () => {
-        setResultMessage(null);
-        
-        // 30% chance of random event
-        if (Math.random() < 0.3) {
-          const event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
-          setCurrentEvent(event);
-          setCurrentDecision(null);
+      const generateFirstName = () => {
+        const names = ['Alex', 'Jordan', 'Morgan', 'Casey', 'Riley', 'Quinn', 'Sage', 'Reese', 'Avery', 'Phoenix', 'River', 'Skylar', 'Dakota', 'Kai', 'Rowan'];
+        return names[Math.floor(Math.random() * names.length)];
+      };
+
+      const drawCard = () => {
+        // 20% chance of life event
+        if (Math.random() < 0.2) {
+          const event = LIFE_EVENTS[Math.floor(Math.random() * LIFE_EVENTS.length)];
+          setCurrentCard({ ...event, isEvent: true });
         } else {
-          // Get unused decision
-          const availableDecisions = DECISIONS.filter(d => !usedDecisions.includes(d.id));
-          if (availableDecisions.length === 0) {
-            setUsedDecisions([]);
-            const decision = DECISIONS[Math.floor(Math.random() * DECISIONS.length)];
-            setCurrentDecision(decision);
-          } else {
-            const decision = availableDecisions[Math.floor(Math.random() * availableDecisions.length)];
-            setCurrentDecision(decision);
-            setUsedDecisions([...usedDecisions, decision.id]);
+          let available = DECISIONS.filter(d => !usedCards.includes(d.id));
+          if (available.length === 0) {
+            setUsedCards([]);
+            available = DECISIONS;
           }
-          setCurrentEvent(null);
+          const decision = available[Math.floor(Math.random() * available.length)];
+          setCurrentCard(decision);
+          setUsedCards(prev => [...prev, decision.id]);
         }
+        setCardOffset(0);
       };
 
-      const handleEventAcknowledge = () => {
-        if (currentEvent && gameState) {
-          const impact = currentEvent.impact;
-          setGameState(prev => ({
-            ...prev,
-            savings: prev.savings + (impact.savings || 0),
-            debt: Math.max(0, prev.debt + (impact.debt || 0)),
-            creditScore: Math.min(850, Math.max(300, prev.creditScore + (impact.creditScore || 0)))
-          }));
-        }
-        setCurrentEvent(null);
-        
-        // Generate decision after event
-        const availableDecisions = DECISIONS.filter(d => !usedDecisions.includes(d.id));
-        if (availableDecisions.length === 0) {
-          setUsedDecisions([]);
-        }
-        const decision = (availableDecisions.length > 0 ? availableDecisions : DECISIONS)[Math.floor(Math.random() * (availableDecisions.length || DECISIONS.length))];
-        setCurrentDecision(decision);
-        if (!usedDecisions.includes(decision.id)) {
-          setUsedDecisions([...usedDecisions, decision.id]);
-        }
-      };
-
-      const handleChoice = (choice) => {
-        const impact = choice.impact;
-        
+      const applyImpact = (impact) => {
         setGameState(prev => {
-          const newState = {
-            ...prev,
-            savings: prev.savings + (impact.savings || 0),
-            debt: Math.max(0, prev.debt + (impact.debt || 0)),
-            creditScore: Math.min(850, Math.max(300, prev.creditScore + (impact.creditScore || 0))),
-            income: prev.income + (impact.income || 0),
-            investmentGains: prev.investmentGains + (impact.netWorthBonus || 0)
-          };
+          const newState = { ...prev };
+          
+          if (impact.wealth) newState.wealth += impact.wealth;
+          if (impact.income) newState.income += impact.income;
+          if (impact.debt) newState.debt = Math.max(0, newState.debt + impact.debt);
+          if (impact.investments) newState.investments = Math.max(0, newState.investments + impact.investments);
+          if (impact.credit) newState.credit = clamp(newState.credit + impact.credit, 300, 850);
+          if (impact.health) newState.health = clamp(newState.health + impact.health, 0, 100);
+          if (impact.happiness) newState.happiness = clamp(newState.happiness + impact.happiness, 0, 100);
+          if (impact.wisdom) newState.wisdom += impact.wisdom;
+
           return newState;
         });
-
-        setResultMessage({
-          text: choice.result,
-          type: (impact.savings > 0 || impact.income > 0 || impact.creditScore > 0) ? "positive" : 
-                (impact.savings < 0 || impact.debt > 0 || impact.creditScore < 0) ? "negative" : "neutral"
-        });
-        
-        setCurrentDecision(null);
       };
 
-      const advanceMonth = () => {
+      const handleSwipe = (direction) => {
+        if (!currentCard) return;
+
+        let impact, resultText;
+
+        if (currentCard.isEvent) {
+          impact = currentCard.impact;
+          resultText = currentCard.title;
+        } else {
+          const choice = direction === 'left' ? currentCard.left : currentCard.right;
+          impact = choice.impact;
+          resultText = choice.text;
+        }
+
+        applyImpact(impact);
+
+        // Show result toast
+        const isPositive = (impact.wealth > 0 || impact.income > 0 || impact.investments > 0 || impact.credit > 0);
+        setResultToast({ text: resultText, positive: isPositive });
+        setTimeout(() => setResultToast(null), 1200);
+
+        // Age up and check for transitions
+        setCharacter(prev => ({ ...prev, age: prev.age + 1 }));
+
+        // Monthly income/expenses
         setGameState(prev => {
-          // Monthly income/expense calculation
-          const monthlyNet = prev.income - 1500 - (prev.debt * 0.02); // Basic expenses + debt payments
-          const interestGain = prev.investmentGains * 0.01; // 1% monthly return on investments
-          
+          const monthlyNet = prev.income - 1800 - (prev.debt * 0.015);
+          const investmentGrowth = prev.investments * 0.008;
           return {
             ...prev,
-            month: prev.month + 1,
-            savings: prev.savings + monthlyNet + interestGain,
-            debt: Math.max(0, prev.debt - 100), // Slow debt paydown
-            investmentGains: prev.investmentGains + interestGain
+            wealth: prev.wealth + monthlyNet,
+            investments: prev.investments + investmentGrowth,
           };
         });
 
-        // Check for game over conditions
-        if (gameState.month >= 60) { // 5 years
-          setScreen("gameover");
-          return;
-        }
-
-        generateTurn();
+        setTimeout(() => {
+          checkGameState();
+        }, 300);
       };
 
-      const netWorth = gameState ? calculateNetWorth(gameState.savings + gameState.investmentGains, gameState.debt) : 0;
-      const tier = getWealthTier(netWorth);
-
-      const shareResults = () => {
-        const text = `🏰 Knight Tycoon Results\n\n` +
-          `👤 ${playerName}\n` +
-          `📅 ${gameState.month} months played\n` +
-          `💰 Net Worth: ${formatMoney(netWorth)}\n` +
-          `📊 Credit Score: ${gameState.creditScore}\n` +
-          `👑 Tier: ${tier.name}\n\n` +
-          `Build your legacy at Knight Financial!`;
-        
-        if (navigator.share) {
-          navigator.share({ text });
+      const checkGameState = () => {
+        // Check for death/retirement
+        if (character.age >= 65) {
+          handleRetirement();
+        } else if (gameState.health <= 0) {
+          handleDeath('health');
+        } else if (getNetWorth(gameState) < -50000) {
+          handleDeath('bankruptcy');
         } else {
-          navigator.clipboard.writeText(text);
-          alert("Results copied to clipboard!");
+          drawCard();
         }
       };
+
+      const handleRetirement = () => {
+        const netWorth = getNetWorth(gameState);
+        const inheritance = Math.floor(netWorth * 0.7); // 70% passes down
+        const wisdomBonus = Math.floor(gameState.wisdom * 0.5); // Half wisdom passes
+
+        setFamilyHistory(prev => [...prev, {
+          name: character.name,
+          symbol: character.symbol,
+          color: character.color,
+          finalAge: character.age,
+          netWorth: netWorth,
+          cause: 'retirement'
+        }]);
+
+        setDynastyWealth(prev => prev + netWorth);
+        
+        setScreen('transition');
+        
+        // Store inheritance for next gen
+        setGameState(prev => ({
+          ...prev,
+          inheritance,
+          wisdomBonus
+        }));
+      };
+
+      const handleDeath = (cause) => {
+        const netWorth = getNetWorth(gameState);
+        const inheritance = cause === 'bankruptcy' ? 0 : Math.floor(netWorth * 0.5);
+        const wisdomBonus = Math.floor(gameState.wisdom * 0.3);
+
+        setFamilyHistory(prev => [...prev, {
+          name: character.name,
+          symbol: character.symbol,
+          color: character.color,
+          finalAge: character.age,
+          netWorth: netWorth,
+          cause
+        }]);
+
+        setDynastyWealth(prev => prev + netWorth);
+
+        if (generation >= 5 || (cause === 'bankruptcy' && inheritance <= 0)) {
+          setScreen('gameover');
+        } else {
+          setScreen('transition');
+          setGameState(prev => ({
+            ...prev,
+            inheritance,
+            wisdomBonus
+          }));
+        }
+      };
+
+      const startNextGeneration = () => {
+        const inheritance = gameState.inheritance || 0;
+        const wisdomBonus = gameState.wisdomBonus || 0;
+
+        // New character with slight variations
+        const newSymbolIndex = (selectedSymbol + generation) % AVATAR_SYMBOLS.length;
+        const firstName = generateFirstName();
+        
+        const newCharacter = {
+          name: firstName,
+          symbol: AVATAR_SYMBOLS[newSymbolIndex],
+          color: AVATAR_COLORS[selectedColor],
+          age: 18,
+        };
+
+        const newState = {
+          wealth: Math.max(0, inheritance) + 500,
+          income: 2000 + (wisdomBonus * 10),
+          debt: inheritance < 0 ? Math.abs(inheritance) : 0,
+          investments: 0,
+          credit: 600 + wisdomBonus,
+          health: 100,
+          happiness: 70,
+          wisdom: wisdomBonus,
+        };
+
+        setCharacter(newCharacter);
+        setGameState(newState);
+        setGeneration(prev => prev + 1);
+        setUsedCards([]);
+        setScreen('game');
+        drawCard();
+      };
+
+      // Touch/Mouse handlers for swiping
+      const handleStart = (clientX) => {
+        startX.current = clientX;
+        setIsDragging(true);
+      };
+
+      const handleMove = (clientX) => {
+        if (!isDragging) return;
+        const diff = clientX - startX.current;
+        setCardOffset(diff);
+      };
+
+      const handleEnd = () => {
+        setIsDragging(false);
+        if (Math.abs(cardOffset) > 80) {
+          handleSwipe(cardOffset < 0 ? 'left' : 'right');
+        }
+        setCardOffset(0);
+      };
+
+      const netWorth = gameState ? getNetWorth(gameState) : 0;
 
       return (
         <div className="game-container">
-          <div className="header">
-            <div className="logo">KNIGHT <span>TYCOON</span></div>
-            <div className="tagline">Build Your Legacy</div>
-          </div>
-
-          {screen === "title" && (
-            <div className="screen title-screen">
-              <h1>Knight Tycoon</h1>
-              <p>Make smart financial decisions. Rise from nothing to generational wealth.</p>
-              
-              <button className="btn" onClick={() => setScreen("setup")}>
-                Start Your Journey
-              </button>
-
-              <div className="premium-banner">
-                <div className="premium-badge">PREMIUM PATHS</div>
-                <div className="premium-title">Unlock More Ways to Win</div>
-                <div className="premium-desc">Exclusive career paths and scenarios</div>
-                <div className="locked-paths">
-                  {LOCKED_PREMIUM_PATHS.map((path, i) => (
-                    <div key={i} className="locked-path">
-                      <div className="locked-path-icon">{path.icon}</div>
-                      <div className="locked-path-name">{path.name} <span className="lock-icon">🔒</span></div>
-                    </div>
-                  ))}
-                </div>
-                <button className="btn btn-secondary btn-small" style={{marginTop: "16px"}}>
-                  Coming Soon - $4.99
-                </button>
+          {/* Title Screen */}
+          {screen === 'title' && (
+            <div className="title-screen">
+              <div className="title-avatars">
+                {AVATAR_SYMBOLS.slice(0, 5).map((s, i) => (
+                  <div key={i} className="avatar avatar-small" style={{ background: AVATAR_COLORS[i], opacity: 0.7 }}>
+                    {s}
+                  </div>
+                ))}
               </div>
+              <div className="title-logo">Knight Tycoon</div>
+              <div className="title-tagline">Build a dynasty. Leave a legacy.</div>
+              
+              <div className="how-to-play">
+                <h3>How to Play</h3>
+                <p>
+                  Swipe RIGHT to accept, LEFT to decline.<br/><br/>
+                  Make smart financial decisions through life. When you retire at 65, your heir inherits your wealth — or your debt.<br/><br/>
+                  How many generations can your family thrive?
+                </p>
+              </div>
+
+              <button className="btn" onClick={() => setScreen('setup')}>
+                Start Your Dynasty
+              </button>
             </div>
           )}
 
-          {screen === "setup" && (
-            <div className="screen">
+          {/* Setup Screen */}
+          {screen === 'setup' && (
+            <div className="setup-screen">
               <div className="input-group">
-                <label>Your Name</label>
-                <input 
-                  type="text" 
-                  value={playerName} 
-                  onChange={(e) => setPlayerName(e.target.value)}
-                  placeholder="Enter your name"
+                <label>Family Name</label>
+                <input
+                  type="text"
+                  value={familyName}
+                  onChange={(e) => setFamilyName(e.target.value)}
+                  placeholder="Enter your family name"
                 />
               </div>
 
-              <label className="input-group">
-                <span className="stat-label">Choose Your Starting Point</span>
-              </label>
-              
-              <div className="starting-options">
-                {STARTING_SCENARIOS.map(scenario => (
-                  <div 
-                    key={scenario.id}
-                    className={`start-option ${selectedStart === scenario.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedStart(scenario.id)}
-                  >
-                    <div className="start-option-title">{scenario.title}</div>
-                    <div className="start-option-desc">{scenario.desc}</div>
-                    <div className="start-option-stats">
-                      Income: {formatMoney(scenario.income)}/mo • Credit: {scenario.creditScore} • Debt: {formatMoney(scenario.debt)}
+              <div className="input-group">
+                <label>Choose Your Symbol</label>
+                <div className="avatar-picker">
+                  {AVATAR_SYMBOLS.map((symbol, i) => (
+                    <div
+                      key={i}
+                      className={`avatar-option ${selectedSymbol === i ? 'selected' : ''}`}
+                      style={{ background: AVATAR_COLORS[selectedColor] }}
+                      onClick={() => setSelectedSymbol(i)}
+                    >
+                      {symbol}
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label>Choose Your Color</label>
+                <div className="color-picker">
+                  {AVATAR_COLORS.map((color, i) => (
+                    <div
+                      key={i}
+                      className={`color-option ${selectedColor === i ? 'selected' : ''}`}
+                      style={{ background: color }}
+                      onClick={() => setSelectedColor(i)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <div className="avatar" style={{ background: AVATAR_COLORS[selectedColor] }}>
+                  {AVATAR_SYMBOLS[selectedSymbol]}
+                </div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
+                  The {familyName || '___'} Family
+                </div>
               </div>
 
               <button 
                 className="btn" 
                 onClick={startGame}
-                disabled={!playerName || !selectedStart}
-                style={{width: "100%", marginTop: "20px", opacity: (!playerName || !selectedStart) ? 0.5 : 1}}
+                disabled={!familyName}
+                style={{ width: '100%', opacity: familyName ? 1 : 0.5 }}
               >
-                Begin Your Journey
+                Begin
               </button>
             </div>
           )}
 
-          {screen === "game" && gameState && (
-            <div className="screen">
-              <div className="month-display">
-                <div className="month-label">Month</div>
-                <div className="month-number">{gameState.month}</div>
+          {/* Main Game Screen */}
+          {screen === 'game' && character && gameState && (
+            <>
+              {/* Character Bar */}
+              <div className="character-bar">
+                <div className="avatar avatar-small" style={{ background: character.color }}>
+                  {character.symbol}
+                </div>
+                <div className="character-info">
+                  <div className="character-name">{character.name} {familyName}</div>
+                  <div className="character-age">Age {character.age}</div>
+                </div>
+                <div className="generation-badge">Gen {generation}</div>
               </div>
 
-              <div className="wealth-tier">
-                <div className="tier-icon">{tier.icon}</div>
-                <div className="tier-name">{tier.name}</div>
-                <div className="tier-desc">{tier.desc}</div>
-              </div>
-
-              <div className="stat-bar">
-                <div className="stat-header">
-                  <span className="stat-label">Net Worth</span>
-                  <span className={`stat-value ${netWorth >= 0 ? 'positive' : 'negative'}`}>
+              {/* Stats Row */}
+              <div className="stats-row">
+                <div className="stat-box">
+                  <div className="stat-icon">💰</div>
+                  <div className={`stat-value ${netWorth >= 0 ? 'positive' : 'negative'}`}>
                     {formatMoney(netWorth)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="stat-bar">
-                <div className="stat-header">
-                  <span className="stat-label">Monthly Income</span>
-                  <span className="stat-value">{formatMoney(gameState.income)}</span>
-                </div>
-              </div>
-
-              <div className="stat-bar">
-                <div className="stat-header">
-                  <span className="stat-label">Savings</span>
-                  <span className="stat-value">{formatMoney(gameState.savings)}</span>
-                </div>
-              </div>
-
-              <div className="stat-bar">
-                <div className="stat-header">
-                  <span className="stat-label">Debt</span>
-                  <span className={`stat-value ${gameState.debt > 0 ? 'negative' : ''}`}>
-                    {formatMoney(gameState.debt)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="stat-bar">
-                <div className="stat-header">
-                  <span className="stat-label">Credit Score</span>
-                  <span className="stat-value">{gameState.creditScore}</span>
-                </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill credit" 
-                    style={{width: `${((gameState.creditScore - 300) / 550) * 100}%`}}
-                  />
-                </div>
-              </div>
-
-              {currentEvent && (
-                <div className="event-card">
-                  <div className="event-icon">{currentEvent.icon}</div>
-                  <div className="event-title">{currentEvent.title}</div>
-                  <div className="event-desc">{currentEvent.desc}</div>
-                  <div className={`event-impact ${currentEvent.positive ? 'positive' : 'negative'}`}>
-                    {currentEvent.positive ? '📈' : '📉'} 
-                    {currentEvent.impact.savings && ` ${currentEvent.impact.savings > 0 ? '+' : ''}${formatMoney(currentEvent.impact.savings)}`}
-                    {currentEvent.impact.creditScore && ` Credit ${currentEvent.impact.creditScore > 0 ? '+' : ''}${currentEvent.impact.creditScore}`}
                   </div>
-                  <button className="btn btn-small" style={{marginTop: "16px"}} onClick={handleEventAcknowledge}>
-                    Continue
-                  </button>
+                  <div className="stat-label">Net Worth</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-icon">📊</div>
+                  <div className="stat-value">{gameState.credit}</div>
+                  <div className="stat-label">Credit</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-icon">❤️</div>
+                  <div className={`stat-value ${gameState.health < 30 ? 'negative' : ''}`}>
+                    {gameState.health}%
+                  </div>
+                  <div className="stat-label">Health</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-icon">🧠</div>
+                  <div className="stat-value">{gameState.wisdom}</div>
+                  <div className="stat-label">Wisdom</div>
+                </div>
+              </div>
+
+              {/* Family Tree Mini */}
+              {familyHistory.length > 0 && (
+                <div className="family-tree">
+                  <div className="tree-title">Family Legacy</div>
+                  <div className="tree-members">
+                    {familyHistory.map((member, i) => (
+                      <div key={i} className="tree-member">
+                        <div className="avatar avatar-tiny" style={{ background: member.color }}>
+                          {member.symbol}
+                        </div>
+                        <div className="tree-member-name">{member.name}</div>
+                      </div>
+                    ))}
+                    <div className="tree-member current">
+                      <div className="avatar avatar-tiny" style={{ background: character.color }}>
+                        {character.symbol}
+                      </div>
+                      <div className="tree-member-name">{character.name}</div>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {resultMessage && (
-                <div className={`result-message ${resultMessage.type}`}>
-                  {resultMessage.text}
+              {/* Card Area */}
+              <div className="card-area">
+                {currentCard && (
+                  <div
+                    ref={cardRef}
+                    className={`swipe-card ${cardOffset < -30 ? 'swiping-left' : ''} ${cardOffset > 30 ? 'swiping-right' : ''}`}
+                    style={{
+                      transform: `translateX(${cardOffset}px) rotate(${cardOffset * 0.05}deg)`,
+                      transition: isDragging ? 'none' : 'transform 0.3s ease'
+                    }}
+                    onMouseDown={(e) => handleStart(e.clientX)}
+                    onMouseMove={(e) => handleMove(e.clientX)}
+                    onMouseUp={handleEnd}
+                    onMouseLeave={() => isDragging && handleEnd()}
+                    onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+                    onTouchMove={(e) => handleMove(e.touches[0].clientX)}
+                    onTouchEnd={handleEnd}
+                  >
+                    <div className="card-icon">{currentCard.icon}</div>
+                    <div className="card-title">{currentCard.title}</div>
+                    <div className="card-desc">{currentCard.desc}</div>
+                    
+                    {!currentCard.isEvent && (
+                      <div className="card-choices">
+                        <div className="choice-hint left">← {currentCard.left.text}</div>
+                        <div className="choice-hint right">{currentCard.right.text} →</div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              {!currentCard?.isEvent && (
+                <div className="action-buttons">
+                  <button className="action-btn decline" onClick={() => handleSwipe('left')}>✕</button>
+                  <button className="action-btn accept" onClick={() => handleSwipe('right')}>✓</button>
                 </div>
               )}
 
-              {currentDecision && !currentEvent && (
-                <div className="decision-card">
-                  <div className="decision-title">{currentDecision.title}</div>
-                  <div className="decision-desc">{currentDecision.desc}</div>
-                  
-                  {currentDecision.choices.map((choice, index) => (
-                    <button 
-                      key={index} 
-                      className="choice-btn"
-                      onClick={() => handleChoice(choice)}
-                    >
-                      {choice.text}
-                    </button>
-                  ))}
+              {currentCard?.isEvent && (
+                <div className="action-buttons">
+                  <button className="btn" onClick={() => handleSwipe('right')}>Continue</button>
                 </div>
               )}
 
-              {!currentDecision && !currentEvent && (
-                <button className="btn" style={{width: "100%"}} onClick={advanceMonth}>
-                  Next Month →
+              {/* Result Toast */}
+              {resultToast && (
+                <div className={`result-toast ${resultToast.positive ? 'positive' : 'negative'}`}>
+                  {resultToast.text}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Transition Screen */}
+          {screen === 'transition' && character && (
+            <div className="transition-screen">
+              <div className="transition-icon">
+                {character.age >= 65 ? '🌅' : '💫'}
+              </div>
+              <div className="transition-title">
+                {character.age >= 65 ? 'Retirement' : 'A New Chapter'}
+              </div>
+              <div className="transition-subtitle">
+                {character.name} {familyName}'s journey ends at age {character.age}
+              </div>
+
+              <div className="inheritance-box">
+                <div className="inheritance-row">
+                  <span>Final Net Worth</span>
+                  <span style={{ color: netWorth >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                    {formatMoney(netWorth)}
+                  </span>
+                </div>
+                <div className="inheritance-row">
+                  <span>Inheritance</span>
+                  <span>{formatMoney(gameState.inheritance || 0)}</span>
+                </div>
+                <div className="inheritance-row">
+                  <span>Wisdom Passed</span>
+                  <span>+{gameState.wisdomBonus || 0}</span>
+                </div>
+              </div>
+
+              <div className="avatar" style={{ background: character.color, marginBottom: 16 }}>
+                {character.symbol}
+              </div>
+              <div style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>
+                Generation {generation} of the {familyName} dynasty
+              </div>
+
+              {generation < 5 ? (
+                <button className="btn" onClick={startNextGeneration}>
+                  Continue as Heir →
                 </button>
-              )}
-
-              {gameState.month >= 12 && gameState.month % 12 === 0 && (
-                <div className="premium-banner" style={{marginTop: "20px"}}>
-                  <div className="premium-badge">UNLOCK MORE</div>
-                  <div className="premium-title">Want to go bigger?</div>
-                  <div className="premium-desc">Premium paths: Real Estate, Entrepreneurship, and more</div>
-                  <button className="btn btn-secondary btn-small">Upgrade - $4.99</button>
-                </div>
+              ) : (
+                <button className="btn" onClick={() => setScreen('gameover')}>
+                  View Dynasty Results
+                </button>
               )}
             </div>
           )}
 
-          {screen === "gameover" && gameState && (
-            <div className="screen game-over">
-              <div className="tier-icon" style={{fontSize: "64px"}}>{tier.icon}</div>
-              <h2>{tier.name}</h2>
-              
-              <div className="final-stats">
-                <div className="final-stat">
-                  <span>Player</span>
-                  <span>{playerName}</span>
-                </div>
-                <div className="final-stat">
-                  <span>Months Played</span>
-                  <span>{gameState.month}</span>
-                </div>
-                <div className="final-stat">
-                  <span>Final Net Worth</span>
-                  <span style={{color: netWorth >= 0 ? 'var(--green)' : 'var(--red)'}}>
-                    {formatMoney(netWorth)}
-                  </span>
-                </div>
-                <div className="final-stat">
-                  <span>Credit Score</span>
-                  <span>{gameState.creditScore}</span>
-                </div>
-                <div className="final-stat">
-                  <span>Monthly Income</span>
-                  <span>{formatMoney(gameState.income)}</span>
+          {/* Game Over Screen */}
+          {screen === 'gameover' && (
+            <div className="transition-screen">
+              <div className="transition-icon">👑</div>
+              <div className="transition-title">The {familyName} Dynasty</div>
+              <div className="transition-subtitle">
+                {generation} generation{generation > 1 ? 's' : ''} • Est. by {familyHistory[0]?.name || character?.name}
+              </div>
+
+              <div className="dynasty-summary">
+                {familyHistory.map((member, i) => (
+                  <div key={i} className="dynasty-stat">
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ 
+                        width: 24, 
+                        height: 24, 
+                        borderRadius: '50%', 
+                        background: member.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 12
+                      }}>
+                        {member.symbol}
+                      </span>
+                      {member.name}
+                    </span>
+                    <span style={{ color: member.netWorth >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                      {formatMoney(member.netWorth)}
+                    </span>
+                  </div>
+                ))}
+                <div className="dynasty-stat" style={{ borderTop: '1px solid var(--gold)', marginTop: 12, paddingTop: 12 }}>
+                  <span style={{ color: 'var(--gold)', fontWeight: 600 }}>Total Legacy</span>
+                  <span style={{ color: 'var(--gold)', fontWeight: 600 }}>{formatMoney(dynastyWealth)}</span>
                 </div>
               </div>
 
-              <button className="btn share-btn" onClick={shareResults}>
-                Share Results 📤
+              <button className="btn" onClick={() => {
+                setScreen('title');
+                setGeneration(1);
+                setFamilyHistory([]);
+                setDynastyWealth(0);
+              }}>
+                Start New Dynasty
               </button>
-
-              <div className="actions-row">
-                <button className="btn btn-secondary" onClick={() => {
-                  setScreen("setup");
-                  setGameState(null);
-                  setSelectedStart(null);
-                }}>
-                  Play Again
-                </button>
-              </div>
 
               <div className="premium-banner">
                 <div className="premium-badge">LEVEL UP IRL</div>
                 <div className="premium-title">Ready to build real wealth?</div>
-                <div className="premium-desc">Knight Financial helps you master your credit and finances.</div>
-                <button className="btn btn-small" onClick={() => window.open('https://knightfinancial.com', '_blank')}>
-                  Visit Knight Financial
-                </button>
+                <div className="premium-desc">Knight Financial helps you master credit and finances.</div>
               </div>
             </div>
           )}
