@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Knight Tycoon - Build Your Legacy</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #F4E4BC;
+      --gold-dark: #A68B28;
+      --bg-dark: #0D0D0D;
+      --bg-card: #1A1A1A;
+      --bg-card-hover: #242424;
+      --text-primary: #FFFFFF;
+      --text-secondary: #A0A0A0;
+      --green: #4ADE80;
+      --red: #F87171;
+      --blue: #60A5FA;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .game-container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .logo span {
+      color: var(--text-primary);
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .screen {
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .title-screen {
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .title-screen h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .title-screen p {
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: var(--bg-dark);
+      border: none;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .btn-small {
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 14px 16px;
+      font-size: 16px;
+      color: var(--text-primary);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .stat-bar {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .stat-value.positive {
+      color: var(--green);
+    }
+
+    .stat-value.negative {
+      color: var(--red);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.credit {
+      background: linear-gradient(90deg, var(--red), var(--gold), var(--green));
+    }
+
+    .wealth-tier {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tier-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .tier-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .tier-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .month-display {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .month-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: var(--gold);
+    }
+
+    .month-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .decision-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .decision-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .decision-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .choice-btn {
+      width: 100%;
+      background: var(--bg-card-hover);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--text-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 8px;
+      text-align: left;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .choice-btn:hover {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .choice-impact {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .event-card {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .event-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .event-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .event-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .event-impact {
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .event-impact.positive {
+      background: rgba(74, 222, 128, 0.2);
+      color: var(--green);
+    }
+
+    .event-impact.negative {
+      background: rgba(248, 113, 113, 0.2);
+      color: var(--red);
+    }
+
+    .premium-banner {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .premium-badge {
+      background: var(--gold);
+      color: var(--bg-dark);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .premium-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .premium-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .locked-paths {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .locked-path {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px dashed rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+      padding: 16px 12px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    .locked-path-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .locked-path-name {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .lock-icon {
+      font-size: 10px;
+      color: var(--gold);
+    }
+
+    .game-over {
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .game-over h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .final-stats {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+    }
+
+    .final-stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .final-stat:last-child {
+      border-bottom: none;
+    }
+
+    .share-btn {
+      margin-top: 20px;
+    }
+
+    .starting-options {
+      display: grid;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .start-option {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .start-option:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .start-option.selected {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .start-option-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .start-option-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .start-option-stats {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--gold);
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .actions-row .btn {
+      flex: 1;
+    }
+
+    .result-message {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .result-message.positive {
+      border: 1px solid var(--green);
+    }
+
+    .result-message.negative {
+      border: 1px solid var(--red);
+    }
+
+    .result-message.neutral {
+      border: 1px solid var(--blue);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Game constants
+    const WEALTH_TIERS = [
+      { name: "Surviving", icon: "🏚️", desc: "Living paycheck to paycheck", minNetWorth: -Infinity, maxNetWorth: 999 },
+      { name: "Stable", icon: "🏠", desc: "Building your foundation", minNetWorth: 1000, maxNetWorth: 24999 },
+      { name: "Building", icon: "🏢", desc: "Growing your wealth", minNetWorth: 25000, maxNetWorth: 99999 },
+      { name: "Thriving", icon: "🏰", desc: "Multiple income streams", minNetWorth: 100000, maxNetWorth: 499999 },
+      { name: "Generational", icon: "👑", desc: "Legacy wealth achieved", minNetWorth: 500000, maxNetWorth: Infinity }
+    ];
+
+    const STARTING_SCENARIOS = [
+      {
+        id: "minimum_wage",
+        title: "The Grind",
+        desc: "Starting from the bottom with a minimum wage job",
+        income: 1800,
+        savings: 200,
+        creditScore: 580,
+        debt: 500
+      },
+      {
+        id: "fresh_graduate",
+        title: "Fresh Graduate",
+        desc: "College degree in hand, student loans in tow",
+        income: 3500,
+        savings: 500,
+        creditScore: 650,
+        debt: 35000
+      },
+      {
+        id: "second_chance",
+        title: "Second Chance",
+        desc: "Rebuilding after bankruptcy",
+        income: 2800,
+        savings: 100,
+        creditScore: 500,
+        debt: 0
+      }
+    ];
+
+    const DECISIONS = [
+      {
+        id: "car_trouble",
+        title: "Car Problems",
+        desc: "Your car needs a $800 repair. Without it, getting to work becomes difficult.",
+        choices: [
+          { text: "Pay for the repair", impact: { savings: -800 }, result: "You paid for repairs. Reliable transportation maintained." },
+          { text: "Use credit card", impact: { debt: 800, creditScore: -5 }, result: "Charged to credit. Your utilization increased." },
+          { text: "Ignore it and take the bus", impact: { income: -200 }, result: "Commute time doubled. Less overtime available." }
+        ]
+      },
+      {
+        id: "side_hustle",
+        title: "Side Hustle Opportunity",
+        desc: "A friend offers you weekend work. It pays $400/month but takes time.",
+        choices: [
+          { text: "Take the extra work", impact: { income: 400 }, result: "Extra income secured! Hustle pays off." },
+          { text: "Focus on main job", impact: { creditScore: 5 }, result: "Stayed focused. Paid bills consistently." },
+          { text: "Start your own thing", impact: { savings: -500, income: 600 }, result: "Invested in yourself. Higher risk, higher reward." }
+        ]
+      },
+      {
+        id: "credit_card_offer",
+        title: "Credit Card Offer",
+        desc: "You received a pre-approved credit card with $5,000 limit and 22% APR.",
+        choices: [
+          { text: "Accept and use responsibly", impact: { creditScore: 15 }, result: "New credit line helps your score!" },
+          { text: "Accept but max it out", impact: { debt: 3000, creditScore: -25 }, result: "High utilization hurt your score." },
+          { text: "Decline the offer", impact: {}, result: "Played it safe. No change." }
+        ]
+      },
+      {
+        id: "investment_chance",
+        title: "Investment Opportunity",
+        desc: "A colleague recommends investing in index funds. Minimum $500.",
+        choices: [
+          { text: "Invest $500", impact: { savings: -500, netWorthBonus: 75 }, result: "Smart move! Investment growing." },
+          { text: "Invest $1000", impact: { savings: -1000, netWorthBonus: 175 }, result: "Aggressive play! Portfolio building." },
+          { text: "Keep cash for now", impact: {}, result: "Stayed liquid. Safe but no growth." }
+        ]
+      },
+      {
+        id: "rent_increase",
+        title: "Rent Increase",
+        desc: "Your landlord is raising rent by $200/month. What do you do?",
+        choices: [
+          { text: "Pay the increase", impact: { savings: -200 }, result: "Absorbed the cost. Stability maintained." },
+          { text: "Negotiate", impact: { savings: -100 }, result: "Negotiated down to $100 increase!" },
+          { text: "Find cheaper place", impact: { savings: -1500, income: 100 }, result: "Moving costs hurt, but lower rent helps." }
+        ]
+      },
+      {
+        id: "medical_bill",
+        title: "Unexpected Medical Bill",
+        desc: "An ER visit left you with a $1,200 bill. Insurance covered only part.",
+        choices: [
+          { text: "Pay in full", impact: { savings: -1200 }, result: "Paid off. No debt incurred." },
+          { text: "Set up payment plan", impact: { debt: 1200 }, result: "Monthly payments added to expenses." },
+          { text: "Negotiate the bill down", impact: { savings: -600 }, result: "Negotiated 50% off! Always ask." }
+        ]
+      },
+      {
+        id: "job_offer",
+        title: "New Job Offer",
+        desc: "A competing company offers 20% more salary but less job security.",
+        choices: [
+          { text: "Take the new job", impact: { income: 600 }, result: "Risk paid off! Higher income secured." },
+          { text: "Use offer to negotiate raise", impact: { income: 300 }, result: "Got a counter-offer! Smart move." },
+          { text: "Stay loyal", impact: { creditScore: 5 }, result: "Stability maintained. Consistent payments." }
+        ]
+      },
+      {
+        id: "dispute_error",
+        title: "Credit Report Error",
+        desc: "You found an error on your credit report - a debt that isn't yours.",
+        choices: [
+          { text: "Dispute it properly (FCRA)", impact: { creditScore: 40 }, result: "Disputed and removed! Score jumped." },
+          { text: "Ignore it", impact: { creditScore: -20 }, result: "Error stayed. Score suffered." },
+          { text: "Pay it to make it go away", impact: { savings: -800, creditScore: -10 }, result: "Paid someone else's debt. Bad move." }
+        ]
+      },
+      {
+        id: "tax_refund",
+        title: "Tax Refund",
+        desc: "You received a $2,400 tax refund. How do you use it?",
+        choices: [
+          { text: "Pay down debt", impact: { debt: -2400, creditScore: 20 }, result: "Debt slashed! Utilization improved." },
+          { text: "Build emergency fund", impact: { savings: 2400 }, result: "Safety net established!" },
+          { text: "Treat yourself", impact: { savings: 800 }, result: "Enjoyed some, saved some." }
+        ]
+      },
+      {
+        id: "education",
+        title: "Skill Development",
+        desc: "An online certification could boost your earning potential. Costs $800.",
+        choices: [
+          { text: "Invest in education", impact: { savings: -800, income: 400 }, result: "New skills = higher value!" },
+          { text: "Find free alternatives", impact: { income: 150 }, result: "Self-taught. Slower but free." },
+          { text: "Not right now", impact: {}, result: "Focused on current situation." }
+        ]
+      }
+    ];
+
+    const RANDOM_EVENTS = [
+      { title: "Unexpected Bonus!", icon: "🎉", desc: "Your hard work got noticed.", impact: { savings: 1000 }, positive: true },
+      { title: "Car Accident", icon: "🚗", desc: "Minor fender bender. Insurance deductible due.", impact: { savings: -500 }, positive: false },
+      { title: "Utility Bill Spike", icon: "💡", desc: "Extreme weather drove up your bills.", impact: { savings: -200 }, positive: false },
+      { title: "Cash Back Rewards", icon: "💳", desc: "Your credit card rewards added up!", impact: { savings: 150 }, positive: true },
+      { title: "Identity Theft Scare", icon: "🔓", desc: "Caught early, but cost you time and money.", impact: { savings: -300, creditScore: -15 }, positive: false },
+      { title: "Referral Bonus", icon: "🤝", desc: "Referred a friend to your company.", impact: { savings: 500 }, positive: true },
+      { title: "Interest Rate Drop", icon: "📉", desc: "Refinanced debt at lower rate!", impact: { debt: -500, creditScore: 10 }, positive: true },
+      { title: "Medical Emergency", icon: "🏥", desc: "Unexpected health issue arose.", impact: { savings: -1500 }, positive: false }
+    ];
+
+    const LOCKED_PREMIUM_PATHS = [
+      { icon: "🏠", name: "Real Estate Mogul" },
+      { icon: "💼", name: "Entrepreneur Path" },
+      { icon: "📈", name: "Day Trader" },
+      { icon: "🎬", name: "Entertainer" }
+    ];
+
+    // Utility functions
+    const formatMoney = (amount) => {
+      const absAmount = Math.abs(amount);
+      if (absAmount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
+      if (absAmount >= 1000) return `$${(amount / 1000).toFixed(1)}K`;
+      return `$${amount.toLocaleString()}`;
+    };
+
+    const getWealthTier = (netWorth) => {
+      return WEALTH_TIERS.find(tier => netWorth >= tier.minNetWorth && netWorth <= tier.maxNetWorth) || WEALTH_TIERS[0];
+    };
+
+    const calculateNetWorth = (savings, debt) => savings - debt;
+
+    // Main Game Component
+    function KnightTycoon() {
+      const [screen, setScreen] = useState("title");
+      const [playerName, setPlayerName] = useState("");
+      const [selectedStart, setSelectedStart] = useState(null);
+      const [gameState, setGameState] = useState(null);
+      const [currentDecision, setCurrentDecision] = useState(null);
+      const [currentEvent, setCurrentEvent] = useState(null);
+      const [resultMessage, setResultMessage] = useState(null);
+      const [usedDecisions, setUsedDecisions] = useState([]);
+
+      const startGame = () => {
+        if (!playerName || !selectedStart) return;
+        
+        const scenario = STARTING_SCENARIOS.find(s => s.id === selectedStart);
+        setGameState({
+          month: 1,
+          income: scenario.income,
+          savings: scenario.savings,
+          creditScore: scenario.creditScore,
+          debt: scenario.debt,
+          investmentGains: 0
+        });
+        setUsedDecisions([]);
+        setScreen("game");
+        generateTurn();
+      };
+
+      const generateTurn = () => {
+        setResultMessage(null);
+        
+        // 30% chance of random event
+        if (Math.random() < 0.3) {
+          const event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+          setCurrentEvent(event);
+          setCurrentDecision(null);
+        } else {
+          // Get unused decision
+          const availableDecisions = DECISIONS.filter(d => !usedDecisions.includes(d.id));
+          if (availableDecisions.length === 0) {
+            setUsedDecisions([]);
+            const decision = DECISIONS[Math.floor(Math.random() * DECISIONS.length)];
+            setCurrentDecision(decision);
+          } else {
+            const decision = availableDecisions[Math.floor(Math.random() * availableDecisions.length)];
+            setCurrentDecision(decision);
+            setUsedDecisions([...usedDecisions, decision.id]);
+          }
+          setCurrentEvent(null);
+        }
+      };
+
+      const handleEventAcknowledge = () => {
+        if (currentEvent && gameState) {
+          const impact = currentEvent.impact;
+          setGameState(prev => ({
+            ...prev,
+            savings: prev.savings + (impact.savings || 0),
+            debt: Math.max(0, prev.debt + (impact.debt || 0)),
+            creditScore: Math.min(850, Math.max(300, prev.creditScore + (impact.creditScore || 0)))
+          }));
+        }
+        setCurrentEvent(null);
+        
+        // Generate decision after event
+        const availableDecisions = DECISIONS.filter(d => !usedDecisions.includes(d.id));
+        if (availableDecisions.length === 0) {
+          setUsedDecisions([]);
+        }
+        const decision = (availableDecisions.length > 0 ? availableDecisions : DECISIONS)[Math.floor(Math.random() * (availableDecisions.length || DECISIONS.length))];
+        setCurrentDecision(decision);
+        if (!usedDecisions.includes(decision.id)) {
+          setUsedDecisions([...usedDecisions, decision.id]);
+        }
+      };
+
+      const handleChoice = (choice) => {
+        const impact = choice.impact;
+        
+        setGameState(prev => {
+          const newState = {
+            ...prev,
+            savings: prev.savings + (impact.savings || 0),
+            debt: Math.max(0, prev.debt + (impact.debt || 0)),
+            creditScore: Math.min(850, Math.max(300, prev.creditScore + (impact.creditScore || 0))),
+            income: prev.income + (impact.income || 0),
+            investmentGains: prev.investmentGains + (impact.netWorthBonus || 0)
+          };
+          return newState;
+        });
+
+        setResultMessage({
+          text: choice.result,
+          type: (impact.savings > 0 || impact.income > 0 || impact.creditScore > 0) ? "positive" : 
+                (impact.savings < 0 || impact.debt > 0 || impact.creditScore < 0) ? "negative" : "neutral"
+        });
+        
+        setCurrentDecision(null);
+      };
+
+      const advanceMonth = () => {
+        setGameState(prev => {
+          // Monthly income/expense calculation
+          const monthlyNet = prev.income - 1500 - (prev.debt * 0.02); // Basic expenses + debt payments
+          const interestGain = prev.investmentGains * 0.01; // 1% monthly return on investments
+          
+          return {
+            ...prev,
+            month: prev.month + 1,
+            savings: prev.savings + monthlyNet + interestGain,
+            debt: Math.max(0, prev.debt - 100), // Slow debt paydown
+            investmentGains: prev.investmentGains + interestGain
+          };
+        });
+
+        // Check for game over conditions
+        if (gameState.month >= 60) { // 5 years
+          setScreen("gameover");
+          return;
+        }
+
+        generateTurn();
+      };
+
+      const netWorth = gameState ? calculateNetWorth(gameState.savings + gameState.investmentGains, gameState.debt) : 0;
+      const tier = getWealthTier(netWorth);
+
+      const shareResults = () => {
+        const text = `🏰 Knight Tycoon Results\n\n` +
+          `👤 ${playerName}\n` +
+          `📅 ${gameState.month} months played\n` +
+          `💰 Net Worth: ${formatMoney(netWorth)}\n` +
+          `📊 Credit Score: ${gameState.creditScore}\n` +
+          `👑 Tier: ${tier.name}\n\n` +
+          `Build your legacy at Knight Financial!`;
+        
+        if (navigator.share) {
+          navigator.share({ text });
+        } else {
+          navigator.clipboard.writeText(text);
+          alert("Results copied to clipboard!");
+        }
+      };
+
+      return (
+        <div className="game-container">
+          <div className="header">
+            <div className="logo">KNIGHT <span>TYCOON</span></div>
+            <div className="tagline">Build Your Legacy</div>
+          </div>
+
+          {screen === "title" && (
+            <div className="screen title-screen">
+              <h1>Knight Tycoon</h1>
+              <p>Make smart financial decisions. Rise from nothing to generational wealth.</p>
+              
+              <button className="btn" onClick={() => setScreen("setup")}>
+                Start Your Journey
+              </button>
+
+              <div className="premium-banner">
+                <div className="premium-badge">PREMIUM PATHS</div>
+                <div className="premium-title">Unlock More Ways to Win</div>
+                <div className="premium-desc">Exclusive career paths and scenarios</div>
+                <div className="locked-paths">
+                  {LOCKED_PREMIUM_PATHS.map((path, i) => (
+                    <div key={i} className="locked-path">
+                      <div className="locked-path-icon">{path.icon}</div>
+                      <div className="locked-path-name">{path.name} <span className="lock-icon">🔒</span></div>
+                    </div>
+                  ))}
+                </div>
+                <button className="btn btn-secondary btn-small" style={{marginTop: "16px"}}>
+                  Coming Soon - $4.99
+                </button>
+              </div>
+            </div>
+          )}
+
+          {screen === "setup" && (
+            <div className="screen">
+              <div className="input-group">
+                <label>Your Name</label>
+                <input 
+                  type="text" 
+                  value={playerName} 
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <label className="input-group">
+                <span className="stat-label">Choose Your Starting Point</span>
+              </label>
+              
+              <div className="starting-options">
+                {STARTING_SCENARIOS.map(scenario => (
+                  <div 
+                    key={scenario.id}
+                    className={`start-option ${selectedStart === scenario.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedStart(scenario.id)}
+                  >
+                    <div className="start-option-title">{scenario.title}</div>
+                    <div className="start-option-desc">{scenario.desc}</div>
+                    <div className="start-option-stats">
+                      Income: {formatMoney(scenario.income)}/mo • Credit: {scenario.creditScore} • Debt: {formatMoney(scenario.debt)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                className="btn" 
+                onClick={startGame}
+                disabled={!playerName || !selectedStart}
+                style={{width: "100%", marginTop: "20px", opacity: (!playerName || !selectedStart) ? 0.5 : 1}}
+              >
+                Begin Your Journey
+              </button>
+            </div>
+          )}
+
+          {screen === "game" && gameState && (
+            <div className="screen">
+              <div className="month-display">
+                <div className="month-label">Month</div>
+                <div className="month-number">{gameState.month}</div>
+              </div>
+
+              <div className="wealth-tier">
+                <div className="tier-icon">{tier.icon}</div>
+                <div className="tier-name">{tier.name}</div>
+                <div className="tier-desc">{tier.desc}</div>
+              </div>
+
+              <div className="stat-bar">
+                <div className="stat-header">
+                  <span className="stat-label">Net Worth</span>
+                  <span className={`stat-value ${netWorth >= 0 ? 'positive' : 'negative'}`}>
+                    {formatMoney(netWorth)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="stat-bar">
+                <div className="stat-header">
+                  <span className="stat-label">Monthly Income</span>
+                  <span className="stat-value">{formatMoney(gameState.income)}</span>
+                </div>
+              </div>
+
+              <div className="stat-bar">
+                <div className="stat-header">
+                  <span className="stat-label">Savings</span>
+                  <span className="stat-value">{formatMoney(gameState.savings)}</span>
+                </div>
+              </div>
+
+              <div className="stat-bar">
+                <div className="stat-header">
+                  <span className="stat-label">Debt</span>
+                  <span className={`stat-value ${gameState.debt > 0 ? 'negative' : ''}`}>
+                    {formatMoney(gameState.debt)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="stat-bar">
+                <div className="stat-header">
+                  <span className="stat-label">Credit Score</span>
+                  <span className="stat-value">{gameState.creditScore}</span>
+                </div>
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill credit" 
+                    style={{width: `${((gameState.creditScore - 300) / 550) * 100}%`}}
+                  />
+                </div>
+              </div>
+
+              {currentEvent && (
+                <div className="event-card">
+                  <div className="event-icon">{currentEvent.icon}</div>
+                  <div className="event-title">{currentEvent.title}</div>
+                  <div className="event-desc">{currentEvent.desc}</div>
+                  <div className={`event-impact ${currentEvent.positive ? 'positive' : 'negative'}`}>
+                    {currentEvent.positive ? '📈' : '📉'} 
+                    {currentEvent.impact.savings && ` ${currentEvent.impact.savings > 0 ? '+' : ''}${formatMoney(currentEvent.impact.savings)}`}
+                    {currentEvent.impact.creditScore && ` Credit ${currentEvent.impact.creditScore > 0 ? '+' : ''}${currentEvent.impact.creditScore}`}
+                  </div>
+                  <button className="btn btn-small" style={{marginTop: "16px"}} onClick={handleEventAcknowledge}>
+                    Continue
+                  </button>
+                </div>
+              )}
+
+              {resultMessage && (
+                <div className={`result-message ${resultMessage.type}`}>
+                  {resultMessage.text}
+                </div>
+              )}
+
+              {currentDecision && !currentEvent && (
+                <div className="decision-card">
+                  <div className="decision-title">{currentDecision.title}</div>
+                  <div className="decision-desc">{currentDecision.desc}</div>
+                  
+                  {currentDecision.choices.map((choice, index) => (
+                    <button 
+                      key={index} 
+                      className="choice-btn"
+                      onClick={() => handleChoice(choice)}
+                    >
+                      {choice.text}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!currentDecision && !currentEvent && (
+                <button className="btn" style={{width: "100%"}} onClick={advanceMonth}>
+                  Next Month →
+                </button>
+              )}
+
+              {gameState.month >= 12 && gameState.month % 12 === 0 && (
+                <div className="premium-banner" style={{marginTop: "20px"}}>
+                  <div className="premium-badge">UNLOCK MORE</div>
+                  <div className="premium-title">Want to go bigger?</div>
+                  <div className="premium-desc">Premium paths: Real Estate, Entrepreneurship, and more</div>
+                  <button className="btn btn-secondary btn-small">Upgrade - $4.99</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {screen === "gameover" && gameState && (
+            <div className="screen game-over">
+              <div className="tier-icon" style={{fontSize: "64px"}}>{tier.icon}</div>
+              <h2>{tier.name}</h2>
+              
+              <div className="final-stats">
+                <div className="final-stat">
+                  <span>Player</span>
+                  <span>{playerName}</span>
+                </div>
+                <div className="final-stat">
+                  <span>Months Played</span>
+                  <span>{gameState.month}</span>
+                </div>
+                <div className="final-stat">
+                  <span>Final Net Worth</span>
+                  <span style={{color: netWorth >= 0 ? 'var(--green)' : 'var(--red)'}}>
+                    {formatMoney(netWorth)}
+                  </span>
+                </div>
+                <div className="final-stat">
+                  <span>Credit Score</span>
+                  <span>{gameState.creditScore}</span>
+                </div>
+                <div className="final-stat">
+                  <span>Monthly Income</span>
+                  <span>{formatMoney(gameState.income)}</span>
+                </div>
+              </div>
+
+              <button className="btn share-btn" onClick={shareResults}>
+                Share Results 📤
+              </button>
+
+              <div className="actions-row">
+                <button className="btn btn-secondary" onClick={() => {
+                  setScreen("setup");
+                  setGameState(null);
+                  setSelectedStart(null);
+                }}>
+                  Play Again
+                </button>
+              </div>
+
+              <div className="premium-banner">
+                <div className="premium-badge">LEVEL UP IRL</div>
+                <div className="premium-title">Ready to build real wealth?</div>
+                <div className="premium-desc">Knight Financial helps you master your credit and finances.</div>
+                <button className="btn btn-small" onClick={() => window.open('https://knightfinancial.com', '_blank')}>
+                  Visit Knight Financial
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<KnightTycoon />, document.getElementById('root'));
+  </script>
+</body>
+</html>
