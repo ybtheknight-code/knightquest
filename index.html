@@ -1,1677 +1,2488 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Knight Tycoon 3.2</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    :root{--gold:#D4AF37;--bg:#0a0a0f;--card:#12121a;--card2:#1a1a25;--text:#FFF;--text2:#888;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;--purple:#A855F7;--pink:#EC4899}
-    html,body{height:100%;overflow:hidden}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
-    #root{height:100%}
-    .app{max-width:430px;margin:0 auto;padding:8px 12px;height:100%;display:flex;flex-direction:column}
-    .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Knight Tycoon v4.1 — Balanced Life Sim (Year Turns)</title>
 
-    /* Header */
-    .hdr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(212,175,55,0.12);margin-bottom:6px}
-    .logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
-    .hdr-r{display:flex;gap:5px;align-items:center}
-    .ver{font-size:8px;color:var(--text2);background:var(--card);padding:3px 6px;border-radius:4px}
-    .ibtn{width:32px;height:32px;border-radius:8px;background:var(--card);border:1px solid rgba(255,255,255,0.06);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-    .ibtn.on{background:var(--gold);color:var(--bg)}
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    /* PIXEL CHARACTER */
-    .pix{image-rendering:pixelated;position:relative}
-    .pix-wrap{display:flex;align-items:center;justify-content:center}
-    .pix-char{position:relative}
-    
-    /* Pixel art using box-shadow technique */
-    .pixel-avatar{
-      width:4px;height:4px;
-      background:transparent;
-      transform-origin:top left;
-    }
-    .pixel-avatar.sm{transform:scale(3)}
-    .pixel-avatar.md{transform:scale(5)}
-    .pixel-avatar.lg{transform:scale(8)}
-    .pixel-avatar.xl{transform:scale(10)}
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    /* Character container */
-    .char-pix{
-      width:48px;height:64px;
-      display:flex;align-items:center;justify-content:center;
-      border-radius:8px;
-      background:var(--card);
-      border:2px solid var(--gold);
-      overflow:hidden;
-      position:relative;
-    }
-    .char-pix.sm{width:32px;height:42px;border-width:1px}
-    .char-pix.lg{width:72px;height:96px;border-width:3px}
-    .char-pix.xl{width:96px;height:128px;border-width:3px}
+<style>
+/* ==========================================================
+  KNIGHT TYCOON v4.1 (BALANCED LIFE SIM)
+  - One turn = One YEAR
+  - Jobs capped; Business = millionaire path
+  - Crime is a trap (even when you "win")
+  - Health/Happiness gate your card quality
+  - Hidden scores: Discipline, Reputation, Stress
+  - Housing equity, meaningful investments, meaningful debt
+  - 3 save slots + autosave + export/import code + optional email label
+========================================================== */
 
-    /* Pixel sprite container */
-    .sprite{
-      image-rendering:pixelated;
-      image-rendering:crisp-edges;
-    }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#0a0a10;color:#fff;font-family:Inter,sans-serif}
+#root{height:100%}
 
-    /* Character Bar */
-    .cbar{display:flex;align-items:center;gap:8px;background:var(--card);padding:8px 10px;border-radius:10px;margin-bottom:5px}
-    .cinfo{flex:1;min-width:0}
-    .cname{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .cmeta{font-size:10px;color:var(--text2);display:flex;gap:6px;flex-wrap:wrap}
-    .cmeta span{display:flex;align-items:center;gap:2px}
-    .gbadge{background:var(--gold);color:var(--bg);font-size:9px;font-weight:700;padding:4px 8px;border-radius:5px}
+:root{
+  --gold:#D4AF37;
+  --card:#12121a;
+  --card2:#1a1a25;
+  --muted:rgba(255,255,255,.72);
+  --muted2:rgba(255,255,255,.52);
+  --green:#22c55e;
+  --red:#ef4444;
+  --blue:#3b82f6;
+  --yellow:#facc15;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
 
-    /* Stats Grid */
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
-    .stat{background:var(--card);padding:6px 4px;border-radius:6px;text-align:center;cursor:pointer;transition:all 0.15s}
-    .stat:hover{background:var(--card2)}
-    .stat-i{font-size:11px}
-    .stat-v{font-size:13px;font-weight:700}
-    .stat-v.g{color:var(--green)}
-    .stat-v.r{color:var(--red)}
-    .stat-l{font-size:7px;color:var(--text2);text-transform:uppercase}
-    .stat-bar{height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:2px;overflow:hidden}
-    .stat-fill{height:100%;border-radius:2px}
+.app{max-width:430px;margin:auto;padding:10px;height:100%;display:flex;flex-direction:column;gap:8px}
 
-    /* Benefits Banner */
-    .benefits{display:flex;gap:4px;margin-bottom:4px;flex-wrap:wrap}
-    .benefit{font-size:8px;padding:3px 6px;border-radius:4px;display:flex;align-items:center;gap:3px}
-    .benefit.food{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
-    .benefit.s8{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
-    .benefit.married{background:rgba(236,72,153,0.15);color:var(--pink);border:1px solid rgba(236,72,153,0.3)}
-    .benefit.kids{background:rgba(168,85,247,0.15);color:var(--purple);border:1px solid rgba(168,85,247,0.3)}
+.header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand{font-family:"Press Start 2P",system-ui;font-size:12px;letter-spacing:.5px;color:var(--gold)}
 
-    /* Family Bar */
-    .fambar{background:var(--card);border-radius:6px;padding:6px 8px;margin-bottom:4px}
-    .fambar-h{font-size:8px;color:var(--text2);text-transform:uppercase;margin-bottom:4px}
-    .fambar-kids{display:flex;gap:4px;flex-wrap:wrap}
-    .kid-chip{display:flex;align-items:center;gap:3px;background:var(--card2);padding:3px 6px;border-radius:4px;font-size:9px}
-    .kid-invested{color:var(--gold);font-size:8px}
+.btn{background:linear-gradient(135deg,var(--gold),#a88a28);color:#000;border:none;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:transparent;border:1px solid var(--gold);color:var(--gold);box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.16);color:#fff;box-shadow:none}
+.btn.small{padding:7px 10px;border-radius:9px;font-weight:800;font-size:12px}
 
-    /* Economy Banner */
-    .econ{background:var(--card);border-radius:6px;padding:6px 10px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;font-size:10px}
-    .econ-phase{display:flex;align-items:center;gap:4px}
-    .econ-dot{width:8px;height:8px;border-radius:50%}
-    .econ-dot.boom{background:var(--green)}
-    .econ-dot.recession{background:var(--red)}
-    .econ-dot.recovery{background:var(--gold)}
-    .econ-dot.stable{background:var(--blue)}
+.card{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.card.soft{background:linear-gradient(180deg,var(--card),#0f0f17)}
 
-    /* Card Area */
-    .card-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:170px;overflow:hidden}
-    .scard{position:absolute;width:calc(100% - 8px);max-width:360px;background:var(--card);border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:14px 12px;cursor:grab;user-select:none}
-    .scard:active{cursor:grabbing}
-    .scard.sl{border-color:var(--red);box-shadow:-6px 0 18px rgba(239,68,68,0.15)}
-    .scard.sr{border-color:var(--green);box-shadow:6px 0 18px rgba(34,197,94,0.15)}
-    .scard.evt{border-color:rgba(212,175,55,0.25);background:linear-gradient(145deg,#1a1610,#111)}
-    .scard.kid{border-color:rgba(168,85,247,0.3);background:linear-gradient(145deg,#1a1020,#111)}
-    .scard.pov{border-color:rgba(59,130,246,0.3);background:linear-gradient(145deg,#101520,#111)}
-    .scard.crime{border-color:rgba(239,68,68,0.4);background:linear-gradient(145deg,#201010,#111)}
-    .scard.jail{border-color:rgba(100,100,100,0.5);background:linear-gradient(145deg,#151515,#0a0a0a)}
-    .scard.caught{border-color:rgba(239,68,68,0.6);background:linear-gradient(145deg,#2a1515,#111);animation:shake 0.3s}
-    .card-cat{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);text-align:center;margin-bottom:4px}
-    .card-icon{font-size:36px;text-align:center;margin-bottom:6px}
-    .card-title{font-family:'Playfair Display',serif;font-size:16px;text-align:center;margin-bottom:5px}
-    .card-desc{font-size:11px;color:var(--text2);text-align:center;line-height:1.4;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.col{display:flex;flex-direction:column;gap:6px}
 
-    .choices{display:flex;gap:6px}
-    .choice{flex:1;padding:8px 6px;border-radius:8px;text-align:center;font-size:10px;font-weight:500;line-height:1.3}
-    .choice.l{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:var(--red)}
-    .choice.r{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.15);color:var(--green)}
-    .ch-arr{display:block;font-size:12px;margin-bottom:2px}
-    .ch-fx{font-size:8px;margin-top:4px;opacity:0.85}
+.small{font-size:12px;color:var(--muted)}
+.tiny{font-size:11px;color:var(--muted2)}
 
-    .evt-fx{display:flex;justify-content:center;gap:5px;flex-wrap:wrap}
-    .fx{font-size:9px;padding:4px 8px;border-radius:10px}
-    .fx.g{background:rgba(34,197,94,0.1);color:var(--green)}
-    .fx.r{background:rgba(239,68,68,0.1);color:var(--red)}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.badge{font-size:10px;padding:4px 7px;border-radius:9px;background:rgba(255,255,255,.08)}
+.badge.red{background:#3a1111;color:var(--red)}
+.badge.green{background:#123a1a;color:var(--green)}
+.badge.blue{background:#122a3a;color:var(--blue)}
+.badge.yellow{background:#3a2f11;color:var(--yellow)}
 
-    /* Actions */
-    .acts{display:flex;justify-content:center;gap:14px;padding:8px 0}
-    .abtn{width:52px;height:52px;border-radius:50%;border:2px solid;background:transparent;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.12s}
-    .abtn.no{border-color:var(--red);color:var(--red)}
-    .abtn.no:active{background:var(--red);color:#fff;transform:scale(1.1)}
-    .abtn.yes{border-color:var(--green);color:var(--green)}
-    .abtn.yes:active{background:var(--green);color:#fff;transform:scale(1.1)}
+.statGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--card2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:10px}
+.stat .k{font-size:11px;color:var(--muted2)}
+.stat .v{font-size:14px;font-weight:800;margin-top:3px}
 
-    /* Dynasty Tree */
-    .tree{background:var(--card);border-radius:6px;padding:5px 8px;margin-bottom:4px}
-    .tree-h{display:flex;justify-content:space-between;font-size:8px;color:var(--text2);text-transform:uppercase;margin-bottom:3px}
-    .tree-v{color:var(--gold);font-weight:600}
-    .tree-r{display:flex;align-items:center;gap:2px}
-    .tree-ln{width:6px;height:1px;background:rgba(212,175,55,0.2)}
-    .tree-m{opacity:0.35}
-    .tree-m.now{opacity:1}
+.pbar{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:6px}
+.pbar>div{height:100%;background:var(--gold);width:50%}
 
-    /* Screens */
-    .scr{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:16px;z-index:100;overflow-y:auto}
-    .scr-i{font-size:48px;margin:10px 0;animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-    .scr-t{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);margin-bottom:6px;text-align:center}
-    .scr-s{font-size:11px;color:var(--text2);margin-bottom:14px;text-align:center}
+.screen{flex:1;display:flex;flex-direction:column;gap:10px}
 
-    /* Forms */
-    .fgrp{margin-bottom:12px;width:100%;max-width:320px}
-    .flbl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}
-    .inp{width:100%;background:var(--card);border:1px solid rgba(212,175,55,0.15);padding:11px 12px;font-size:14px;color:var(--text);border-radius:8px;font-family:'Inter',sans-serif}
-    .inp:focus{outline:none;border-color:var(--gold)}
-    .inp::placeholder{color:#555}
+.modalBack{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:10px;z-index:50}
+.modal{width:100%;max-width:430px;background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+.modal h3{margin-bottom:10px}
 
-    .opts{display:grid;gap:6px}
-    .opts.g2{grid-template-columns:repeat(2,1fr)}
-    .opts.g3{grid-template-columns:repeat(3,1fr)}
-    .opt{padding:10px 6px;background:var(--card);border:1px solid rgba(255,255,255,0.05);border-radius:8px;text-align:center;cursor:pointer;transition:all 0.15s}
-    .opt:hover{border-color:rgba(212,175,55,0.3)}
-    .opt.sel{border-color:var(--gold);background:rgba(212,175,55,0.08)}
-    .opt-i{font-size:18px;margin-bottom:2px}
-    .opt-t{font-size:10px;font-weight:600}
-    .opt-d{font-size:8px;color:var(--text2);margin-top:2px}
+.input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;outline:none}
+.select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;outline:none}
 
-    /* Character Selection */
-    .char-select{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    .char-opt{padding:8px;background:var(--card);border:2px solid rgba(255,255,255,0.05);border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;transition:all 0.15s}
-    .char-opt:hover{border-color:rgba(212,175,55,0.3);transform:translateY(-2px)}
-    .char-opt.sel{border-color:var(--gold);background:rgba(212,175,55,0.1)}
+.hr{height:1px;background:rgba(255,255,255,.08);margin:10px 0}
 
-    .preview{background:var(--card);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(212,175,55,0.1);margin:14px 0;width:100%;max-width:320px}
-    .prev-n{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);margin-top:8px}
-    .prev-s{font-size:10px;color:var(--text2)}
+.swipeWrap{position:relative;height:270px}
+.swipeCard{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between}
+.swipeTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.swipeTitle{font-weight:900;font-size:18px;line-height:1.15}
+.swipeCat{font-size:12px;color:var(--muted)}
+.swipeBody{margin-top:10px;font-size:14px;color:rgba(255,255,255,.86);line-height:1.35}
+.choiceRow{display:flex;gap:10px;margin-top:12px}
+.choice{flex:1;border-radius:14px;padding:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+.choice .lbl{font-weight:900}
+.choice .eff{font-size:12px;color:var(--muted2);margin-top:6px}
 
-    /* Buttons */
-    .btn{background:linear-gradient(135deg,var(--gold),#A68B28);color:var(--bg);border:none;padding:12px 28px;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.12s}
-    .btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(212,175,55,0.3)}
-    .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-    .btn.sec{background:transparent;border:1px solid var(--gold);color:var(--gold)}
-    .btn.full{width:100%;max-width:320px}
-    .btn.sm{padding:8px 16px;font-size:11px}
+.swipeHint{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.pill{font-size:11px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.9)}
 
-    /* Title */
-    .title{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;padding:16px}
-    .t-crown{font-size:48px;margin-bottom:8px;animation:float 3s ease-in-out infinite}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-    .t-logo{font-family:'Press Start 2P',cursive;font-size:18px;color:var(--gold);text-shadow:2px 2px 0 #000}
-    .t-sub{font-size:10px;color:var(--gold);margin-top:4px;font-family:'Press Start 2P',cursive}
-    .t-tag{color:var(--text2);margin:12px 0 20px;font-size:11px}
+.kidChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.kidChip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);padding:6px 8px;border-radius:12px;font-size:11px;color:rgba(255,255,255,.88)}
 
-    .howto{background:var(--card);border-radius:10px;padding:14px;margin-bottom:18px;text-align:left;max-width:300px}
-    .howto h3{font-size:9px;color:var(--gold);margin-bottom:8px;text-transform:uppercase}
-    .howto-i{display:flex;gap:8px;margin-bottom:6px;font-size:10px;color:var(--text2)}
-    .howto-ic{font-size:14px;width:22px}
+.tree{display:flex;flex-direction:column;gap:10px}
+.treeItem{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px}
 
-    /* Login */
-    .login-box{background:var(--card);border-radius:12px;padding:16px;width:100%;max-width:300px;margin-bottom:16px}
-    .login-box h3{font-size:11px;color:var(--gold);margin-bottom:10px;text-align:center}
-    .save-code{background:var(--bg);border:1px dashed var(--gold);border-radius:8px;padding:12px;text-align:center;margin:10px 0}
-    .save-code span{font-family:'Press Start 2P',cursive;font-size:14px;color:var(--gold);letter-spacing:2px}
-    .save-code small{display:block;font-size:8px;color:var(--text2);margin-top:6px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;background:rgba(10,10,16,.92);border:1px solid rgba(255,255,255,.12);padding:10px 12px;border-radius:14px;font-size:12px;color:#fff;box-shadow:var(--shadow);z-index:80}
 
-    /* Boxes */
-    .box{background:var(--card);border-radius:10px;padding:12px;width:100%;max-width:320px;margin-bottom:12px}
-    .box-t{font-size:9px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;text-align:center;letter-spacing:1px}
-    .box-r{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:11px}
-    .box-r:last-child{border:none}
-    .box-r.hl{color:var(--gold);font-weight:600}
-
-    /* Dynasty Summary */
-    .dsum{background:var(--card);border-radius:10px;padding:12px;width:100%;max-width:340px}
-    .dmem{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-    .dmem:last-child{border:none}
-    .dmem-i{flex:1}
-    .dmem-n{font-size:11px;font-weight:500}
-    .dmem-m{font-size:9px;color:var(--text2)}
-    .dmem-w{font-size:11px;font-weight:600}
-    .dtot{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:2px solid var(--gold)}
-    .dtot-l{font-size:11px;color:var(--gold);font-weight:600}
-    .dtot-v{font-size:14px;color:var(--gold);font-weight:700}
-
-    .promo{background:linear-gradient(135deg,#1a1510,#0a0a0a);border:1px solid rgba(212,175,55,0.15);border-radius:10px;padding:12px;margin-top:12px;text-align:center;max-width:320px;width:100%}
-    .promo-b{background:var(--gold);color:var(--bg);font-size:7px;font-weight:700;padding:3px 8px;border-radius:10px;display:inline-block;margin-bottom:5px}
-    .promo-t{font-family:'Playfair Display',serif;font-size:13px;margin-bottom:3px}
-    .promo-d{font-size:9px;color:var(--text2)}
-
-    /* Toast */
-    .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);border-radius:10px;padding:16px 24px;text-align:center;z-index:150;border:2px solid;animation:pop 0.2s}
-    .toast.g{border-color:var(--green)}
-    .toast.r{border-color:var(--red)}
-    .toast-i{font-size:24px;margin-bottom:4px}
-    .toast-t{font-size:12px;font-weight:500}
-    @keyframes pop{from{opacity:0;transform:translate(-50%,-50%) scale(0.85)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-
-    /* Jail Status */
-    .jail-bar{background:rgba(100,100,100,0.2);border:1px solid rgba(100,100,100,0.4);border-radius:6px;padding:6px 10px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-    .jail-icon{font-size:18px}
-    .jail-info{flex:1;font-size:10px;color:var(--text2)}
-    .jail-time{font-size:12px;font-weight:600;color:var(--red)}
-
-    /* Achievement */
-    .ach{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:8px;z-index:200;animation:slideD 0.3s,fadeO 0.3s 2.7s forwards}
-    @keyframes slideD{from{transform:translateX(-50%) translateY(-50px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-    @keyframes fadeO{to{opacity:0}}
-    .ach-i{font-size:22px}
-    .ach-t{font-size:11px;font-weight:600;color:var(--gold)}
-    .ach-d{font-size:9px;color:var(--text2)}
-
-    /* Modal */
-    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
-    .modal{background:var(--card);border-radius:12px;padding:16px;max-width:340px;width:100%;max-height:80vh;overflow-y:auto}
-    .modal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .modal-t{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold)}
-    .modal-x{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.06);border:none;color:var(--text2);font-size:13px;cursor:pointer}
-    .set-r{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px}
-    .tog{width:40px;height:22px;background:rgba(255,255,255,0.08);border-radius:11px;cursor:pointer;position:relative}
-    .tog.on{background:var(--green)}
-    .tog-k{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s}
-    .tog.on .tog-k{transform:translateX(18px)}
-
-    /* Payoff */
-    .payoff{display:flex;flex-direction:column;gap:8px}
-    .payoff-opt{display:flex;justify-content:space-between;align-items:center;background:var(--card2);padding:10px;border-radius:8px;cursor:pointer;border:1px solid transparent}
-    .payoff-opt:hover{border-color:var(--gold)}
-    .payoff-opt.dis{opacity:0.4;cursor:not-allowed}
-  </style>
+</style>
 </head>
+
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const {useState,useEffect,useRef,useCallback} = React;
+<div id="root"></div>
 
-    // ==================== SOUND SYSTEM ====================
-    class SFX {
-      constructor(){this.ctx=null;this.on=true;this.music=true;this.loop=null}
-      init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)()}
-      t(f,d,ty='sine',g=0.18,dl=0){
-        if(!this.ctx||!this.on)return;
-        const o=this.ctx.createOscillator(),gn=this.ctx.createGain();
-        o.type=ty;o.frequency.value=f;
-        const st=this.ctx.currentTime+dl;
-        gn.gain.setValueAtTime(0,st);gn.gain.linearRampToValueAtTime(g,st+0.01);gn.gain.exponentialRampToValueAtTime(0.001,st+d);
-        o.connect(gn);gn.connect(this.ctx.destination);o.start(st);o.stop(st+d);
-      }
-      // Core sounds
-      yes(){this.t(349,0.06);this.t(440,0.06,'sine',0.18,0.03);this.t(523,0.08,'sine',0.18,0.06)}
-      no(){this.t(392,0.06);this.t(349,0.06,'sine',0.18,0.03);this.t(294,0.08,'sine',0.14,0.06)}
-      draw(){this.t(800,0.02,'sine',0.08)}
-      good(){[262,330,392,523].forEach((n,i)=>this.t(n,0.08,'sine',0.14,i*0.03))}
-      bad(){this.t(330,0.08,'triangle',0.1);this.t(294,0.1,'triangle',0.1,0.06)}
-      ach(){[262,330,392,523,659].forEach((n,i)=>this.t(n,0.08,'sine',0.1,i*0.04))}
-      lvl(){this.t(262,0.15);this.t(330,0.15,'sine',0.15,0.12);this.t(392,0.2,'sine',0.15,0.24)}
-      end(){this.t(392,0.2);this.t(349,0.2,'sine',0.1,0.15);this.t(294,0.25,'sine',0.08,0.3)}
-      click(){this.t(600,0.015,'sine',0.05)}
-      // New sounds
-      marry(){this.t(523,0.12);this.t(659,0.12,'sine',0.12,0.08);this.t(784,0.15,'sine',0.12,0.16);this.t(1047,0.2,'sine',0.1,0.24)}
-      baby(){this.t(784,0.1);this.t(880,0.1,'sine',0.1,0.05);this.t(1047,0.15,'sine',0.12,0.1)}
-      money(){this.t(440,0.05);this.t(554,0.05,'sine',0.1,0.03);this.t(659,0.08,'sine',0.1,0.06)}
-      debt(){this.t(220,0.15,'triangle',0.08);this.t(196,0.2,'triangle',0.06,0.1)}
-      alert(){this.t(880,0.08);this.t(660,0.08,'square',0.06,0.06);this.t(880,0.08,'square',0.06,0.12)}
-      whoosh(){for(let i=0;i<5;i++)this.t(200+i*100,0.03,'sine',0.02,i*0.01)}
-      pop(){this.t(1200,0.03,'sine',0.06);this.t(800,0.02,'sine',0.04,0.02)}
-      coin(){this.t(1318,0.05);this.t(1568,0.08,'sine',0.1,0.04)}
-      sad(){this.t(294,0.2,'triangle',0.08);this.t(262,0.25,'triangle',0.06,0.15)}
-      // Crime sounds
-      crime(){this.t(200,0.1,'sawtooth',0.06);this.t(180,0.15,'sawtooth',0.05,0.08)}
-      caught(){this.t(150,0.3,'square',0.1);this.t(100,0.4,'square',0.08,0.15);this.t(80,0.5,'square',0.06,0.3)}
-      free(){this.t(262,0.1);this.t(330,0.1,'sine',0.12,0.08);this.t(392,0.12,'sine',0.12,0.16);this.t(523,0.15,'sine',0.1,0.24)}
-      startM(){
-        if(!this.ctx||!this.music||this.loop)return;
-        const ch=[[131,165,196],[147,185,220],[165,208,247],[175,220,262]];
-        const bs=[65,73,82,87,98];
-        let ci=0,b=0;
-        const tick=()=>{
-          if(!this.music)return;
-          this.t(bs[(b+ci)%bs.length],0.25,'triangle',0.03);
-          if(b%2===1)ch[ci%ch.length].forEach(f=>this.t(f,0.15,'sine',0.02));
-          b++;if(b>=8){b=0;ci=(ci+1)%ch.length}
-        };
-        tick();this.loop=setInterval(tick,200);
-      }
-      stopM(){if(this.loop){clearInterval(this.loop);this.loop=null}}
-      togM(v){this.music=v;v?this.startM():this.stopM()}
-      togS(v){this.on=v}
+<script type="text/babel">
+/**********************
+  AUDIO (WebAudio)
+  - stable, low volume
+  - event-weighted sfx
+**********************/
+class SFX {
+  constructor(){this.ctx=null;this.musicOn=true;this.sfxOn=true;this.loop=null;this._started=false}
+  init(){
+    if(!this.ctx){this.ctx=new (window.AudioContext||window.webkitAudioContext)()}
+  }
+  _tone(freq, dur=0.1, type='sine', vol=0.06, delay=0){
+    if(!this.ctx || !this.sfxOn) return;
+    const o=this.ctx.createOscillator();
+    const g=this.ctx.createGain();
+    o.type=type; o.frequency.value=freq;
+    const t=this.ctx.currentTime+delay;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); o.stop(t+dur);
+  }
+  click(){this._tone(600,0.04,'sine',0.08)}
+  yes(){this._tone(740,0.07,'sine',0.09);this._tone(1046,0.08,'sine',0.08,0.06)}
+  no(){this._tone(240,0.18,'triangle',0.10)}
+  draw(){this._tone(900,0.04,'sine',0.06);this._tone(1200,0.05,'sine',0.05,0.03)}
+  good(){[523,659,784].forEach((f,i)=>this._tone(f,0.12,'sine',0.08,i*0.05))}
+  bad(){this._tone(180,0.20,'triangle',0.10);this._tone(120,0.26,'triangle',0.08,0.08)}
+  money(){this._tone(880,0.08,'sine',0.10);this._tone(1320,0.10,'sine',0.09,0.05)}
+  debt(){this._tone(190,0.22,'square',0.09)}
+  coin(){this._tone(1400,0.04,'sine',0.07);this._tone(900,0.05,'sine',0.06,0.03)}
+  marry(){this._tone(523,0.14,'sine',0.08);this._tone(784,0.16,'sine',0.08,0.08)}
+  baby(){this._tone(980,0.05,'sine',0.08);this._tone(1200,0.05,'sine',0.07,0.06)}
+  caught(){this._tone(700,0.22,'sawtooth',0.09);this._tone(420,0.22,'sawtooth',0.09,0.22)}
+  jail(){this._tone(110,0.35,'triangle',0.12)}
+  free(){this._tone(392,0.10,'sine',0.08);this._tone(523,0.12,'sine',0.08,0.08)}
+  gavel(){this._tone(180,0.18,'square',0.12);this._tone(140,0.22,'square',0.09,0.12)}
+  lvl(){this._tone(600,0.06,'sine',0.07);this._tone(800,0.06,'sine',0.07,0.08);this._tone(1000,0.08,'sine',0.07,0.16)}
+
+  startJazz(){
+    if(!this.ctx || !this.musicOn || this.loop) return;
+    const chords=[[262,330,392],[294,370,440],[330,415,494],[294,370,440]];
+    let i=0;
+    this.loop=setInterval(()=>{
+      if(!this.musicOn) return;
+      chords[i%chords.length].forEach((f,ix)=>this._tone(f,0.18,'sine',0.030,ix*0.01));
+      i++;
+    },650);
+  }
+  stopJazz(){if(this.loop){clearInterval(this.loop);this.loop=null}}
+  setMusic(v){this.musicOn=v; v?this.startJazz():this.stopJazz()}
+  setSFX(v){this.sfxOn=v}
+}
+const sfx=new SFX();
+
+/**********************
+  HELPERS
+**********************/
+const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+const rint=(a,b)=>Math.floor(a+Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const uid=()=>Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+const fmtMoney=n=>{
+  const s=n<0?'-':''; const a=Math.abs(n);
+  if(a>=1e6) return `${s}$${(a/1e6).toFixed(2)}M`;
+  if(a>=1e3) return `${s}$${(a/1e3).toFixed(1)}K`;
+  return `${s}$${Math.round(a)}`;
+};
+const pct=n=>`${Math.round(n*100)}%`;
+
+const safeJSON=(x,fallback)=>{try{return JSON.parse(x)}catch{return fallback}};
+
+const b64enc=(obj)=>{
+  const json=JSON.stringify(obj);
+  return btoa(unescape(encodeURIComponent(json)));
+};
+const b64dec=(str)=>{
+  const json=decodeURIComponent(escape(atob(str)));
+  return JSON.parse(json);
+};
+
+// simple deterministic hash -> base36 (for short code / integrity)
+const hash32=(str)=>{
+  let h=2166136261;
+  for(let i=0;i<str.length;i++){
+    h^=str.charCodeAt(i);
+    h=(h>>>0)*16777619;
+  }
+  return (h>>>0);
+};
+const makeShortCode=(payload)=>{
+  const h=hash32(payload).toString(36).toUpperCase();
+  return (h.padStart(8,'0')).slice(0,8);
+};
+
+/**********************
+  GAME DATA
+**********************/
+const ECONOMY=[
+  {id:'boom', name:'Boom', inv: 0.08, jobs: 0.03, layoffs: 0.02},
+  {id:'stable', name:'Stable', inv: 0.04, jobs: 0.02, layoffs: 0.05},
+  {id:'recession', name:'Recession', inv: -0.06, jobs: -0.01, layoffs: 0.12},
+  {id:'recovery', name:'Recovery', inv: 0.05, jobs: 0.015, layoffs: 0.07},
+];
+
+// Annual values (turn = 1 year)
+const CAREERS={
+  trades:{icon:'🔧', start:42000, cap:95000, eduCost:12000, eduYears:2},
+  business:{icon:'💼', start:38000, cap:110000, eduCost:50000, eduYears:4},
+  tech:{icon:'💻', start:62000, cap:150000, eduCost:60000, eduYears:4},
+  healthcare:{icon:'🏥', start:52000, cap:105000, eduCost:45000, eduYears:4},
+  creative:{icon:'🎨', start:32000, cap:125000, eduCost:40000, eduYears:4},
+  finance:{icon:'📊', start:56000, cap:180000, eduCost:70000, eduYears:4},
+};
+
+const HOUSING={
+  parents:{name:'Parents', yearly:3600, equity:false},
+  rent:{name:'Rent', yearly:16800, equity:false},
+  own:{name:'Own', yearly:24000, equity:true},
+};
+
+const BENEFITS={
+  snap:{name:'SNAP', yearlyValue:1800},
+  section8:{name:'Section 8', yearlyValue:4200},
+  childCredit:{name:'Child Credit', yearlyValuePerKid:1200},
+};
+
+const BUSINESS_TYPES=[
+  {id:'services', name:'Service Business', risk:0.12, margin:[0.08,0.22]},
+  {id:'ecom', name:'E-Commerce', risk:0.18, margin:[0.06,0.20]},
+  {id:'agency', name:'Agency', risk:0.15, margin:[0.10,0.25]},
+  {id:'tradebiz', name:'Skilled Trade Co.', risk:0.10, margin:[0.10,0.28]},
+];
+
+const MALE_STYLES=[
+  {id:'m1', name:'Classic', hair:'#3d2314', skin:'#f5d0c5', shirt:'#3B82F6', pants:'#1e3a5f'},
+  {id:'m2', name:'Cool',    hair:'#1a1a1a', skin:'#e8beac', shirt:'#22C55E', pants:'#1a1a1a'},
+  {id:'m3', name:'Blonde',  hair:'#f4d03f', skin:'#f5d0c5', shirt:'#EF4444', pants:'#2d3748'},
+  {id:'m4', name:'Red',     hair:'#c0392b', skin:'#dbb89a', shirt:'#6366F1', pants:'#1e3a5f'},
+  {id:'m5', name:'Silver',  hair:'#95a5a6', skin:'#f5d0c5', shirt:'#D4AF37', pants:'#2d3748'},
+  {id:'m6', name:'Brown',   hair:'#5d4037', skin:'#c68642', shirt:'#14B8A6', pants:'#1a1a1a'},
+  {id:'m7', name:'Dark',    hair:'#2c1810', skin:'#8d5524', shirt:'#F97316', pants:'#2d3748'},
+  {id:'m8', name:'Fade',    hair:'#1a1a1a', skin:'#a67c52', shirt:'#2563EB', pants:'#1e3a5f'},
+];
+const FEMALE_STYLES=[
+  {id:'f1', name:'Classic', hair:'#3d2314', skin:'#f5d0c5', shirt:'#EC4899', pants:'#1e3a5f'},
+  {id:'f2', name:'Blonde',  hair:'#f4d03f', skin:'#f5d0c5', shirt:'#A855F7', pants:'#2d3748'},
+  {id:'f3', name:'Red',     hair:'#c0392b', skin:'#e8beac', shirt:'#22C55E', pants:'#1a1a1a'},
+  {id:'f4', name:'Dark',    hair:'#1a1a1a', skin:'#dbb89a', shirt:'#3B82F6', pants:'#1e3a5f'},
+  {id:'f5', name:'Brown',   hair:'#5d4037', skin:'#c68642', shirt:'#D4AF37', pants:'#2d3748'},
+  {id:'f6', name:'Curly',   hair:'#2c1810', skin:'#8d5524', shirt:'#EF4444', pants:'#1a1a1a'},
+  {id:'f7', name:'Silver',  hair:'#95a5a6', skin:'#f5d0c5', shirt:'#14B8A6', pants:'#1e3a5f'},
+  {id:'f8', name:'Long',    hair:'#1a1a1a', skin:'#a67c52', shirt:'#F97316', pants:'#2d3748'},
+];
+
+const KID_NAMES_M=['Eli','Noah','Micah','Isaiah','Jordan','Caleb','Marcus','David','Samuel','Josiah'];
+const KID_NAMES_F=['Mia','Ava','Naomi','Ruth','Zoe','Leah','Sarah','Hannah','Faith','Grace'];
+
+/**********************
+  SAVE SYSTEM (Slots + Autosave + Codes)
+  - Slots stored locally
+  - Export/Import code to move between devices
+  - Optional email label (non-invasive)
+**********************/
+const SAVE_NS='KT_V41_SAVES';
+const AUTO_SLOT=0;
+const MAX_SLOTS=3; // plus autosave slot 0
+
+const defaultSaveStore=()=>({
+  version:'v4.1',
+  slots:{
+    0:null, 1:null, 2:null, 3:null
+  }
+});
+
+const loadSaveStore=()=>{
+  const raw=localStorage.getItem(SAVE_NS);
+  const data=safeJSON(raw, null);
+  if(!data || !data.slots) return defaultSaveStore();
+  return data;
+};
+const writeSaveStore=(store)=>localStorage.setItem(SAVE_NS, JSON.stringify(store));
+
+const makeSlotMeta=(labelEmail)=>({
+  at: Date.now(),
+  labelEmail: (labelEmail||'').trim().slice(0,80)
+});
+
+const exportGameCode=(state)=>{
+  const payload=b64enc({v:'v4.1', state});
+  const code=makeShortCode(payload);
+  return `${code}.${payload}`; // short code prefix + full payload
+};
+
+const importGameCode=(str)=>{
+  const s=(str||'').trim();
+  const parts=s.split('.');
+  if(parts.length<2) throw new Error('Bad code format');
+  const code=parts[0];
+  const payload=parts.slice(1).join('.');
+  const check=makeShortCode(payload);
+  if(check!==code) throw new Error('Code failed integrity check');
+  const obj=b64dec(payload);
+  if(!obj || !obj.state) throw new Error('Bad code payload');
+  return obj.state;
+};
+
+/**********************
+  GAME STATE MODEL
+**********************/
+const newCharacter=(seed)=>{
+  const gender=seed?.gender||'m';
+  const style=seed?.style|| (gender==='m'?MALE_STYLES[0]:FEMALE_STYLES[0]);
+  return {
+    id: uid(),
+    name: seed?.name||'Player',
+    gender,
+    style,
+    age: seed?.age ?? 18,
+    relationship: 'single', // single -> engaged -> married
+    spouseIncome: 0,
+    career: seed?.career||'trades',
+    housing: 'parents',
+    kids: [],
+
+    // legal
+    record:false,
+    inJail:false,
+    jailYears:0,
+    probation:false,
+    warrant:false,
+
+    // benefits flags
+    snap:false,
+    section8:false,
+
+    // business
+    biz:{
+      owns:false,
+      type:null,
+      stage:'none', // none | starter | scaling
+      revenue:0,
+      profit:0,
+      employees:0,
+      complianceRisk:0,
+      valuation:0,
+      lastYearOutcome:'',
+    },
+
+    // hidden scores (0-100)
+    hidden:{
+      discipline:50,
+      reputation:55,
+      stress:35,
+      heat:0, // crime exposure/attention
+    },
+  };
+};
+
+const newStats=(careerId)=>{
+  const c=CAREERS[careerId]||CAREERS.trades;
+  // Start life with a bit of education debt depending on career education path.
+  // Balanced realism: not everyone takes loans, but most careers beyond trades tend to.
+  const eduDebt = c.eduYears>=4 ? rint(12000, 30000) : rint(0, 8000);
+  return {
+    cash: 1200,
+    income: c.start,
+    debt: eduDebt,
+    debtType: eduDebt>0?'education':'none',
+    invest: 0,
+    credit: 620,
+    health: 90,
+    happy: 70,
+    homeEquity: 0,
+    mortgage: 0,
+
+    // derived-ish helpers
+    lastCashflow: 0,
+    lastExpenses: 0,
+    lastIncomeTotal: 0,
+  };
+};
+
+const newDynasty=()=>({
+  gen:1,
+  history:[], // {gen, name, ageEnd, netWorth, kids, record, businessMillionaire}
+  totalWealthPeak:0,
+});
+
+const newAchievements=()=>({
+  saved10k:false,
+  club100k:false,
+  millionaire:false,
+  greatCredit:false,
+  debtFree:false,
+  married:false,
+  parent:false,
+  bigFamily:false,
+  homeowner:false,
+  dynasty3:false,
+});
+
+const newEconomy=()=>({
+  phase: ECONOMY[1],
+  yearsLeft: rint(3,6),
+});
+
+const initialGameState=(seed)=>({
+  v:'v4.1',
+  year:0,
+  startedAt: Date.now(),
+  economy: newEconomy(),
+  dynasty: newDynasty(),
+  achievements: newAchievements(),
+  char: newCharacter(seed),
+  st: newStats(seed?.career||'trades'),
+  log: [],
+
+  // UI / meta
+  screen: 'title', // title | setup | game | dynasty | end
+  modal: null, // 'settings' | 'debt' | 'save' | 'import' | 'timeline'
+  toast: null,
+  settings:{music:true,sfx:true},
+
+  // card system
+  card: null,
+  lastCardKey: null,
+  cooldowns: {},
+});
+
+/**********************
+  EFFECT ENGINE
+  - apply effects safely
+**********************/
+const applyDelta=(state, delta)=>{
+  const s=structuredClone(state);
+  const ch=s.char;
+  const st=s.st;
+  const h=ch.hidden;
+
+  if(delta.log){s.log.unshift(delta.log)}
+
+  if(delta.cash!=null) st.cash+=delta.cash;
+  if(delta.income!=null) st.income=clamp(st.income+delta.income, 0, 999999999);
+  if(delta.debt!=null) st.debt=Math.max(0, st.debt+delta.debt);
+  if(delta.invest!=null) st.invest=Math.max(0, st.invest+delta.invest);
+  if(delta.credit!=null) st.credit=clamp(st.credit+delta.credit, 300, 850);
+  if(delta.health!=null) st.health=clamp(st.health+delta.health, 0, 100);
+  if(delta.happy!=null) st.happy=clamp(st.happy+delta.happy, 0, 100);
+
+  if(delta.homeEquity!=null) st.homeEquity=Math.max(0, st.homeEquity+delta.homeEquity);
+  if(delta.mortgage!=null) st.mortgage=Math.max(0, st.mortgage+delta.mortgage);
+
+  if(delta.discipline!=null) h.discipline=clamp(h.discipline+delta.discipline,0,100);
+  if(delta.reputation!=null) h.reputation=clamp(h.reputation+delta.reputation,0,100);
+  if(delta.stress!=null) h.stress=clamp(h.stress+delta.stress,0,100);
+  if(delta.heat!=null) h.heat=clamp(h.heat+delta.heat,0,100);
+
+  if(delta.relationship){
+    ch.relationship=delta.relationship;
+  }
+  if(delta.married!=null){
+    ch.relationship = delta.married ? 'married' : 'single';
+  }
+  if(delta.spouseIncome!=null){
+    ch.spouseIncome=Math.max(0, delta.spouseIncome);
+  }
+
+  if(delta.snap!=null) ch.snap=!!delta.snap;
+  if(delta.section8!=null) ch.section8=!!delta.section8;
+
+  if(delta.housing){
+    ch.housing=delta.housing;
+  }
+
+  if(delta.legal){
+    const L=delta.legal;
+    if(L.record!=null) ch.record=!!L.record;
+    if(L.inJail!=null) ch.inJail=!!L.inJail;
+    if(L.jailYears!=null) ch.jailYears=Math.max(0, L.jailYears);
+    if(L.probation!=null) ch.probation=!!L.probation;
+    if(L.warrant!=null) ch.warrant=!!L.warrant;
+  }
+
+  if(delta.biz){
+    ch.biz={...ch.biz, ...delta.biz};
+  }
+
+  return s;
+};
+
+const netWorth=(st)=> (st.cash + st.invest + st.homeEquity) - (st.debt + st.mortgage);
+
+/**********************
+  CARD SYSTEM
+  - cards are generated contextually
+  - health/happiness gates quality
+  - "bad states" poison options
+**********************/
+
+const qualityTier=(state)=>{
+  const st=state.st;
+  const h=state.char.hidden;
+  // Happiness + Health gate, with stress as poison.
+  const base=(st.happy*0.55 + st.health*0.45) - (h.stress*0.35);
+  if(base>=75) return 'high';
+  if(base>=50) return 'mid';
+  return 'low';
+};
+
+const livingCost=(state)=>{
+  const ch=state.char;
+  const st=state.st;
+  const base=HOUSING[ch.housing].yearly;
+  const kids=ch.kids.length;
+  const kidCost = kids* 6500; // annual child cost baseline (childcare/food/needs)
+  const debtMin = Math.min(st.debt, 4000) * 0.08; // small required payments proxy
+  const mortgagePay = ch.housing==='own' ? Math.min(st.mortgage, 12000) * 0.10 : 0;
+  const healthMaint = 900; // basic upkeep
+  return Math.round(base + kidCost + debtMin + mortgagePay + healthMaint);
+};
+
+const emergencyFundMonths=(state)=>{
+  const exp = livingCost(state);
+  const months = exp>0 ? (state.st.cash / (exp/12)) : 12;
+  return months;
+};
+
+const benefitValue=(state)=>{
+  const ch=state.char;
+  let val=0;
+  if(ch.snap) val += BENEFITS.snap.yearlyValue;
+  if(ch.section8) val += BENEFITS.section8.yearlyValue;
+  // Child credit: only if you have kids
+  if(ch.kids.length>0) val += ch.kids.length * BENEFITS.childCredit.yearlyValuePerKid;
+  return val;
+};
+
+const jobLayoffRisk=(state)=>{
+  const econ=state.economy.phase;
+  const h=state.char.hidden;
+  // Reputation & discipline protect you.
+  let risk = econ.layoffs;
+  risk += (h.stress>70)?0.05:0;
+  risk -= (h.reputation-50)/500;
+  risk -= (h.discipline-50)/600;
+  risk = clamp(risk, 0.01, 0.25);
+  return risk;
+};
+
+const crimeExpectedPain=(state)=>{
+  // used to tune and to explain in effects
+  const h=state.char.hidden;
+  // "Heat" makes long-term pain worse.
+  return 10 + h.heat*0.6;
+};
+
+// Create a consistent card object
+const mkCard=(key, cat, title, body, left, right, meta={})=>({
+  key, cat, title, body,
+  left, right,
+  meta:{
+    rarity: meta.rarity||'common',
+    tier: meta.tier||'mid',
+    once: !!meta.once,
+    cooldown: meta.cooldown||0,
+    tags: meta.tags||[],
+  }
+});
+
+const canShow=(state, card)=>{
+  const cd=state.cooldowns[card.key]||0;
+  if(cd>0) return false;
+  if(card.meta.once && state.cooldowns[card.key]===-1) return false;
+  return true;
+};
+
+const setCooldown=(state, card)=>{
+  const s=structuredClone(state);
+  if(card.meta.once){
+    s.cooldowns[card.key]=-1;
+    return s;
+  }
+  if(card.meta.cooldown>0){
+    s.cooldowns[card.key]=card.meta.cooldown;
+  }
+  return s;
+};
+
+const tickCooldowns=(state)=>{
+  const s=structuredClone(state);
+  Object.keys(s.cooldowns).forEach(k=>{
+    if(s.cooldowns[k]>0) s.cooldowns[k]-=1;
+  });
+  return s;
+};
+
+// Card Pools (factories). Many cards are parameterized to keep it stable but rich.
+
+const cardsBenefits=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const poor = (st.cash < 800) && (st.income < 36000);
+  const veryPoor = (st.cash < 300) && (st.income < 30000);
+
+  const arr=[];
+  if(veryPoor && !ch.snap){
+    arr.push(mkCard('benefits_snap','🏛️ Benefits','Apply for SNAP','You qualify for food assistance. It reduces pressure, but doesn’t make you rich.',
+      {label:'Decline', eff:'Pride now, pressure later', delta:{happy:-3, stress:+6}},
+      {label:'Apply', eff:`+${fmtMoney(BENEFITS.snap.yearlyValue)}/yr relief`, delta:{stress:-8, snap:true, reputation:-1}, sound:'good'},
+      {tier:'mid', cooldown:6}
+    ));
+  }
+  if(poor && ch.housing==='rent' && !ch.section8){
+    arr.push(mkCard('benefits_section8','🏛️ Benefits','Section 8 Waitlist','Housing support can stabilize the year if you qualify.',
+      {label:'Ignore', eff:'No change', delta:{stress:+4}},
+      {label:'Apply', eff:`Save ~${fmtMoney(BENEFITS.section8.yearlyValue)}/yr`, delta:{stress:-6, section8:true, reputation:-1}, sound:'good'},
+      {tier:'mid', cooldown:8}
+    ));
+  }
+  // Child benefits show up only if you have kids.
+  if(ch.kids.length>0 && (state.year%3===0)){
+    arr.push(mkCard('benefits_family','🏛️ Benefits','Family Support Programs','With kids, you can access family credits and support.',
+      {label:'Skip', eff:'No change', delta:{reputation:+1}},
+      {label:'Enroll', eff:`+${fmtMoney(ch.kids.length*BENEFITS.childCredit.yearlyValuePerKid)}/yr`, delta:{stress:-4, reputation:+1}, sound:'coin'},
+      {tier:'mid', cooldown:4}
+    ));
+  }
+  return arr;
+};
+
+const cardsHealth=(state)=>{
+  const st=state.st;
+  const tier=qualityTier(state);
+  const arr=[];
+
+  if(st.health<70){
+    arr.push(mkCard('health_doctor','❤️ Health','Doctor Visit','If you ignore your health, options shrink. Care now prevents expensive crises.',
+      {label:'Skip', eff:'-10 health, +stress', delta:{health:-10, stress:+8, reputation:-1}, sound:'bad'},
+      {label:'Go', eff:'-$300, +15 health', delta:{cash:-300, health:+15, stress:-4}, sound:'good'},
+      {tier:'mid', cooldown:3}
+    ));
+  }
+
+  if(st.happy<45){
+    arr.push(mkCard('health_therapy','❤️ Health','Therapy / Counseling','Low happiness poisons your decision-making. One year of support can steady you.',
+      {label:'Ignore', eff:'Stress compounds', delta:{happy:-6, stress:+10}, sound:'bad'},
+      {label:'Invest', eff:'-$400, +12 happy', delta:{cash:-400, happy:+12, health:+4, stress:-6, discipline:+2}, sound:'good'},
+      {tier: tier==='low'?'mid':tier, cooldown:3}
+    ));
+  }
+
+  // Discipline builder
+  if(state.year%2===1){
+    arr.push(mkCard('health_gym','❤️ Health','Routine & Discipline','Small daily habits create big long-term results.',
+      {label:'Skip', eff:'No routine', delta:{discipline:-2, health:-2, stress:+2}},
+      {label:'Commit', eff:'-$600/yr, +6 health', delta:{cash:-600, discipline:+6, health:+6, stress:-2}, sound:'good'},
+      {tier:'mid', cooldown:2}
+    ));
+  }
+
+  return arr;
+};
+
+const cardsWork=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const tier=qualityTier(state);
+  const c=CAREERS[ch.career];
+  const arr=[];
+
+  // Promotion blocked if record or very low reputation
+  const eligiblePromotion = (st.income < c.cap) && !ch.record && ch.hidden.reputation>=45;
+  if(eligiblePromotion && Math.random()<0.35){
+    const bump=rint(3500,9000);
+    arr.push(mkCard('work_promo','💼 Work','Promotion Opportunity','Higher responsibility. Better pay. Requires consistency and reputation.',
+      {label:'Decline', eff:'+2 happy', delta:{happy:+2, reputation:-1}},
+      {label:'Accept', eff:`+${fmtMoney(bump)}/yr`, delta:{income:+bump, happy:+2, discipline:+2, reputation:+2}, sound:'good'},
+      {tier: tier==='high'?'high':'mid', cooldown:2}
+    ));
+  }
+
+  // Side hustle (adds stress but can build cash)
+  if(!ch.inJail && Math.random()<0.30){
+    const gain=rint(800,2500);
+    arr.push(mkCard('work_side','💼 Work','Side Hustle','Extra money is available, but your time and energy are limited.',
+      {label:'Skip', eff:'Protect your health', delta:{health:+1, stress:-2}},
+      {label:'Do It', eff:`+${fmtMoney(gain)}, +stress`, delta:{cash:+gain, stress:+6, happy:-1, discipline:+1}, sound:'money'},
+      {tier:'mid', cooldown:1}
+    ));
+  }
+
+  // Background check event if record
+  if(ch.record && Math.random()<0.35){
+    arr.push(mkCard('work_check','💼 Work','Background Check','A background check limits advancement. Your record closes some doors.',
+      {label:'Keep applying', eff:'Chance to get hired lower', delta:{stress:+6}},
+      {label:'Get training', eff:'-$1500, better long-term', delta:{cash:-1500, discipline:+4, reputation:+2, stress:-2}},
+      {tier:'low', cooldown:3}
+    ));
+  }
+
+  // Layoff risk check is handled in end-of-year; this card can mitigate with emergency fund
+  if(emergencyFundMonths(state)<2.5 && Math.random()<0.35){
+    arr.push(mkCard('work_emergencyfund','💼 Work','Build Emergency Fund','Without a buffer, every setback becomes a crisis.',
+      {label:'Ignore', eff:'Higher crisis risk', delta:{stress:+8, discipline:-2}},
+      {label:'Cut spending', eff:'+Discipline, -Happy', delta:{discipline:+5, happy:-4, stress:-2}},
+      {tier:'mid', cooldown:3}
+    ));
+  }
+
+  return arr;
+};
+
+const cardsCreditDebt=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const tier=qualityTier(state);
+  const arr=[];
+
+  // Credit building
+  if(st.credit<650 && Math.random()<0.30){
+    arr.push(mkCard('credit_secured','📊 Credit','Secured Card Offer','A secured card can help rebuild your score if you use it responsibly.',
+      {label:'Decline', eff:'No change', delta:{reputation:+1}},
+      {label:'Open', eff:'-$500 deposit, +20 credit', delta:{cash:-500, credit:+20, discipline:+2}, sound:'good'},
+      {tier:'mid', cooldown:4}
+    ));
+  }
+
+  // Credit error / dispute (small training moment)
+  if(Math.random()<0.18){
+    arr.push(mkCard('credit_error','📊 Credit','Credit Report Error','A possible reporting error appears. Addressing it can help.',
+      {label:'Ignore', eff:'No change', delta:{stress:+2}},
+      {label:'Dispute', eff:'+10 credit (if valid)', delta:{credit:+10, discipline:+1, reputation:+1}, sound:'coin'},
+      {tier:'mid', cooldown:6}
+    ));
+  }
+
+  // Payday loan trap (realistic bad option)
+  if(st.cash<200 && st.debt<60000 && Math.random()<0.25){
+    arr.push(mkCard('debt_payday','💳 Debt','Payday Loan','Fast cash now. Expensive pain later. This is a trap.',
+      {label:'Avoid', eff:'+Discipline', delta:{discipline:+3, stress:-1}},
+      {label:'Take it', eff:'+500 cash, +900 debt', delta:{cash:+500, debt:+900, credit:-15, stress:+10, discipline:-3}, sound:'debt'},
+      {tier:'low', cooldown:8, tags:['trap']}
+    ));
+  }
+
+  // Debt collector if high debt and low payments
+  if(st.debt>10000 && Math.random()<0.20){
+    arr.push(mkCard('debt_collector','💳 Debt','Debt Collector','Ignoring your debt increases stress and hurts your score.',
+      {label:'Negotiate', eff:'-$600, +5 credit', delta:{cash:-600, debt:-400, credit:+5, stress:-3, discipline:+2}},
+      {label:'Ignore', eff:'-15 credit, +stress', delta:{credit:-15, stress:+10, reputation:-1}, sound:'bad'},
+      {tier:'mid', cooldown:5}
+    ));
+  }
+
+  // Debt payoff prompt (UI modal will handle actual chunk payments)
+  if(st.debt>0 && Math.random()<0.22){
+    arr.push(mkCard('debt_pay','💳 Debt','Pay Down Debt','Paying down debt improves freedom and lowers stress.',
+      {label:'Not now', eff:'+stress', delta:{stress:+5}},
+      {label:'Open Payments', eff:'Choose amount to pay', delta:{}, sound:'click', openModal:'debt'},
+      {tier: tier==='high'?'mid':tier, cooldown:3}
+    ));
+  }
+
+  return arr;
+};
+
+const cardsInvest=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const econ=state.economy.phase;
+  const tier=qualityTier(state);
+  const arr=[];
+
+  // Index funds
+  if(st.cash>1200 && st.credit>=640 && !ch.inJail && Math.random()<0.30){
+    const amt=pick([500,1000,2000,3000,5000]);
+    arr.push(mkCard('invest_index','📈 Invest','Index Funds','Boring, steady investing compounds over decades.',
+      {label:'Skip', eff:'+cash now', delta:{discipline:-1}},
+      {label:'Invest', eff:`-${fmtMoney(amt)}, +Discipline`, delta:{cash:-amt, invest:+amt, discipline:+3, stress:-2}, sound:'coin'},
+      {tier: tier==='low'?'mid':tier, cooldown:2}
+    ));
+  }
+
+  // Buy the dip in recession
+  if(econ.id==='recession' && st.cash>2000 && Math.random()<0.35){
+    const amt=pick([1000,2000,4000]);
+    arr.push(mkCard('invest_dip','📈 Invest','Buy the Dip','Recessions scare people out. This is where discipline can win.',
+      {label:'Hold Cash', eff:'+Stress relief', delta:{stress:-2}},
+      {label:'Buy', eff:`-${fmtMoney(amt)} into investments`, delta:{cash:-amt, invest:+amt, discipline:+4}, sound:'good'},
+      {tier:'high', cooldown:3}
+    ));
+  }
+
+  // Panic sell trap
+  if(econ.id==='recession' && st.invest>3000 && Math.random()<0.20){
+    const sell=Math.min(st.invest, pick([1000,2000,4000]));
+    arr.push(mkCard('invest_panic','📈 Invest','Panic Selling','Selling in fear locks in losses. Holding is psychologically harder—but often wiser.',
+      {label:'Hold', eff:'+Discipline', delta:{discipline:+3, stress:-2}},
+      {label:'Sell', eff:`+${fmtMoney(sell)} cash, -Discipline`, delta:{cash:+sell, invest:-sell, discipline:-4, stress:+3}, sound:'bad'},
+      {tier:'mid', cooldown:4, tags:['trap']}
+    ));
+  }
+
+  return arr;
+};
+
+const cardsHousing=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const arr=[];
+
+  // Move out to rent
+  if(ch.housing==='parents' && st.cash>800 && Math.random()<0.25){
+    arr.push(mkCard('house_moveout','🏠 Housing','Move Out','Freedom costs money. Rent raises expenses but increases independence.',
+      {label:'Stay', eff:'Low cost stability', delta:{discipline:+1}},
+      {label:'Rent', eff:`Expenses rise to ${fmtMoney(HOUSING.rent.yearly)}/yr`, delta:{housing:'rent', happy:+4, stress:+2, reputation:+1}, sound:'good'},
+      {tier:'mid', cooldown:6}
+    ));
+  }
+
+  // Buy a home
+  const canBuy = ch.housing!=='own' && st.credit>=680 && st.cash>=25000;
+  if(canBuy && Math.random()<0.20){
+    arr.push(mkCard('house_buy','🏠 Housing','Buy a Home','Ownership builds equity. It increases responsibility and locks you into steady payments.',
+      {label:'Not yet', eff:'Keep flexibility', delta:{stress:-1}},
+      {label:'Buy', eff:'-$25K down, mortgage begins', delta:{cash:-25000, housing:'own', mortgage:+180000, homeEquity:+25000, happy:+6, discipline:+3, reputation:+3}, sound:'good'},
+      {tier:'high', cooldown:10}
+    ));
+  }
+
+  // Home maintenance
+  if(ch.housing==='own' && Math.random()<0.22){
+    const cost=pick([800,1200,2000]);
+    arr.push(mkCard('house_maint','🏠 Housing','Home Repair','Owning builds wealth, but repairs come randomly.',
+      {label:'Delay', eff:'Stress rises', delta:{stress:+6, reputation:-1}},
+      {label:'Fix', eff:`-${fmtMoney(cost)}, protect value`, delta:{cash:-cost, homeEquity:+Math.round(cost*0.5), stress:-2}, sound:'click'},
+      {tier:'mid', cooldown:4}
+    ));
+  }
+
+  // Rent spike
+  if(ch.housing==='rent' && Math.random()<0.20){
+    arr.push(mkCard('house_rentup','🏠 Housing','Rent Increase','Rent rises. This squeezes your cashflow.',
+      {label:'Negotiate', eff:'Small chance to hold', delta:{stress:+2, reputation:+1}},
+      {label:'Accept', eff:'Expenses rise', delta:{stress:+6, happy:-2}},
+      {tier:'mid', cooldown:5}
+    ));
+  }
+
+  return arr;
+};
+
+const cardsRelationships=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const tier=qualityTier(state);
+  const arr=[];
+
+  // Meet someone -> engaged
+  if(ch.relationship==='single' && ch.age>=20 && ch.age<=45 && st.happy>40 && Math.random()<0.22){
+    arr.push(mkCard('rel_engage','💍 Love','Engagement','You meet someone serious. Engagement adds stability if you’re stable.',
+      {label:'Not now', eff:'+Discipline', delta:{discipline:+2, stress:-1}},
+      {label:'Engage', eff:'-$500, engaged', delta:{cash:-500, relationship:'engaged', happy:+6, reputation:+2}, sound:'good'},
+      {tier: tier==='low'?'mid':tier, cooldown:8}
+    ));
+  }
+
+  // Wedding -> married, spouse income
+  if(ch.relationship==='engaged' && Math.random()<0.28){
+    const spouse=rint(9000,18000);
+    arr.push(mkCard('rel_wedding','💍 Love','Wedding','Marriage raises responsibilities and can stabilize your life if you keep happiness healthy.',
+      {label:'Delay', eff:'+stress', delta:{stress:+4, happy:-2}},
+      {label:'Marry', eff:`-$8K, spouse +${fmtMoney(spouse)}/yr`, delta:{cash:-8000, relationship:'married', spouseIncome:spouse, happy:+10, reputation:+4}, sound:'marry'},
+      {tier: tier==='high'?'high':'mid', cooldown:10}
+    ));
+  }
+
+  // Counseling if married and unhappy
+  if(ch.relationship==='married' && st.happy<45 && Math.random()<0.30){
+    arr.push(mkCard('rel_counsel','💍 Love','Marriage Counseling','If happiness stays low, divorce becomes a real risk.',
+      {label:'Skip', eff:'Divorce risk rises', delta:{stress:+10, happy:-6, reputation:-1}},
+      {label:'Go', eff:'-$1500, +15 happy', delta:{cash:-1500, happy:+15, health:+4, discipline:+2, stress:-6}, sound:'good'},
+      {tier:'mid', cooldown:4}
+    ));
+  }
+
+  // Divorce (only if very unhappy)
+  if(ch.relationship==='married' && st.happy<30 && Math.random()<0.22){
+    arr.push(mkCard('rel_divorce','💍 Love','Divorce Pressure','Low happiness has consequences. Divorce is expensive and destabilizing.',
+      {label:'Fight for it', eff:'-$1200, try to recover', delta:{cash:-1200, happy:+10, discipline:+3, stress:-2}},
+      {label:'Divorce', eff:'Lose 50% cash & spouse income', delta:{cash:-Math.round(st.cash*0.5), relationship:'single', spouseIncome:0, happy:-12, credit:-25, stress:+18, reputation:-6}, sound:'bad'},
+      {tier:'low', cooldown:12}
+    ));
+  }
+
+  return arr;
+};
+
+const cardsKids=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const arr=[];
+
+  // Have baby: only married
+  if(ch.relationship==='married' && ch.age>=23 && ch.age<=42 && Math.random()<0.22){
+    arr.push(mkCard('kid_baby','👶 Family','Have a Child?','Children cost money and energy, but can bring joy and long-term family strength.',
+      {label:'Not now', eff:'No change', delta:{discipline:+1}},
+      {label:'Yes', eff:'New child, +happy, +expenses', delta:{}, sound:'baby', spawnKid:true},
+      {tier:'mid', cooldown:3}
+    ));
+  }
+
+  // Kid events if you already have kids
+  if(ch.kids.length>0 && Math.random()<0.38){
+    const kIndex=rint(0,ch.kids.length-1);
+    const kid=ch.kids[kIndex];
+    const t=pick(['School Choice','Activities','Tutoring','Needs Phone','Braces','Shows Talent']);
+
+    if(t==='School Choice'){
+      arr.push(mkCard('kid_school','👶 Family',`School Choice (${kid.name})`,'Public is free. Private can be better but expensive. Long-term effects show up in the heir.',
+        {label:'Public', eff:'+Discipline', delta:{discipline:+1, stress:+1}},
+        {label:'Private', eff:'-$8000/yr, +Kid Investment', delta:{cash:-8000, stress:+4, discipline:+1}, sound:'coin', kidInvest:{idx:kIndex, amt:12000}},
+        {tier:'mid', cooldown:2}
+      ));
     }
-    const sfx=new SFX();
+    if(t==='Activities'){
+      arr.push(mkCard('kid_act','👶 Family',`Activities (${kid.name})`,'Activities cost money but can build confidence and opportunity.',
+        {label:'Skip', eff:'No investment', delta:{happy:-2, stress:+2}},
+        {label:'Enroll', eff:'-$1200, +Kid Investment', delta:{cash:-1200, happy:+2, stress:+1}, sound:'good', kidInvest:{idx:kIndex, amt:2500}},
+        {tier:'mid', cooldown:2}
+      ));
+    }
+    if(t==='Tutoring'){
+      arr.push(mkCard('kid_tutor','👶 Family',`Tutoring (${kid.name})`,'Extra support is expensive, but it compounds later.',
+        {label:'No', eff:'+cash now', delta:{stress:+2}},
+        {label:'Yes', eff:'-$2400, +Kid Investment', delta:{cash:-2400, discipline:+1}, sound:'coin', kidInvest:{idx:kIndex, amt:6000}},
+        {tier:'mid', cooldown:3}
+      ));
+    }
+    if(t==='Needs Phone'){
+      arr.push(mkCard('kid_phone','👶 Family',`Needs Phone (${kid.name})`,'Peer pressure is real. Decide wisely.',
+        {label:'Delay', eff:'+Discipline, -Happy', delta:{discipline:+2, happy:-3, stress:+2}},
+        {label:'Buy', eff:'-$400, +Happy', delta:{cash:-400, happy:+2, stress:+1}},
+        {tier:'mid', cooldown:2}
+      ));
+    }
+    if(t==='Braces'){
+      arr.push(mkCard('kid_braces','👶 Family',`Braces (${kid.name})`,'Unexpected costs test your preparedness.',
+        {label:'Payment plan', eff:'+debt, protect health', delta:{debt:+1400, credit:-6, stress:+4}},
+        {label:'Pay cash', eff:'-$2000, lower stress', delta:{cash:-2000, stress:-2, discipline:+1}},
+        {tier:'mid', cooldown:4}
+      ));
+    }
+    if(t==='Shows Talent'){
+      arr.push(mkCard('kid_talent','👶 Family',`Shows Talent (${kid.name})`,'Talent grows when you invest and stay stable.',
+        {label:'Encourage', eff:'+Happy, +Kid Investment', delta:{happy:+4, stress:+1}, kidInvest:{idx:kIndex, amt:3000}},
+        {label:'Ignore', eff:'No change', delta:{stress:+2}},
+        {tier:'mid', cooldown:3}
+      ));
+    }
+  }
 
-    // ==================== PIXEL CHARACTERS ====================
-    // Male and Female pixel art characters with different styles
-    const CHAR_STYLES = {
-      male: [
-        {id:'m1',name:'Classic',hair:'#3d2314',skin:'#f5d0c5',shirt:'#3B82F6',pants:'#1e3a5f'},
-        {id:'m2',name:'Cool',hair:'#1a1a1a',skin:'#e8beac',shirt:'#22C55E',pants:'#1a1a1a'},
-        {id:'m3',name:'Blonde',hair:'#f4d03f',skin:'#f5d0c5',shirt:'#EF4444',pants:'#2d3748'},
-        {id:'m4',name:'Red',hair:'#c0392b',skin:'#dbb89a',shirt:'#A855F7',pants:'#1e3a5f'},
-        {id:'m5',name:'Silver',hair:'#95a5a6',skin:'#f5d0c5',shirt:'#D4AF37',pants:'#2d3748'},
-        {id:'m6',name:'Brown',hair:'#5d4037',skin:'#c68642',shirt:'#14B8A6',pants:'#1a1a1a'},
-        {id:'m7',name:'Dark',hair:'#2c1810',skin:'#8d5524',shirt:'#EC4899',pants:'#2d3748'},
-        {id:'m8',name:'Fade',hair:'#1a1a1a',skin:'#a67c52',shirt:'#F97316',pants:'#1e3a5f'},
-      ],
-      female: [
-        {id:'f1',name:'Classic',hair:'#3d2314',skin:'#f5d0c5',shirt:'#EC4899',pants:'#1e3a5f'},
-        {id:'f2',name:'Blonde',hair:'#f4d03f',skin:'#f5d0c5',shirt:'#A855F7',pants:'#2d3748'},
-        {id:'f3',name:'Red',hair:'#c0392b',skin:'#e8beac',shirt:'#22C55E',pants:'#1a1a1a'},
-        {id:'f4',name:'Dark',hair:'#1a1a1a',skin:'#dbb89a',shirt:'#3B82F6',pants:'#1e3a5f'},
-        {id:'f5',name:'Brown',hair:'#5d4037',skin:'#c68642',shirt:'#D4AF37',pants:'#2d3748'},
-        {id:'f6',name:'Curly',hair:'#2c1810',skin:'#8d5524',shirt:'#EF4444',pants:'#1a1a1a'},
-        {id:'f7',name:'Silver',hair:'#95a5a6',skin:'#f5d0c5',shirt:'#14B8A6',pants:'#1e3a5f'},
-        {id:'f8',name:'Long',hair:'#1a1a1a',skin:'#a67c52',shirt:'#F97316',pants:'#2d3748'},
-      ]
+  return arr;
+};
+
+const cardsCrime=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const arr=[];
+
+  // Crime appears mainly when desperate.
+  const desperate = (st.cash<500) && (st.debt>8000 || emergencyFundMonths(state)<1.5);
+  if(!desperate) return arr;
+  if(ch.inJail) return arr;
+
+  // IMPORTANT: Crime should be not worth it even when successful.
+  // We'll implement: immediate reward + hidden penalties + future exposure.
+  const heatPain=crimeExpectedPain(state);
+
+  const makeCrime=(key,title,reward,risk,jailYears,extraDelta={})=>{
+    const caughtDelta={
+      legal:{inJail:true,jailYears, record:true, probation:false, warrant:false},
+      credit:-55,
+      happy:-30,
+      stress:+20,
+      reputation:-18,
+      discipline:-8,
+      heat:+25,
+      log:`🚔 Caught: ${title}. Jail ${jailYears} years.`
+    };
+    const successDelta={
+      cash:+reward,
+      // poison-pill penalties (even if not caught)
+      stress:+12,
+      reputation:-8,
+      discipline:-5,
+      heat:+18,
+      credit:-8,
+      ...extraDelta,
+      log:`⚠️ Crime: ${title}. You got away—for now.`
     };
 
-    // Pixel Character Component using CSS
-    const PixelChar = ({style, gender, size='md'}) => {
-      const s = style || (gender === 'f' ? CHAR_STYLES.female[0] : CHAR_STYLES.male[0]);
-      const scale = size === 'sm' ? 2 : size === 'md' ? 3 : size === 'lg' ? 5 : 7;
-      
-      // Simplified pixel art
-      const isMale = gender === 'm';
-      
-      return (
-        <div style={{
-          width: scale * 12,
-          height: scale * 16,
-          background: 'var(--card2)',
-          borderRadius: 4,
-          border: '2px solid var(--gold)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          position: 'relative'
-        }}>
-          <svg width={scale * 10} height={scale * 14} viewBox="0 0 10 14" style={{imageRendering:'pixelated'}}>
-            {/* Hair */}
-            {isMale ? (
-              <>
-                <rect x="2" y="0" width="6" height="3" fill={s.hair}/>
-                <rect x="1" y="1" width="1" height="2" fill={s.hair}/>
-                <rect x="8" y="1" width="1" height="2" fill={s.hair}/>
-              </>
-            ) : (
-              <>
-                <rect x="2" y="0" width="6" height="3" fill={s.hair}/>
-                <rect x="1" y="0" width="1" height="5" fill={s.hair}/>
-                <rect x="8" y="0" width="1" height="5" fill={s.hair}/>
-                <rect x="0" y="3" width="1" height="4" fill={s.hair}/>
-                <rect x="9" y="3" width="1" height="4" fill={s.hair}/>
-              </>
-            )}
-            {/* Face */}
-            <rect x="2" y="2" width="6" height="5" fill={s.skin}/>
-            {/* Eyes */}
-            <rect x="3" y="4" width="1" height="1" fill="#1a1a1a"/>
-            <rect x="6" y="4" width="1" height="1" fill="#1a1a1a"/>
-            {/* Shirt */}
-            <rect x="2" y="7" width="6" height="4" fill={s.shirt}/>
-            <rect x="1" y="8" width="1" height="2" fill={s.shirt}/>
-            <rect x="8" y="8" width="1" height="2" fill={s.shirt}/>
-            {/* Pants */}
-            <rect x="2" y="11" width="3" height="3" fill={s.pants}/>
-            <rect x="5" y="11" width="3" height="3" fill={s.pants}/>
-          </svg>
-        </div>
-      );
-    };
+    return mkCard(key,'⚠️ Risk',title,
+      `Desperation makes shortcuts look attractive. But even "success" increases stress, lowers reputation, and raises future exposure.`,
+      {label:'Walk away', eff:'+Discipline, -Heat', delta:{discipline:+4, stress:-2, heat:-4, reputation:+1}},
+      {label:'Do it', eff:`+${fmtMoney(reward)} now (high long-term risk)`, delta:{},
+        crime:{reward,risk,jailYears,caughtDelta,successDelta}, sound:'caught'},
+      {tier:'low', cooldown:8, tags:['crime','trap']}
+    );
+  };
 
-    // Kid pixel character
-    const PixelKid = ({gender, age}) => {
-      const isBaby = age < 3;
-      const isToddler = age >= 3 && age < 6;
-      
-      return (
-        <div style={{
-          width: 18,
-          height: 24,
-          background: 'var(--card2)',
-          borderRadius: 3,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden'
-        }}>
-          <svg width="14" height="18" viewBox="0 0 7 9" style={{imageRendering:'pixelated'}}>
-            {isBaby ? (
-              <>
-                <rect x="1" y="1" width="5" height="4" fill="#f5d0c5"/>
-                <rect x="2" y="2" width="1" height="1" fill="#1a1a1a"/>
-                <rect x="4" y="2" width="1" height="1" fill="#1a1a1a"/>
-                <rect x="1" y="5" width="5" height="3" fill="#fff"/>
-              </>
-            ) : (
-              <>
-                <rect x="1" y="0" width="5" height="2" fill={gender==='f'?'#5d4037':'#3d2314'}/>
-                <rect x="1" y="1" width="5" height="3" fill="#f5d0c5"/>
-                <rect x="2" y="2" width="1" height="1" fill="#1a1a1a"/>
-                <rect x="4" y="2" width="1" height="1" fill="#1a1a1a"/>
-                <rect x="1" y="4" width="5" height="3" fill={gender==='f'?'#EC4899':'#3B82F6'}/>
-                <rect x="1" y="7" width="2" height="2" fill="#2d3748"/>
-                <rect x="4" y="7" width="2" height="2" fill="#2d3748"/>
-              </>
-            )}
-          </svg>
-        </div>
-      );
-    };
+  arr.push(makeCrime('crime_quick','Quick Money',800,0.28,2));
+  arr.push(makeCrime('crime_register','Steal from Register',300,0.38,1));
+  arr.push(makeCrime('crime_fraud','Fraud Scheme (Debt Relief)',0,0.42,3,{debt:-Math.min(st.debt,15000)}));
+  arr.push(makeCrime('crime_big','Big Score',5000,0.48,4));
 
-    // ==================== CONSTANTS ====================
-    const CAREERS=[
-      {id:'trade',i:'🔧',n:'Trades',d:'Electrician, Plumber',startInc:3200,maxInc:7500,eduCost:12000,eduTime:2},
-      {id:'biz',i:'💼',n:'Business',d:'Sales, Management',startInc:3000,maxInc:12000,eduCost:50000,eduTime:4},
-      {id:'tech',i:'💻',n:'Tech',d:'Software, IT',startInc:4500,maxInc:15000,eduCost:60000,eduTime:4},
-      {id:'health',i:'🏥',n:'Healthcare',d:'Nursing, Therapy',startInc:3800,maxInc:9000,eduCost:45000,eduTime:4},
-      {id:'creative',i:'🎨',n:'Creative',d:'Design, Media',startInc:2500,maxInc:20000,eduCost:40000,eduTime:4},
-      {id:'finance',i:'📊',n:'Finance',d:'Banking, Investing',startInc:4000,maxInc:18000,eduCost:70000,eduTime:4},
-    ];
+  return arr;
+};
 
-    const ECON_PHASES=[
-      {id:'boom',n:'Bull Market',col:'boom',invMult:1.015,jobRisk:0.02},
-      {id:'stable',n:'Stable',col:'stable',invMult:1.005,jobRisk:0.05},
-      {id:'recession',n:'Recession',col:'recession',invMult:0.985,jobRisk:0.12},
-      {id:'recovery',n:'Recovery',col:'recovery',invMult:1.008,jobRisk:0.07},
-    ];
+const cardsBusiness=(state)=>{
+  const st=state.st;
+  const ch=state.char;
+  const econ=state.economy.phase;
+  const tier=qualityTier(state);
+  const arr=[];
 
-    // ==================== DYNAMIC CARDS ====================
-    const getCard = (st, char, econ) => {
-      const cards = [];
-      const {age, rel, kids, housing, foodStamps, section8, inJail, jailTime} = char;
-      const poor = st.cash < 500 && st.income < 2500;
-      const veryPoor = st.cash < 100 && st.income < 2000;
+  // Start business: requirements are meaningful.
+  const canStart = !ch.biz.owns && !ch.inJail && st.cash>=6000 && st.credit>=660 && ch.hidden.discipline>=45;
+  if(canStart && Math.random()<0.25){
+    arr.push(mkCard('biz_start','🏢 Business','Start a Business','Jobs are capped. Business can scale—but requires management, risk tolerance, and discipline.',
+      {label:'Not ready', eff:'+Discipline', delta:{discipline:+2, stress:-1}},
+      {label:'Start', eff:'-$5K startup cost', delta:{cash:-5000},
+        startBiz:true, sound:'good'},
+      {tier:'high', cooldown:10}
+    ));
+  }
 
-      // ===== JAIL CHECK - Skip normal cards if in jail =====
-      if(inJail && jailTime > 0) {
-        return {cat:'⛓️ Jail',i:'🔒',t:'Behind Bars',d:`${jailTime} years remaining. Serve your time.`,jail:true,
-          L:{t:'Serve Time',f:'-1 Year, -10 Happy',imp:{happy:-10},serveTime:true},
-          R:{t:'Serve Time',f:'-1 Year, -10 Happy',imp:{happy:-10},serveTime:true}};
+  // Business management cards if you own one.
+  if(ch.biz.owns && !ch.inJail){
+    // Reinvent decisions each year.
+    const b=ch.biz;
+
+    // If stress too high, business pain increases.
+    const burnout = (ch.hidden.stress>75) ? 0.06 : 0;
+
+    // Reinvest vs pay yourself
+    if(Math.random()<0.35){
+      arr.push(mkCard('biz_reinvest','🏢 Business','Reinvest or Pay Yourself','Reinvestment fuels growth; paying yourself protects stability and family.',
+        {label:'Pay Yourself', eff:'+Cash, slower growth', delta:{cash:+2000, stress:-2, reputation:+1}, bizDecision:{kind:'pay'}},
+        {label:'Reinvest', eff:'Higher growth, higher stress', delta:{cash:-1500, stress:+6, discipline:+2}, bizDecision:{kind:'reinvest'}},
+        {tier: tier==='low'?'mid':tier, cooldown:2}
+      ));
+    }
+
+    // Hire help
+    if(b.stage!=='none' && Math.random()<0.28){
+      arr.push(mkCard('biz_hire','🏢 Business','Hire Help','Hiring reduces burnout risk and increases capacity, but raises fixed costs.',
+        {label:'Stay Lean', eff:'+Cashflow, +Burnout risk', delta:{stress:+3, discipline:+1}},
+        {label:'Hire', eff:'-$12K/yr costs, higher capacity', delta:{cash:-1000, stress:-3}, bizDecision:{kind:'hire'}},
+        {tier:'mid', cooldown:3}
+      ));
+    }
+
+    // Compliance
+    if(Math.random()<0.25){
+      arr.push(mkCard('biz_compliance','🏢 Business','Compliance & Taxes','Ignoring compliance increases future penalties. Especially with low reputation.',
+        {label:'Cut corners', eff:'+Cash now, future pain', delta:{cash:+1200, reputation:-5, stress:+6}, bizDecision:{kind:'corners'}},
+        {label:'Do it right', eff:'-$1200, reduce risk', delta:{cash:-1200, reputation:+3, discipline:+2, stress:-2}, bizDecision:{kind:'compliance'}},
+        {tier:'mid', cooldown:4}
+      ));
+    }
+
+    // Marketing
+    if(Math.random()<0.25){
+      arr.push(mkCard('biz_marketing','🏢 Business','Marketing Spend','Marketing can grow revenue. It can also waste money if your fundamentals are weak.',
+        {label:'Skip', eff:'+Cash now', delta:{discipline:+1}},
+        {label:'Spend', eff:'-$2500, chance to boost revenue', delta:{cash:-2500, stress:+2}, bizDecision:{kind:'marketing'}},
+        {tier:'mid', cooldown:2}
+      ));
+    }
+  }
+
+  return arr;
+};
+
+const cardsLife=(state)=>{
+  const st=state.st;
+  const arr=[];
+
+  const pos=[
+    mkCard('life_bonus','🌟 Life','Work Bonus','A bonus hits your account.',
+      {label:'Save it', eff:'+Discipline', delta:{cash:+1500, discipline:+3}},
+      {label:'Spend it', eff:'+Happy now', delta:{cash:+1500, happy:+6, discipline:-2}},
+      {tier:'mid', cooldown:4}
+    ),
+    mkCard('life_lucky','🌟 Life','Lucky Find','Small money shows up unexpectedly.',
+      {label:'Invest it', eff:'+Invest', delta:{invest:+300, discipline:+1}},
+      {label:'Keep cash', eff:'+Cash', delta:{cash:+300}},
+      {tier:'mid', cooldown:4}
+    ),
+  ];
+
+  const neg=[
+    mkCard('life_sick','🌟 Life','Got Sick','Health events happen. Preparedness matters.',
+      {label:'Push through', eff:'-health', delta:{health:-12, stress:+8}},
+      {label:'Get care', eff:'-$600, +health', delta:{cash:-600, health:+10, stress:-2}},
+      {tier:'mid', cooldown:4}
+    ),
+    mkCard('life_car','🌟 Life','Car Trouble','Life costs money. Buffers reduce stress.',
+      {label:'Pay cash', eff:'-$800', delta:{cash:-800, stress:+2}},
+      {label:'Put on card', eff:'+Debt', delta:{debt:+900, credit:-8, stress:+6}},
+      {tier:'mid', cooldown:5}
+    ),
+    mkCard('life_emergency','🌟 Life','Family Emergency','You must respond. Choices reveal character.',
+      {label:'Help', eff:'-$1500, +Reputation', delta:{cash:-1500, reputation:+4, happy:+1, stress:+2}},
+      {label:'Can’t', eff:'-Reputation, +Stress', delta:{reputation:-6, stress:+10, happy:-3}},
+      {tier:'mid', cooldown:6}
+    ),
+  ];
+
+  // Weighted based on quality tier
+  const tier=qualityTier(state);
+  if(tier==='high'){ arr.push(...pos, Math.random()<0.3?pos[0]:pos[1]); }
+  else if(tier==='mid'){ arr.push(...pos, ...neg); }
+  else { arr.push(...neg, neg[0]); }
+
+  return arr;
+};
+
+// The Master generator
+const generateCard=(state)=>{
+  // If in jail, force jail card.
+  if(state.char.inJail){
+    const yrs=state.char.jailYears;
+    return mkCard('jail_serve','⛓️ Jail','Behind Bars',
+      `You are incarcerated. You cannot work, invest, or grow your business. Serve time (${yrs} years left).`,
+      {label:'Serve Time', eff:'-1 year, -happy', delta:{legal:{jailYears:Math.max(0,yrs-1)}, happy:-10, stress:+4}, sound:'no'},
+      {label:'Serve Time', eff:'Same', delta:{legal:{jailYears:Math.max(0,yrs-1)}, happy:-10, stress:+4}, sound:'no'},
+      {tier:'low', cooldown:0}
+    );
+  }
+
+  const pools=[
+    ...cardsBenefits(state),
+    ...cardsHealth(state),
+    ...cardsWork(state),
+    ...cardsCreditDebt(state),
+    ...cardsInvest(state),
+    ...cardsHousing(state),
+    ...cardsRelationships(state),
+    ...cardsKids(state),
+    ...cardsBusiness(state),
+    ...cardsCrime(state),
+    ...cardsLife(state),
+  ].filter(c=>canShow(state,c));
+
+  if(pools.length===0){
+    return mkCard('life_quiet','🌤️ Life','Quiet Year','Nothing big happens. Quiet years are when discipline grows.',
+      {label:'Rest', eff:'+Health', delta:{health:+3, stress:-2}},
+      {label:'Grind', eff:'+Cash, +Stress', delta:{cash:+400, stress:+4, discipline:+1}},
+      {tier:'mid'}
+    );
+  }
+
+  // Weighted selection
+  const tier=qualityTier(state);
+  const weights=pools.map(c=>{
+    let w=1;
+    if(c.meta.tier==='high') w*= (tier==='high'?2.2:0.7);
+    if(c.meta.tier==='mid') w*= (tier==='mid'?1.4:1);
+    if(c.meta.tier==='low') w*= (tier==='low'?2.0:0.8);
+    if(c.meta.rarity==='rare') w*=0.5;
+    // reduce crime weight globally (should appear only when desperate, already filtered)
+    if(c.meta.tags.includes('crime')) w*=0.8;
+    return w;
+  });
+  const sum=weights.reduce((a,b)=>a+b,0);
+  let r=Math.random()*sum;
+  for(let i=0;i<pools.length;i++){
+    r-=weights[i];
+    if(r<=0) return pools[i];
+  }
+  return pools[pools.length-1];
+};
+
+/**********************
+  END-OF-YEAR ENGINE
+  - Applies income, expenses, debt interest
+  - Investment returns by economy
+  - Business outcomes
+  - Housing equity changes
+  - Happiness/health drift
+  - Achievement checks
+**********************/
+
+const endOfYear=(state)=>{
+  let s=structuredClone(state);
+  const st=s.st;
+  const ch=s.char;
+  const h=ch.hidden;
+  const econ=s.economy.phase;
+
+  // 1) If in jail, serve time and apply limited effects.
+  if(ch.inJail){
+    // Reduce jail years; release when done
+    ch.jailYears=Math.max(0, ch.jailYears-1);
+    st.happy=clamp(st.happy-10,0,100);
+    st.health=clamp(st.health-4,0,100);
+    h.stress=clamp(h.stress+4,0,100);
+    if(ch.jailYears<=0){
+      ch.inJail=false;
+      ch.probation=true;
+      s.log.unshift('Released from jail. Probation begins.');
+    }
+    // Economy still affects investments & home equity
+  }
+
+  // 2) Income sources
+  let incomeTotal=0;
+  if(!ch.inJail){
+    // job income may be affected by layoffs
+    let job=st.income;
+
+    // layoffs (annual)
+    const layoff= Math.random() < jobLayoffRisk(s);
+    if(layoff){
+      const cut=Math.round(job*0.25);
+      job=Math.max(0, job-cut);
+      s.log.unshift(`Layoff shock: income reduced by ${fmtMoney(cut)}/yr.`);
+      st.happy=clamp(st.happy-8,0,100);
+      h.stress=clamp(h.stress+10,0,100);
+      h.reputation=clamp(h.reputation-3,0,100);
+    } else {
+      // gentle growth with economy
+      job=Math.round(job*(1+econ.jobs));
+      st.income=clamp(job, 0, CAREERS[ch.career].cap);
+    }
+
+    incomeTotal += st.income;
+    if(ch.relationship==='married') incomeTotal += ch.spouseIncome;
+  }
+
+  // benefits
+  incomeTotal += benefitValue(s);
+
+  // business profit
+  let bizProfit=0;
+  if(ch.biz.owns && !ch.inJail){
+    // business base revenue evolves based on decisions and hidden scores
+    // Simplified stable model: revenue moves with economy + management + stress
+    const type=BUSINESS_TYPES.find(x=>x.id===ch.biz.type) || BUSINESS_TYPES[0];
+    const margin=type.margin;
+
+    // baseline growth
+    let growth=0.04;
+    growth += (h.discipline-50)/800;      // +/−
+    growth += (h.reputation-50)/900;
+    growth -= (h.stress-50)/700;
+    growth -= (ch.record?0.03:0);
+
+    // economy affects demand
+    if(econ.id==='boom') growth+=0.03;
+    if(econ.id==='recession') growth-=0.05;
+
+    // compliance risk penalties
+    const penalty = clamp(ch.biz.complianceRisk/200, 0, 0.12);
+    growth -= penalty;
+
+    // revenue floor
+    let rev = Math.max(0, ch.biz.revenue || 18000);
+    rev = Math.round(rev*(1+growth));
+
+    // failure risk (requires buffers)
+    let fail=type.risk;
+    fail += (h.stress>80)?0.08:0;
+    fail += (emergencyFundMonths(s)<2)?0.06:0;
+    fail += (ch.record)?0.06:0;
+    fail += (h.heat>40)?0.05:0;
+    fail -= (h.discipline-50)/800;
+    fail -= (h.reputation-50)/1000;
+    fail = clamp(fail,0.03,0.45);
+
+    if(Math.random()<fail){
+      // business setback year
+      const loss=Math.round(Math.min(9000, rev*0.25));
+      bizProfit = -loss;
+      ch.biz.lastYearOutcome=`Setback: lost ${fmtMoney(loss)}.`;
+      h.stress=clamp(h.stress+12,0,100);
+      st.happy=clamp(st.happy-6,0,100);
+      h.reputation=clamp(h.reputation-2,0,100);
+      // revenue also dips
+      rev=Math.round(rev*0.82);
+    } else {
+      // profit outcome
+      const m = (margin[0] + Math.random()*(margin[1]-margin[0]));
+      bizProfit = Math.round(rev*m);
+      ch.biz.lastYearOutcome=`Profit: ${fmtMoney(bizProfit)}.`;
+      h.reputation=clamp(h.reputation+2,0,100);
+    }
+
+    // update business metrics
+    ch.biz.revenue=rev;
+    ch.biz.profit=bizProfit;
+    ch.biz.valuation=Math.round(rev*pick([0.8,1.1,1.4,1.7]));
+
+    // add profit to income
+    incomeTotal += bizProfit;
+  }
+
+  st.lastIncomeTotal = incomeTotal;
+
+  // 3) Expenses (cashflow realism)
+  const exp = livingCost(s);
+  st.lastExpenses = exp;
+
+  // 4) Debt interest / mortgage interest (meaningful)
+  const debtRate = st.credit>=740 ? 0.09 : st.credit>=680 ? 0.14 : 0.19;
+  const debtInterest = Math.round(st.debt*debtRate);
+  const mortgageRate = 0.06;
+  const mortgageInterest = Math.round(st.mortgage*mortgageRate);
+
+  // Minimum payment tendency improves with discipline
+  const payFactor = clamp((h.discipline/100)*0.08, 0.02, 0.09);
+  const debtPay = Math.min(st.debt, Math.round(st.debt*payFactor) + (emergencyFundMonths(s)>4?400:0));
+  const mortPay = (ch.housing==='own') ? Math.min(st.mortgage, 9000) : 0;
+
+  // apply debt costs
+  st.debt = Math.max(0, st.debt + debtInterest - debtPay);
+  st.mortgage = Math.max(0, st.mortgage + mortgageInterest - mortPay);
+
+  // credit responds to debt and discipline
+  let creditDelta=0;
+  if(st.debt>50000) creditDelta-=6;
+  else if(st.debt>10000) creditDelta-=3;
+  else creditDelta+=1;
+
+  // debt payment helps
+  if(debtPay>0) creditDelta += Math.min(5, Math.round(debtPay/2500));
+
+  // missed payments if cashflow terrible
+  const cashflow = incomeTotal - exp - debtPay - mortPay;
+  st.lastCashflow=cashflow;
+  if(cashflow< -3000){
+    creditDelta-=12;
+    h.stress=clamp(h.stress+12,0,100);
+    st.happy=clamp(st.happy-8,0,100);
+    s.log.unshift('Missed payments: cashflow crisis hurt your credit.');
+  }
+
+  // apply credit
+  st.credit=clamp(st.credit+creditDelta,300,850);
+
+  // 5) Apply cashflow to cash
+  st.cash += cashflow;
+
+  // 6) Investments return (meaningful compounding)
+  // discipline affects contribution behavior (handled by cards), but returns are economy-driven.
+  const invReturn = econ.inv;
+  const invDelta = Math.round(st.invest*invReturn);
+  st.invest = Math.max(0, st.invest + invDelta);
+
+  // 7) Housing equity growth if owning (meaningful)
+  if(ch.housing==='own'){
+    const appreciation = (econ.id==='boom')?0.05:(econ.id==='recession')?-0.02:0.03;
+    const equityDelta = Math.round((st.homeEquity + 25000) * appreciation);
+    st.homeEquity = Math.max(0, st.homeEquity + equityDelta);
+  }
+
+  // 8) Health/Happiness drift (training loop)
+  // Stress poisons. Discipline protects.
+  const stressHit = (h.stress>70)? -6 : (h.stress>50)? -3 : 0;
+  const disciplineBuff = (h.discipline>65)? +2 : (h.discipline>50)? +1 : 0;
+  const cashSecurity = (emergencyFundMonths(s)>=4)? +2 : (emergencyFundMonths(s)<1.5)? -4 : 0;
+
+  st.happy = clamp(st.happy + disciplineBuff + cashSecurity + stressHit, 0, 100);
+  st.health = clamp(st.health + (disciplineBuff) + (h.stress>80?-4:0) + (st.happy<35?-2:0), 0, 100);
+
+  // Stress update from cashflow
+  if(cashflow>3000) h.stress=clamp(h.stress-4,0,100);
+  else if(cashflow<-1500) h.stress=clamp(h.stress+8,0,100);
+  else h.stress=clamp(h.stress+1,0,100);
+
+  // Reputation: grows with stability
+  if(cashflow>=0) h.reputation=clamp(h.reputation+1,0,100);
+  if(st.credit>=740) h.reputation=clamp(h.reputation+1,0,100);
+  if(ch.record) h.reputation=clamp(h.reputation-1,0,100);
+
+  // Heat decays slowly if you stay clean
+  h.heat=clamp(h.heat-3,0,100);
+
+  // 9) Legal system
+  // Warrant check if probation missed (modeled via stress + low discipline)
+  if(ch.probation && !ch.inJail){
+    const miss = Math.random() < clamp(0.15 + (h.stress/300) - (h.discipline/400), 0.05, 0.45);
+    if(miss){
+      ch.warrant=true;
+      s.log.unshift('Missed probation check-in: warrant issued.');
+      h.stress=clamp(h.stress+10,0,100);
+    }
+  }
+
+  if(ch.warrant && !ch.inJail){
+    const arrest = Math.random() < clamp(0.25 + (h.heat/250), 0.10, 0.65);
+    if(arrest){
+      ch.inJail=true;
+      ch.jailYears=rint(1,2);
+      ch.record=true;
+      ch.warrant=false;
+      ch.probation=false;
+      st.happy=clamp(st.happy-18,0,100);
+      st.credit=clamp(st.credit-40,300,850);
+      h.reputation=clamp(h.reputation-10,0,100);
+      s.log.unshift('Arrested due to warrant.');
+    }
+  }
+
+  // 10) End-of-life triggers (dynasty)
+  const nw=netWorth(st);
+  if(st.health<=0){
+    s.log.unshift('Health reached 0. End of life.');
+    s = endGeneration(s, 'health');
+  } else if(ch.age>=65){
+    s.log.unshift('Retirement age reached. End of life.');
+    s = endGeneration(s, 'age');
+  } else if(nw < -150000){
+    s.log.unshift('Net worth collapsed. End of life.');
+    s = endGeneration(s, 'bankrupt');
+  }
+
+  // 11) Achievements
+  s=checkAchievements(s);
+
+  return s;
+};
+
+const checkAchievements=(state)=>{
+  const s=structuredClone(state);
+  const a=s.achievements;
+  const st=s.st;
+  const ch=s.char;
+  const d=s.dynasty;
+
+  const nw=netWorth(st);
+  if(!a.saved10k && st.cash>=10000){a.saved10k=true; s.log.unshift('Achievement: $10K Saved');}
+  if(!a.club100k && nw>=100000){a.club100k=true; s.log.unshift('Achievement: $100K Club');}
+  if(!a.millionaire && nw>=1000000){a.millionaire=true; s.log.unshift('Achievement: Millionaire');}
+  if(!a.greatCredit && st.credit>=750){a.greatCredit=true; s.log.unshift('Achievement: Great Credit');}
+  if(!a.debtFree && st.debt===0 && st.mortgage===0 && nw>0){a.debtFree=true; s.log.unshift('Achievement: Debt Free');}
+  if(!a.married && ch.relationship==='married'){a.married=true;}
+  if(!a.parent && ch.kids.length>=1){a.parent=true;}
+  if(!a.bigFamily && ch.kids.length>=3){a.bigFamily=true;}
+  if(!a.homeowner && ch.housing==='own'){a.homeowner=true;}
+  if(!a.dynasty3 && d.gen>=3){a.dynasty3=true;}
+
+  return s;
+};
+
+const endGeneration=(state, reason)=>{
+  const s=structuredClone(state);
+  const ch=s.char;
+  const st=s.st;
+  const d=s.dynasty;
+
+  const nw=netWorth(st);
+  const kidInvestSum = ch.kids.reduce((a,k)=>a+(k.invested||0),0);
+  const baseInherit = Math.round(nw * 0.60);
+  const kidBonus = Math.round(kidInvestSum * 0.50);
+  const familySupport = ch.kids.length * 200; // yearly support for heir
+
+  const wisdom = Math.round(((st.health + st.happy)/2 - 50) * 2); // -100..+100-ish
+  const wisdomBonusIncome = Math.round(clamp(wisdom, -30, 60) * 200); // cap
+  const wisdomBonusCredit = Math.round(clamp(wisdom, -30, 60));
+
+  const inheritance = baseInherit + kidBonus;
+  const heirCash = inheritance + 500;
+
+  // Heir starts with clean slate regarding record.
+  const heir = newCharacter({
+    name: `Heir of ${ch.name}`,
+    gender: Math.random()<0.5?'m':'f',
+    style: (Math.random()<0.5?MALE_STYLES:FEMALE_STYLES)[rint(0,7)],
+    career: ch.career,
+    age: 18,
+  });
+
+  // Heir income starts at career base + family support + wisdom bonus.
+  const careerBase = CAREERS[heir.career].start;
+  const heirIncome = Math.max(0, careerBase + familySupport + wisdomBonusIncome);
+
+  // Debt: career education cost + negative inheritance penalty
+  let heirDebt = CAREERS[heir.career].eduCost;
+  if(inheritance<0){
+    heirDebt += Math.round(Math.abs(inheritance)*0.30);
+  }
+
+  const heirStats={
+    cash: heirCash,
+    income: heirIncome,
+    debt: Math.max(0, heirDebt),
+    debtType: 'education',
+    invest: 0,
+    credit: clamp(620 + wisdomBonusCredit, 300, 850),
+    health: 95,
+    happy: 70,
+    homeEquity: 0,
+    mortgage: 0,
+    lastCashflow: 0,
+    lastExpenses: 0,
+    lastIncomeTotal: 0,
+  };
+
+  const businessMillionaire = (nw>=1000000) && (ch.biz.owns);
+
+  d.history.unshift({
+    gen: d.gen,
+    name: ch.name,
+    ageEnd: ch.age,
+    reason,
+    netWorth: nw,
+    kids: ch.kids.length,
+    kidInvestSum,
+    record: ch.record,
+    businessMillionaire,
+    peakCash: st.cash,
+  });
+  d.totalWealthPeak = Math.max(d.totalWealthPeak, nw);
+
+  d.gen += 1;
+
+  s.char = heir;
+  s.st = heirStats;
+  s.year = 0;
+  s.economy = newEconomy();
+  s.log.unshift(`Generation ${d.gen} begins. Inheritance: ${fmtMoney(inheritance)}. Family support: ${fmtMoney(familySupport)}/yr.`);
+
+  // sound
+  s._sound='lvl';
+
+  return s;
+};
+
+/**********************
+  REDUCER (stable state updates)
+**********************/
+
+const ACTIONS={
+  NEW_GAME:'NEW_GAME',
+  LOAD_GAME:'LOAD_GAME',
+  SET_SCREEN:'SET_SCREEN',
+  OPEN_MODAL:'OPEN_MODAL',
+  CLOSE_MODAL:'CLOSE_MODAL',
+  DRAW_CARD:'DRAW_CARD',
+  SWIPE:'SWIPE',
+  END_YEAR:'END_YEAR',
+  TOAST:'TOAST',
+  SETTINGS:'SETTINGS',
+  SAVE_SLOT:'SAVE_SLOT',
+  LOAD_SLOT:'LOAD_SLOT',
+  CLEAR_SLOT:'CLEAR_SLOT',
+  IMPORT_CODE:'IMPORT_CODE',
+};
+
+const reducer=(state, action)=>{
+  let s=state;
+  switch(action.type){
+    case ACTIONS.NEW_GAME: {
+      const seed=action.seed||{};
+      s=initialGameState(seed);
+      s.screen='game';
+      s.card=generateCard(s);
+      s._sound='draw';
+      return s;
+    }
+    case ACTIONS.LOAD_GAME: {
+      const loaded=action.state;
+      if(!loaded || !loaded.char || !loaded.st) return state;
+      s={...initialGameState(), ...loaded};
+      s.screen=action.screen||'game';
+      if(!s.card) s.card=generateCard(s);
+      s._sound='draw';
+      return s;
+    }
+    case ACTIONS.SET_SCREEN:{
+      return {...state, screen: action.screen};
+    }
+    case ACTIONS.OPEN_MODAL:{
+      return {...state, modal: action.modal};
+    }
+    case ACTIONS.CLOSE_MODAL:{
+      return {...state, modal: null};
+    }
+    case ACTIONS.SETTINGS:{
+      return {...state, settings: {...state.settings, ...action.settings}};
+    }
+    case ACTIONS.DRAW_CARD:{
+      let ns=tickCooldowns(state);
+      const c=generateCard(ns);
+      ns.card=c;
+      ns._sound='draw';
+      return ns;
+    }
+    case ACTIONS.SWIPE:{
+      if(!state.card) return state;
+
+      // Determine choice
+      const choice = action.dir==='right' ? state.card.right : state.card.left;
+      let ns=structuredClone(state);
+
+      // Apply choice delta
+      if(choice?.openModal){
+        ns.modal=choice.openModal;
       }
 
-      // ===== POVERTY CARDS =====
-      if(veryPoor && !foodStamps) {
-        cards.push({cat:'🏛️ Benefits',i:'🍎',t:'Food Stamps',d:'You qualify for SNAP benefits.',pov:true,
-          L:{t:'Pride',f:'-10 Happy, -$200/mo food',imp:{happy:-10}},
-          R:{t:'Apply',f:'+$300/mo saved, +5 Happy',imp:{income:300,happy:5},setFoodStamps:true}});
-      }
-      if(poor && housing === 'rent' && !section8) {
-        cards.push({cat:'🏛️ Benefits',i:'🏠',t:'Section 8 Housing',d:'Housing assistance available.',pov:true,
-          L:{t:'Decline',f:'No change',imp:{}},
-          R:{t:'Apply',f:'+$600/mo saved',imp:{income:600},setSection8:true}});
-      }
-      if(veryPoor && Math.random() < 0.3) {
-        cards.push({cat:'💰 Money',i:'😰',t:'Can\'t Make Rent',d:'Money is really tight this month.',pov:true,
-          L:{t:'Ask Family',f:'+$500, -10 Happy',imp:{cash:500,happy:-10}},
-          R:{t:'Payday Loan',f:'+$400 Cash, +$600 Debt',imp:{cash:400,debt:600}}});
+      // Crime special
+      if(choice?.crime){
+        const {risk, jailYears, caughtDelta, successDelta} = choice.crime;
+        // Even if not caught, crime is a trap via hidden penalties.
+        const caught = Math.random() < risk;
+        ns = applyDelta(ns, caught ? caughtDelta : successDelta);
+        ns._sound = caught ? 'jail' : 'caught';
       }
 
-      // ===== JOB FAIR & TEMP STAFFING (Poverty) =====
-      if(poor && st.income < 3000 && Math.random() < 0.2) {
-        cards.push({cat:'💼 Work',i:'🎪',t:'Job Fair',d:'Free job fair at community center. Could find better work.',pov:true,
-          L:{t:'Skip It',f:'No change',imp:{}},
-          R:{t:'Attend',f:'+$300/mo, +8 Happy',imp:{income:300,happy:8}}});
-      }
-      if(poor && Math.random() < 0.18) {
-        cards.push({cat:'💼 Work',i:'🏭',t:'Temp Staffing Agency',d:'Labor Ready has immediate work. Long hours, cash today.',pov:true,
-          L:{t:'Pass',f:'No change',imp:{}},
-          R:{t:'Sign Up',f:'+$200/mo, -5 Health',imp:{income:200,health:-5}}});
-      }
-      if(veryPoor && Math.random() < 0.15) {
-        cards.push({cat:'💼 Work',i:'📦',t:'Day Labor',d:'Moving company needs help. Cash under table.',pov:true,
-          L:{t:'Too Tired',f:'-3 Happy',imp:{happy:-3}},
-          R:{t:'Work',f:'+$150 Cash, -8 Health',imp:{cash:150,health:-8}}});
-      }
-      if(poor && Math.random() < 0.12) {
-        cards.push({cat:'💼 Work',i:'🚚',t:'Warehouse Job',d:'Amazon warehouse hiring. Tough work but steady.',pov:true,
-          L:{t:'Decline',f:'No change',imp:{}},
-          R:{t:'Apply',f:'+$400/mo, -8 Health',imp:{income:400,health:-8}}});
+      // Spawn kid
+      if(choice?.spawnKid){
+        const gender=Math.random()<0.5?'m':'f';
+        const name=gender==='m'?pick(KID_NAMES_M):pick(KID_NAMES_F);
+        ns.char.kids.push({id:uid(), name, gender, age:0, invested:0});
+        ns = applyDelta(ns, {happy:+10, stress:+6, reputation:+2, discipline:+1, log:`New child: ${name}.`});
+        ns._sound='baby';
       }
 
-      // ===== CRIME OPPORTUNITIES (Risk/Reward) =====
-      if(poor && Math.random() < 0.1) {
-        cards.push({cat:'⚠️ Risk',i:'💰',t:'Quick Money',d:'Friend offers easy cash. Selling "stuff". Risky...',crime:true,
-          L:{t:'Stay Clean',f:'+5 Happy',imp:{happy:5}},
-          R:{t:'Do It',f:'Risk: +$800 or Jail',imp:{},doCrime:{reward:800,risk:0.25,time:2}}});
-      }
-      if(veryPoor && Math.random() < 0.12) {
-        cards.push({cat:'⚠️ Risk',i:'🏪',t:'Desperate Times',d:'You could take from the register... No one would know.',crime:true,
-          L:{t:'Stay Honest',f:'+3 Happy',imp:{happy:3}},
-          R:{t:'Take It',f:'Risk: +$300 or Jail',imp:{},doCrime:{reward:300,risk:0.35,time:1}}});
-      }
-      if(st.debt > 20000 && Math.random() < 0.08) {
-        cards.push({cat:'⚠️ Risk',i:'💳',t:'Fraud Scheme',d:'Someone offers to wipe your debt... illegally.',crime:true,
-          L:{t:'Refuse',f:'No change',imp:{}},
-          R:{t:'Do It',f:'Risk: -$15K Debt or Jail',imp:{},doCrime:{debtClear:15000,risk:0.4,time:3}}});
-      }
-      if(Math.random() < 0.05) {
-        cards.push({cat:'⚠️ Risk',i:'🎰',t:'Big Score',d:'Cousin has a "sure thing". High risk, high reward.',crime:true,
-          L:{t:'Walk Away',f:'+3 Happy',imp:{happy:3}},
-          R:{t:'All In',f:'Risk: +$5K or Jail',imp:{},doCrime:{reward:5000,risk:0.45,time:4}}});
+      // Kid investment
+      if(choice?.kidInvest){
+        const {idx, amt}=choice.kidInvest;
+        if(ns.char.kids[idx]) ns.char.kids[idx].invested = (ns.char.kids[idx].invested||0) + amt;
       }
 
-      // ===== CAREER =====
-      if(Math.random() < 0.2 && !char.record) {
-        cards.push({cat:'💼 Career',i:'📈',t:'Promotion',d:'Management position available.',
-          L:{t:'Stay Put',f:'+5 Happy',imp:{happy:5}},
-          R:{t:'Take It',f:'+$500/mo, -5 Health',imp:{income:500,health:-5}}});
-      }
-      if(char.record && Math.random() < 0.15) {
-        cards.push({cat:'💼 Career',i:'📋',t:'Background Check',d:'New job requires background check. Your record...',
-          L:{t:'Withdraw',f:'-8 Happy',imp:{happy:-8}},
-          R:{t:'Be Honest',f:'50/50 chance',imp:{},bgCheck:true}});
-      }
-      if(st.income < 4000 && Math.random() < 0.25) {
-        cards.push({cat:'💼 Career',i:'🌙',t:'Side Hustle',d:'Extra income opportunity.',
-          L:{t:'Rest',f:'+5 Health',imp:{health:5}},
-          R:{t:'Hustle',f:'+$400/mo, -8 Health',imp:{income:400,health:-8}}});
+      // Start business
+      if(choice?.startBiz){
+        const t=pick(BUSINESS_TYPES);
+        ns.char.biz.owns=true;
+        ns.char.biz.type=t.id;
+        ns.char.biz.stage='starter';
+        ns.char.biz.revenue=rint(15000,25000);
+        ns.char.biz.profit=0;
+        ns.char.biz.employees=0;
+        ns.char.biz.complianceRisk=0;
+        ns = applyDelta(ns, {stress:+10, discipline:+3, reputation:+2, log:`Started: ${t.name}.`});
+        ns._sound='good';
       }
 
-      // ===== CREDIT =====
-      if(st.credit < 680 && Math.random() < 0.2) {
-        cards.push({cat:'📊 Credit',i:'💳',t:'Secured Card',d:'Build credit with deposit.',
-          L:{t:'Decline',f:'No change',imp:{}},
-          R:{t:'Get Card',f:'-$300, +25 Credit',imp:{cash:-300,credit:25}}});
-      }
-      if(Math.random() < 0.12) {
-        cards.push({cat:'📊 Credit',i:'⚠️',t:'Credit Error',d:'Found mistake on report.',
-          L:{t:'Ignore',f:'-15 Credit',imp:{credit:-15}},
-          R:{t:'Dispute',f:'+35 Credit',imp:{credit:35}}});
-      }
-
-      // ===== DEBT =====
-      if(st.debt > 5000 && Math.random() < 0.2) {
-        cards.push({cat:'💳 Debt',i:'📉',t:'Extra Payment',d:`Debt: ${fmt(st.debt)}. Pay extra?`,
-          L:{t:'Minimum',f:'-5 Credit',imp:{credit:-5}},
-          R:{t:'Pay $1,000',f:'-$1K, -$1K Debt, +15 Credit',imp:{cash:-1000,debt:-1000,credit:15}}});
-      }
-
-      // ===== INVESTMENTS =====
-      if(st.cash > 2000 && Math.random() < 0.2) {
-        cards.push({cat:'📈 Invest',i:'📊',t:'Index Funds',d:'Diversified investment.',
-          L:{t:'Keep Cash',f:'No change',imp:{}},
-          R:{t:'Invest $1.5K',f:'-$1.5K, +$1.5K Invested',imp:{cash:-1500,invest:1500}}});
-      }
-
-      // ===== HEALTH =====
-      if(st.health < 60 && Math.random() < 0.3) {
-        cards.push({cat:'❤️ Health',i:'🏥',t:'Doctor Visit',d:'You really should go.',
-          L:{t:'Skip',f:'-15 Health',imp:{health:-15}},
-          R:{t:'Go',f:'-$250, +20 Health',imp:{cash:-250,health:20}}});
-      }
-      if(st.happy < 50 && Math.random() < 0.25) {
-        cards.push({cat:'❤️ Health',i:'🧠',t:'Therapy',d:'Mental health matters.',
-          L:{t:'Handle It',f:'-10 Happy',imp:{happy:-10}},
-          R:{t:'Get Help',f:'-$200, +25 Happy',imp:{cash:-200,happy:25}}});
-      }
-
-      // ===== RELATIONSHIP =====
-      if(rel === 'single' && age >= 21 && age <= 45 && Math.random() < 0.15) {
-        cards.push({cat:'💕 Love',i:'💍',t:'Someone Special',d:'You\'ve met someone amazing.',
-          L:{t:'Stay Single',f:'+3 Happy',imp:{happy:3}},
-          R:{t:'Get Engaged',f:'-$2K, +15 Happy',imp:{cash:-2000,happy:15},setRel:'engaged'}});
-      }
-      if(rel === 'engaged' && Math.random() < 0.4) {
-        cards.push({cat:'💕 Love',i:'💒',t:'Wedding Day',d:'Time to get married!',
-          L:{t:'Wait',f:'-8 Happy',imp:{happy:-8}},
-          R:{t:'Get Married',f:'-$12K, +30 Happy, +$1K/mo',imp:{cash:-12000,happy:30,income:1000},setRel:'married'}});
-      }
-
-      // ===== KIDS (MAJOR SYSTEM) =====
-      if(rel === 'married' && kids.length < 5 && age >= 23 && age <= 42 && Math.random() < 0.12) {
-        cards.push({cat:'👶 Family',i:'👶',t:'Have a Baby?',d:'Your family could grow.',kid:true,
-          L:{t:'Not Now',f:'No change',imp:{}},
-          R:{t:'Have Baby',f:'-$500, +25 Happy',imp:{cash:-500,happy:25},addKid:true}});
-      }
-
-      // Kid-specific events
-      if(kids.length > 0) {
-        const kidEvents = [];
-        kids.forEach((k, i) => {
-          if(k.age >= 5 && k.age <= 18 && !k.school && Math.random() < 0.2) {
-            kidEvents.push({cat:'👶 Kids',i:'🎒',t:`${k.name}'s School`,d:`${k.name} is starting school.`,kid:true,
-              L:{t:'Public',f:'+$0',imp:{},setKidSchool:{idx:i,type:'public'}},
-              R:{t:'Private',f:'-$800/mo, +Investment',imp:{income:-800},setKidSchool:{idx:i,type:'private'}}});
-          }
-          if(k.age >= 6 && k.age <= 16 && Math.random() < 0.15) {
-            kidEvents.push({cat:'👶 Kids',i:'⚽',t:`${k.name}'s Activities`,d:`${k.name} wants to join activities.`,kid:true,
-              L:{t:'Skip',f:'-5 Happy',imp:{happy:-5}},
-              R:{t:'Sign Up',f:'-$200, +Kid Investment',imp:{cash:-200},investKid:{idx:i,amt:500}}});
-          }
-          if(k.age >= 14 && k.age <= 17 && Math.random() < 0.12) {
-            kidEvents.push({cat:'👶 Kids',i:'📚',t:`${k.name}'s Tutoring`,d:`${k.name} needs help with school.`,kid:true,
-              L:{t:'DIY Help',f:'-3 Health',imp:{health:-3},investKid:{idx:i,amt:200}},
-              R:{t:'Hire Tutor',f:'-$400, +Kid Investment',imp:{cash:-400},investKid:{idx:i,amt:1000}}});
-          }
-          if(k.age === 18 && !k.college && Math.random() < 0.5) {
-            kidEvents.push({cat:'👶 Kids',i:'🎓',t:`${k.name}'s College`,d:`${k.name} got accepted!`,kid:true,
-              L:{t:'They Pay',f:'-10 Happy',imp:{happy:-10},setKidCollege:{idx:i,paid:false}},
-              R:{t:'You Pay',f:'-$40K, +20 Happy, +Major Investment',imp:{cash:-40000,happy:20},setKidCollege:{idx:i,paid:true},investKid:{idx:i,amt:20000}}});
-          }
-        });
-        if(kidEvents.length > 0) cards.push(...kidEvents);
-      }
-
-      // ===== HOUSING =====
-      if(housing === 'parents' && age >= 21 && Math.random() < 0.15) {
-        cards.push({cat:'🏠 Housing',i:'🏢',t:'Move Out?',d:'Time for your own place?',
-          L:{t:'Stay Home',f:'-5 Happy',imp:{happy:-5}},
-          R:{t:'Get Apartment',f:'-$1,200/mo, +12 Happy',imp:{income:-1200,happy:12},setHousing:'rent'}});
-      }
-      if(housing === 'rent' && st.credit >= 660 && st.cash >= 25000 && Math.random() < 0.12) {
-        cards.push({cat:'🏠 Housing',i:'🏠',t:'Buy Home?',d:'You qualify for a mortgage!',
-          L:{t:'Keep Renting',f:'No change',imp:{}},
-          R:{t:'Buy',f:'-$25K, +$200K Debt, +$25K Equity',imp:{cash:-25000,debt:200000,invest:25000,happy:15},setHousing:'own'}});
-      }
-
-      // ===== LIFESTYLE =====
-      if(st.happy < 50 && Math.random() < 0.2) {
-        cards.push({cat:'🌟 Life',i:'✈️',t:'Vacation',d:'You need a break.',
-          L:{t:'Staycation',f:'+8 Happy',imp:{happy:8}},
-          R:{t:'Travel',f:'-$1.5K, +22 Happy',imp:{cash:-1500,happy:22}}});
-      }
-
-      // Default card
-      if(cards.length === 0) {
-        cards.push({cat:'🌟 Life',i:'☀️',t:'Normal Day',d:'Nothing special today.',
-          L:{t:'Relax',f:'+3 Happy',imp:{happy:3}},
-          R:{t:'Work Extra',f:'+$100',imp:{cash:100}}});
-      }
-
-      return cards[Math.floor(Math.random() * cards.length)];
-    };
-
-    // ===== EVENTS =====
-    const EVENTS = [
-      {i:'🎉',t:'Work Bonus!',d:'Great performance!',imp:{cash:2000},pos:true},
-      {i:'🏆',t:'Promotion!',d:'Moving up!',imp:{income:350,happy:12},pos:true},
-      {i:'📈',t:'Market Up',d:'Investments grew!',imp:{invest:1500},pos:true},
-      {i:'💳',t:'Cashback',d:'Rewards payout!',imp:{cash:250},pos:true},
-      {i:'🎁',t:'Inheritance',d:'Family money.',imp:{cash:6000},pos:true},
-      {i:'🏠',t:'Home Value Up',d:'Property appreciated!',imp:{invest:4000},pos:true},
-      {i:'😷',t:'Got Sick',d:'Medical bills.',imp:{cash:-600,health:-12},pos:false},
-      {i:'🚗',t:'Car Trouble',d:'Major repair.',imp:{cash:-900},pos:false},
-      {i:'📉',t:'Market Crash',d:'Investments down.',imp:{invest:-2000},pos:false},
-      {i:'💔',t:'Family Emergency',d:'Need to help.',imp:{cash:-1500,happy:-8},pos:false},
-      {i:'⚡',t:'Appliance Broke',d:'Replacement needed.',imp:{cash:-500},pos:false},
-      {i:'📞',t:'Debt Collector',d:'Stressful calls.',imp:{happy:-12,credit:-8},pos:false},
-      {i:'🔓',t:'ID Theft',d:'Fraud on account.',imp:{cash:-400,credit:-20},pos:false},
-    ];
-
-    // Kid-specific events
-    const KID_EVENTS = [
-      {i:'🏆',t:'Kid Won Award!',d:'Your child excelled!',imp:{happy:15},pos:true},
-      {i:'📱',t:'Kid Needs Phone',d:'Everyone else has one.',imp:{cash:-300},pos:false},
-      {i:'🦷',t:'Kid Braces',d:'Orthodontist visit.',imp:{cash:-2000},pos:false},
-      {i:'⚽',t:'Kid Made Team!',d:'Athletic achievement!',imp:{happy:10,cash:-200},pos:true},
-      {i:'🎨',t:'Kid\'s Talent',d:'Natural abilities showing!',imp:{happy:8},pos:true},
-    ];
-
-    // ===== ACHIEVEMENTS =====
-    const ACHS = [
-      {id:'10k',i:'💵',t:'$10K Saved',d:'Emergency fund!',ck:s=>s.cash>=10000},
-      {id:'100k',i:'💰',t:'$100K Club',d:'Net worth milestone',ck:s=>nw(s)>=100000},
-      {id:'1m',i:'👑',t:'Millionaire',d:'You made it!',ck:s=>nw(s)>=1000000},
-      {id:'cr750',i:'📊',t:'Great Credit',d:'750+ score',ck:s=>s.credit>=750},
-      {id:'df',i:'🎉',t:'Debt Free',d:'Zero debt!',ck:s=>s.debt===0&&nw(s)>0},
-      {id:'married',i:'💒',t:'Married',d:'Found your partner',ck:(s,c)=>c.rel==='married'},
-      {id:'parent',i:'👶',t:'Parent',d:'First child!',ck:(s,c)=>c.kids.length>=1},
-      {id:'bigfam',i:'👨‍👩‍👧‍👦',t:'Big Family',d:'3+ kids!',ck:(s,c)=>c.kids.length>=3},
-      {id:'home',i:'🏠',t:'Homeowner',d:'Bought a home',ck:(s,c)=>c.housing==='own'},
-      {id:'g3',i:'🏰',t:'Dynasty',d:'Generation 3',ck:(s,c,g)=>g>=3},
-    ];
-
-    const fmt = n => {const a=Math.abs(n),s=n<0?'-':'';return a>=1e6?`${s}$${(a/1e6).toFixed(1)}M`:a>=1e3?`${s}$${(a/1e3).toFixed(1)}K`:`${s}$${Math.round(a)}`};
-    const nw = s => s.cash + s.invest - s.debt;
-    const clamp = (v, mn, mx) => Math.min(mx, Math.max(mn, v));
-
-    // ==================== SAVE SYSTEM (ENHANCED) ====================
-    const AUTOSAVE_KEY = 'kt_autosave';
-    
-    const generateCode = () => {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      return Array(8).fill().map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
-    };
-
-    const saveGame = (data, isAuto = false) => {
-      const code = data.saveCode || generateCode();
-      const saveData = {...data, saveCode: code, savedAt: Date.now()};
-      localStorage.setItem('kt_save_' + code, JSON.stringify(saveData));
-      localStorage.setItem('kt_last_code', code);
-      // Also save to autosave slot
-      localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
-      return code;
-    };
-
-    const loadGame = (code) => {
-      const data = localStorage.getItem('kt_save_' + code);
-      return data ? JSON.parse(data) : null;
-    };
-
-    const loadAutosave = () => {
-      const data = localStorage.getItem(AUTOSAVE_KEY);
-      return data ? JSON.parse(data) : null;
-    };
-
-    const hasAutosave = () => {
-      return localStorage.getItem(AUTOSAVE_KEY) !== null;
-    };
-
-    const getLastCode = () => localStorage.getItem('kt_last_code');
-    
-    const clearAutosave = () => {
-      localStorage.removeItem(AUTOSAVE_KEY);
-    };
-
-    // ==================== MAIN GAME ====================
-    function Game() {
-      const [scr, setScr] = useState('title');
-      const [step, setStep] = useState(0);
-      const [firstName, setFirstName] = useState('');
-      const [famName, setFamName] = useState('');
-      const [gender, setGender] = useState('m');
-      const [charStyle, setCharStyle] = useState(null);
-      const [career, setCareer] = useState(null);
-      const [loadCode, setLoadCode] = useState('');
-
-      const [char, setChar] = useState(null);
-      const [st, setSt] = useState(null);
-      const [econ, setEcon] = useState(ECON_PHASES[1]);
-      const [gen, setGen] = useState(1);
-      const [hist, setHist] = useState([]);
-      const [dynW, setDynW] = useState(0);
-      const [achs, setAchs] = useState([]);
-      const [saveCode, setSaveCode] = useState(null);
-      const [hasAuto, setHasAuto] = useState(false);
-
-      const [card, setCard] = useState(null);
-      const [off, setOff] = useState(0);
-      const [drag, setDrag] = useState(false);
-      const [toast, setToast] = useState(null);
-      const [ach, setAch] = useState(null);
-
-      const [musicOn, setMusicOn] = useState(true);
-      const [sfxOn, setSfxOn] = useState(true);
-      const [modal, setModal] = useState(null);
-      const [heirN, setHeirN] = useState('');
-      const [heirG, setHeirG] = useState('m');
-      const [heirStyle, setHeirStyle] = useState(null);
-      const [heirC, setHeirC] = useState(null);
-
-      const sx = useRef(0);
-      const econTimer = useRef(0);
-
-      useEffect(() => {
-        const last = getLastCode();
-        if(last) setLoadCode(last);
-        // Check for autosave
-        setHasAuto(hasAutosave());
-      }, []);
-
-      const init = useCallback(() => {
-        sfx.init();
-        if(musicOn) sfx.startM();
-      }, [musicOn]);
-
-      const checkAch = useCallback((state, character, g) => {
-        ACHS.forEach(a => {
-          if(!achs.includes(a.id) && a.ck(state, character, g)) {
-            setAchs(p => [...p, a.id]);
-            setAch(a);
-            sfx.ach();
-            setTimeout(() => setAch(null), 3000);
-          }
-        });
-      }, [achs]);
-
-      const doSave = () => {
-        const code = saveGame({char, st, econ, gen, hist, dynW, achs, famName, saveCode});
-        setSaveCode(code);
-        sfx.coin();
-        setToast({txt: 'Game Saved!', pos: true});
-        setTimeout(() => setToast(null), 1500);
-      };
-
-      // Auto-save (called after each turn)
-      const autoSave = () => {
-        if(char && st) {
-          saveGame({char, st, econ, gen, hist, dynW, achs, famName, saveCode}, true);
+      // Business decision effects
+      if(choice?.bizDecision && ns.char.biz.owns){
+        const kind=choice.bizDecision.kind;
+        if(kind==='reinvest'){
+          ns.char.biz.revenue = Math.round((ns.char.biz.revenue||20000)*1.08);
+          ns.char.biz.complianceRisk = clamp(ns.char.biz.complianceRisk+2,0,100);
         }
-      };
-
-      // Draw card function - MUST be defined before functions that use it
-      const drawCard = (currentSt, currentChar, currentEcon) => {
-        sfx.draw();
-        // Events
-        if(Math.random() < 0.12) {
-          // Kid events if has kids
-          if(currentChar.kids && currentChar.kids.length > 0 && Math.random() < 0.3) {
-            const evt = KID_EVENTS[Math.floor(Math.random() * KID_EVENTS.length)];
-            setCard({...evt, ev: true, kid: true});
+        if(kind==='pay'){
+          ns.char.biz.revenue = Math.round((ns.char.biz.revenue||20000)*1.02);
+        }
+        if(kind==='hire'){
+          ns.char.biz.employees = Math.min(10, (ns.char.biz.employees||0)+1);
+          ns.char.biz.complianceRisk = clamp(ns.char.biz.complianceRisk+1,0,100);
+          // fixed cost pressure
+          ns = applyDelta(ns, {stress:-3, reputation:+1, discipline:+1});
+        }
+        if(kind==='corners'){
+          ns.char.biz.complianceRisk = clamp(ns.char.biz.complianceRisk+18,0,100);
+        }
+        if(kind==='compliance'){
+          ns.char.biz.complianceRisk = clamp(ns.char.biz.complianceRisk-12,0,100);
+        }
+        if(kind==='marketing'){
+          // marketing is variable: can boost or waste
+          const win = Math.random() < clamp(0.55 + (ns.char.hidden.discipline-50)/200, 0.15, 0.85);
+          if(win){
+            ns.char.biz.revenue = Math.round((ns.char.biz.revenue||20000)*1.12);
+            ns = applyDelta(ns, {reputation:+2, discipline:+1, log:'Marketing worked: demand increased.'});
           } else {
-            const evt = EVENTS[Math.floor(Math.random() * EVENTS.length)];
-            setCard({...evt, ev: true});
-          }
-        } else {
-          setCard(getCard(currentSt, currentChar, currentEcon));
-        }
-        setOff(0);
-      };
-
-      const draw = () => {
-        drawCard(st, char, econ);
-      };
-
-      // Quick continue from autosave
-      const quickContinue = () => {
-        const data = loadAutosave();
-        if(data) {
-          setChar(data.char);
-          setSt(data.st);
-          setEcon(data.econ || ECON_PHASES[1]);
-          setGen(data.gen);
-          setHist(data.hist);
-          setDynW(data.dynW);
-          setAchs(data.achs || []);
-          setFamName(data.famName);
-          setSaveCode(data.saveCode);
-          init();
-          setScr('game');
-          setTimeout(() => drawCard(data.st, data.char, data.econ || ECON_PHASES[1]), 200);
-          sfx.lvl();
-        }
-      };
-
-      const doLoad = (code) => {
-        const data = loadGame(code || loadCode);
-        if(data) {
-          setChar(data.char);
-          setSt(data.st);
-          setEcon(data.econ || ECON_PHASES[1]);
-          setGen(data.gen);
-          setHist(data.hist);
-          setDynW(data.dynW);
-          setAchs(data.achs || []);
-          setFamName(data.famName);
-          setSaveCode(data.saveCode);
-          init();
-          setScr('game');
-          setTimeout(() => drawCard(data.st, data.char, data.econ || ECON_PHASES[1]), 200);
-          sfx.lvl();
-        } else {
-          alert('Save not found!');
-        }
-      };
-
-      const startGame = () => {
-        if(!firstName || !famName || !career || !charStyle) return;
-        init();
-        sfx.click();
-
-        const c = CAREERS.find(x => x.id === career);
-        const style = CHAR_STYLES[gender].find(s => s.id === charStyle);
-        
-        setChar({
-          name: firstName,
-          gender,
-          style,
-          age: 18 + c.eduTime,
-          career: c.id,
-          rel: 'single',
-          kids: [],
-          housing: 'parents',
-          foodStamps: false,
-          section8: false,
-          inJail: false,
-          jailTime: 0,
-          record: false,
-        });
-        setSt({
-          cash: 500,
-          income: c.startInc,
-          debt: c.eduCost,
-          invest: 0,
-          credit: 620,
-          health: 100,
-          happy: 70,
-        });
-        setGen(1);
-        setHist([]);
-        setDynW(0);
-        setAchs([]);
-        setEcon(ECON_PHASES[1]);
-        econTimer.current = 0;
-        setSaveCode(null);
-        setScr('game');
-        
-        // Draw first card with the new state values directly
-        const newChar = {
-          name: firstName,
-          gender,
-          style,
-          age: 18 + c.eduTime,
-          career: c.id,
-          rel: 'single',
-          kids: [],
-          housing: 'parents',
-          foodStamps: false,
-          section8: false,
-          inJail: false,
-          jailTime: 0,
-          record: false,
-        };
-        const newSt = {
-          cash: 500,
-          income: c.startInc,
-          debt: c.eduCost,
-          invest: 0,
-          credit: 620,
-          health: 100,
-          happy: 70,
-        };
-        setTimeout(() => drawCard(newSt, newChar, ECON_PHASES[1]), 200);
-      };
-
-      const apply = (imp, extra = {}) => {
-        setSt(p => {
-          let nc = p.cash + (imp.cash || 0);
-          let nd = Math.max(0, p.debt + (imp.debt || 0));
-          let ni = p.income + (imp.income || 0);
-          let nv = Math.max(0, p.invest + (imp.invest || 0));
-          let ncr = p.credit + (imp.credit || 0);
-          let nh = p.health + (imp.health || 0);
-          let nhp = p.happy + (imp.happy || 0);
-
-          if(nc < 0) { nd += Math.abs(nc); nc = 0; }
-          if(nd > 10000) ncr -= 2;
-          if(nd > 50000) ncr -= 3;
-          if(nd > ni * 12) nhp -= 2;
-
-          return {
-            ...p,
-            cash: nc,
-            income: Math.max(0, ni),
-            debt: nd,
-            invest: nv,
-            credit: clamp(ncr, 300, 850),
-            health: clamp(nh, 0, 100),
-            happy: clamp(nhp, 0, 100),
-          };
-        });
-
-        // Character changes
-        setChar(p => {
-          let updated = {...p};
-          if(extra.setRel) updated.rel = extra.setRel;
-          if(extra.setHousing) updated.housing = extra.setHousing;
-          if(extra.setFoodStamps) updated.foodStamps = true;
-          if(extra.setSection8) updated.section8 = true;
-          if(extra.goToJail) {
-            updated.inJail = true;
-            updated.jailTime = extra.goToJail;
-            updated.record = true;
-          }
-          if(extra.serveTime) {
-            updated.jailTime = Math.max(0, p.jailTime - 1);
-            if(updated.jailTime <= 0) {
-              updated.inJail = false;
-            }
-          }
-          if(extra.addKid) {
-            const names = ['Alex','Jordan','Taylor','Morgan','Casey','Riley','Quinn','Avery'];
-            updated.kids = [...p.kids, {
-              name: names[Math.floor(Math.random() * names.length)],
-              gender: Math.random() > 0.5 ? 'm' : 'f',
-              age: 0,
-              invested: 0,
-              school: null,
-              college: null
-            }];
-          }
-          if(extra.setKidSchool) {
-            updated.kids = p.kids.map((k, i) => 
-              i === extra.setKidSchool.idx ? {...k, school: extra.setKidSchool.type} : k
-            );
-          }
-          if(extra.setKidCollege) {
-            updated.kids = p.kids.map((k, i) => 
-              i === extra.setKidCollege.idx ? {...k, college: extra.setKidCollege.paid ? 'paid' : 'loans'} : k
-            );
-          }
-          if(extra.investKid) {
-            updated.kids = p.kids.map((k, i) => 
-              i === extra.investKid.idx ? {...k, invested: k.invested + extra.investKid.amt} : k
-            );
-          }
-          return updated;
-        });
-      };
-
-      const monthly = () => {
-        setSt(p => {
-          const interest = p.debt * 0.015;
-          const housing = char.housing === 'rent' ? (char.section8 ? 600 : 1200) : char.housing === 'own' ? 1800 : 200;
-          const food = char.foodStamps ? 0 : 400;
-          const kidsCost = char.kids.reduce((sum, k) => {
-            if(k.age < 5) return sum + 800; // Childcare
-            if(k.school === 'private') return sum + 800;
-            return sum + 200; // Basic kid costs
-          }, 0);
-          const living = 800 + housing + food + kidsCost;
-          const net = p.income - living - interest;
-          
-          let nc = p.cash + net;
-          let nd = p.debt;
-          let nv = p.invest * econ.invMult;
-
-          if(nc < 0) { nd += Math.abs(nc); nc = 0; }
-          if(char.housing === 'own') nv += 150;
-
-          return {...p, cash: nc, debt: nd, invest: nv};
-        });
-
-        // Age everyone
-        setChar(p => ({
-          ...p,
-          age: p.age + 1,
-          kids: p.kids.map(k => ({...k, age: k.age + 1}))
-        }));
-
-        // Economy cycle
-        econTimer.current++;
-        if(econTimer.current > 6 + Math.random() * 10) {
-          econTimer.current = 0;
-          const phases = ['boom', 'stable', 'recession', 'recovery'];
-          const cur = phases.indexOf(econ.id);
-          setEcon(ECON_PHASES[(cur + 1) % 4]);
-        }
-      };
-
-      const swipe = dir => {
-        if(!card) return;
-        dir === 'right' ? sfx.yes() : sfx.no();
-
-        let imp, txt, pos, extra = {};
-        if(card.ev) {
-          imp = card.imp;
-          txt = card.t;
-          pos = card.pos;
-        } else {
-          const ch = dir === 'left' ? card.L : card.R;
-          imp = ch.imp;
-          txt = ch.t;
-          pos = (imp.cash > 0 || imp.income > 0 || imp.invest > 0 || imp.credit > 0);
-          Object.keys(ch).forEach(k => {
-            if(k.startsWith('set') || k === 'addKid' || k === 'investKid' || k === 'serveTime' || k === 'goToJail') extra[k] = ch[k];
-          });
-          
-          // CRIME MECHANIC
-          if(ch.doCrime) {
-            sfx.crime();
-            const caught = Math.random() < ch.doCrime.risk;
-            if(caught) {
-              // CAUGHT!
-              sfx.caught();
-              extra.goToJail = ch.doCrime.time;
-              imp = {happy: -30, credit: -50, income: -st.income * 0.3}; // Lose job partially
-              txt = '🚔 CAUGHT!';
-              pos = false;
-              setToast({txt: `ARRESTED! ${ch.doCrime.time} years in jail`, pos: false});
-              setTimeout(() => setToast(null), 1500);
-            } else {
-              // GOT AWAY
-              sfx.money();
-              if(ch.doCrime.reward) {
-                imp = {cash: ch.doCrime.reward, happy: 5};
-              } else if(ch.doCrime.debtClear) {
-                imp = {debt: -ch.doCrime.debtClear, happy: 10};
-              }
-              txt = 'Got away with it!';
-              pos = true;
-            }
-          }
-          
-          // BACKGROUND CHECK (for people with records)
-          if(ch.bgCheck) {
-            const passed = Math.random() < 0.5;
-            if(passed) {
-              sfx.good();
-              imp = {income: 400, happy: 15};
-              txt = 'They hired you anyway!';
-              pos = true;
-            } else {
-              sfx.sad();
-              imp = {happy: -15};
-              txt = 'Position filled...';
-              pos = false;
-            }
+            ns = applyDelta(ns, {stress:+4, log:'Marketing underperformed.'});
           }
         }
+      }
 
-        apply(imp, extra);
-        
-        // Special sounds
-        if(extra.setRel === 'married') sfx.marry();
-        else if(extra.addKid) sfx.baby();
-        else if(extra.serveTime && char.jailTime <= 1) sfx.free();
-        else if(imp.cash > 1000) sfx.money();
-        else if(imp.debt > 0) sfx.debt();
-        else if(!card.crime) pos ? sfx.good() : sfx.bad();
+      // Base delta (if provided)
+      if(choice?.delta){
+        ns=applyDelta(ns, choice.delta);
+      }
 
-        if(!card.crime) {
-          setToast({txt, pos});
-          setTimeout(() => setToast(null), 700);
-        }
+      // Apply cooldown for this card
+      ns=setCooldown(ns, state.card);
 
-        // Don't process monthly if serving jail time (already passed in jail card)
-        if(!extra.serveTime) {
-          monthly();
-        } else {
-          // Just age up when serving time
-          setChar(p => ({...p, age: p.age + 1, kids: p.kids.map(k => ({...k, age: k.age + 1}))}));
-        }
-        
-        setTimeout(() => { checkAch(st, char, gen); check(); }, 150);
-      };
+      // Advance year and draw new card
+      ns.year += 1;
 
-      const check = () => {
-        if(char.age >= 65) endGame('retire');
-        else if(st.health <= 0) endGame('health');
-        else if(nw(st) < -150000) endGame('broke');
-        else {
-          draw();
-          // Auto-save after each turn
-          setTimeout(autoSave, 100);
-        }
-      };
+      // Economy transition countdown
+      ns.economy.yearsLeft -= 1;
+      if(ns.economy.yearsLeft<=0){
+        const idx=ECONOMY.findIndex(e=>e.id===ns.economy.phase.id);
+        ns.economy.phase = ECONOMY[(idx+1)%ECONOMY.length];
+        ns.economy.yearsLeft = rint(3,6);
+        ns.log.unshift(`Economy shifts: ${ns.economy.phase.name}.`);
+      }
 
-      const endGame = cause => {
-        cause === 'retire' ? sfx.lvl() : sfx.end();
-        const w = nw(st);
-        
-        // Kids bonus - invested kids help the heir!
-        const kidBonus = char.kids.reduce((sum, k) => sum + k.invested, 0);
-        const familySupport = char.kids.length * 200; // Each kid = $200/mo support for heir
-        
-        const inh = cause === 'broke' ? Math.floor(w * 0.1) : Math.floor(w * 0.6) + Math.floor(kidBonus * 0.5);
-        
-        setHist(p => [...p, {
-          name: char.name,
-          style: char.style,
-          gender: char.gender,
-          age: char.age,
-          worth: w,
-          career: char.career,
-          rel: char.rel,
-          kids: char.kids.length,
-          kidBonus,
-          familySupport,
-          cause
-        }]);
-        setDynW(p => p + w);
-        setSt(p => ({...p, inh, kidBonus, familySupport, wb: Math.floor((p.happy + p.health) / 8)}));
+      // End-of-year processing
+      ns=endOfYear(ns);
 
-        if(gen >= 99 || (cause === 'broke' && w < -100000)) {
-          setScr('end');
-        } else {
-          setHeirN('');
-          setHeirG('m');
-          setHeirStyle(null);
-          setHeirC(null);
-          setScr('trans');
-        }
-      };
+      // If jail years went to 0 in card choice or endYear, ensure release
+      if(ns.char.inJail && ns.char.jailYears<=0){
+        ns.char.inJail=false;
+        ns.char.probation=true;
+        ns._sound='free';
+      }
 
-      const nextGen = () => {
-        if(!heirN || !heirC || !heirStyle) return;
-        sfx.lvl();
-        
-        const inh = st.inh || 0;
-        const wb = st.wb || 0;
-        const famSupport = st.familySupport || 0;
-        const c = CAREERS.find(x => x.id === heirC);
-        const style = CHAR_STYLES[heirG].find(s => s.id === heirStyle);
+      // Draw next card
+      ns=tickCooldowns(ns);
+      ns.card=generateCard(ns);
 
-        const newChar = {
-          name: heirN,
-          gender: heirG,
-          style,
-          age: 18 + c.eduTime,
-          career: heirC,
-          rel: 'single',
-          kids: [],
-          housing: 'parents',
-          foodStamps: false,
-          section8: false,
-          inJail: false,
-          jailTime: 0,
-          record: false,
-        };
-        const newSt = {
-          cash: Math.max(0, inh) + 500,
-          income: c.startInc + Math.floor(wb * 15) + famSupport,
-          debt: c.eduCost + (inh < 0 ? Math.abs(inh) * 0.3 : 0),
-          invest: 0,
-          credit: 620 + Math.floor(wb / 2),
-          health: 100,
-          happy: 70,
-        };
-        
-        setChar(newChar);
-        setSt(newSt);
-        setGen(p => p + 1);
-        setScr('game');
-        setTimeout(() => drawCard(newSt, newChar, econ), 200);
-      };
+      // sound routing
+      if(!ns._sound){
+        ns._sound = (action.dir==='right')?'yes':'no';
+      }
 
-      const payDebt = amt => {
-        if(st.cash < amt) return;
-        sfx.money();
-        setSt(p => ({
-          ...p,
-          cash: p.cash - amt,
-          debt: Math.max(0, p.debt - amt),
-          credit: clamp(p.credit + Math.floor(amt / 150), p.credit, 850)
-        }));
-        setModal(null);
-      };
-
-      const ds = x => { sx.current = x; setDrag(true) };
-      const dm = x => { if(drag) setOff(x - sx.current) };
-      const de = () => { setDrag(false); if(Math.abs(off) > 50) swipe(off < 0 ? 'left' : 'right'); setOff(0) };
-      const togM = () => { const v = !musicOn; setMusicOn(v); sfx.togM(v) };
-      const togS = () => { const v = !sfxOn; setSfxOn(v); sfx.togS(v) };
-
-      const netW = st ? nw(st) : 0;
-
-      return (
-        <div className="app">
-          {ach && <div className="ach"><div className="ach-i">{ach.i}</div><div><div className="ach-t">{ach.t}</div><div className="ach-d">{ach.d}</div></div></div>}
-          {toast && <div className={`toast ${toast.pos ? 'g' : 'r'}`}><div className="toast-i">{toast.pos ? '✓' : '✕'}</div><div className="toast-t">{toast.txt}</div></div>}
-
-          {/* Modals */}
-          {modal === 'settings' && (
-            <div className="modal-bg" onClick={() => setModal(null)}>
-              <div className="modal" onClick={e => e.stopPropagation()}>
-                <div className="modal-h"><div className="modal-t">Settings</div><button className="modal-x" onClick={() => setModal(null)}>×</button></div>
-                <div className="set-r"><span>🎵 Music</span><div className={`tog ${musicOn ? 'on' : ''}`} onClick={togM}><div className="tog-k"/></div></div>
-                <div className="set-r"><span>🔊 Sound</span><div className={`tog ${sfxOn ? 'on' : ''}`} onClick={togS}><div className="tog-k"/></div></div>
-                
-                <div style={{marginTop:16,padding:12,background:'var(--card2)',borderRadius:8}}>
-                  <div style={{fontSize:10,color:'var(--text2)',marginBottom:8,textAlign:'center'}}>💾 YOUR SAVE CODE</div>
-                  {saveCode ? (
-                    <>
-                      <div className="save-code">
-                        <span>{saveCode}</span>
-                      </div>
-                      <button className="btn sm full" style={{marginTop:8}} onClick={() => {
-                        navigator.clipboard.writeText(saveCode);
-                        setToast({txt:'Code Copied!', pos:true});
-                        setTimeout(() => setToast(null), 1000);
-                      }}>📋 Copy Code</button>
-                    </>
-                  ) : (
-                    <button className="btn full" onClick={doSave}>Generate Save Code</button>
-                  )}
-                  <div style={{fontSize:8,color:'var(--text2)',marginTop:8,textAlign:'center'}}>
-                    ✅ Game auto-saves after every turn!<br/>
-                    Save code lets you play on other devices.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {modal === 'payoff' && st && (
-            <div className="modal-bg" onClick={() => setModal(null)}>
-              <div className="modal" onClick={e => e.stopPropagation()}>
-                <div className="modal-h"><div className="modal-t">Pay Off Debt</div><button className="modal-x" onClick={() => setModal(null)}>×</button></div>
-                <p style={{fontSize:11,color:'var(--text2)',marginBottom:12}}>Debt: {fmt(st.debt)} | Cash: {fmt(st.cash)}</p>
-                <div className="payoff">
-                  {[500, 1000, 2500, 5000, 10000].map(amt => (
-                    <div key={amt} className={`payoff-opt ${st.cash < amt || st.debt < amt ? 'dis' : ''}`} 
-                         onClick={() => st.cash >= amt && st.debt >= amt && payDebt(amt)}>
-                      <span>Pay {fmt(amt)}</span>
-                      <span style={{color:'var(--green)'}}>+{Math.floor(amt/150)} Credit</span>
-                    </div>
-                  ))}
-                  {st.cash >= st.debt && st.debt > 0 && (
-                    <div className="payoff-opt" onClick={() => payDebt(st.debt)} style={{borderColor:'var(--green)'}}>
-                      <span>Pay All ({fmt(st.debt)})</span>
-                      <span style={{color:'var(--green)'}}>🎉 DEBT FREE</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ===== TITLE ===== */}
-          {scr === 'title' && (
-            <div className="title">
-              <div className="t-crown">👑</div>
-              <div className="t-logo">KNIGHT TYCOON</div>
-              <div className="t-sub">DYNASTY EDITION</div>
-              <div className="t-tag">Build generational wealth. Start a family. Leave a legacy.</div>
-              <div className="ver" style={{marginBottom:16}}>V3.2</div>
-              
-              {/* BIG CONTINUE BUTTON if autosave exists */}
-              {hasAuto && (
-                <button className="btn" onClick={() => { init(); sfx.click(); quickContinue() }} style={{marginBottom:12,width:'100%',maxWidth:300,padding:'16px 28px',fontSize:15}}>
-                  ▶️ Continue Game
-                </button>
-              )}
-              
-              <div className="howto">
-                <h3>Features</h3>
-                <div className="howto-i"><div className="howto-ic">👨‍👩‍👧‍👦</div>Have kids & invest in their future</div>
-                <div className="howto-i"><div className="howto-ic">🍎</div>Food stamps, Section 8, job fairs</div>
-                <div className="howto-i"><div className="howto-ic">⚠️</div>Crime risk - get rich or go to jail</div>
-                <div className="howto-i"><div className="howto-ic">💾</div>Auto-saves your progress!</div>
-                <div className="howto-i"><div className="howto-ic">♾️</div>Unlimited generations</div>
-              </div>
-              
-              <button className="btn sec" onClick={() => { init(); sfx.click(); clearAutosave(); setScr('setup'); setStep(0) }} style={{marginBottom:12}}>
-                {hasAuto ? 'New Game' : 'Start New Dynasty'}
-              </button>
-              
-              <div className="login-box" style={{marginTop:8}}>
-                <h3>🔑 Load with Save Code</h3>
-                <input className="inp" value={loadCode} onChange={e => setLoadCode(e.target.value.toUpperCase())} placeholder="Enter 8-letter code" maxLength={8} style={{textAlign:'center',letterSpacing:2}}/>
-                <button className="btn sec full" style={{marginTop:8}} onClick={() => doLoad()} disabled={loadCode.length < 8}>Load Save</button>
-              </div>
-            </div>
-          )}
-
-          {/* ===== SETUP ===== */}
-          {scr === 'setup' && (
-            <>
-              <div className="hdr">
-                <div className="logo">Create Character</div>
-                <button className="ibtn" onClick={() => step > 0 ? setStep(step - 1) : setScr('title')}>←</button>
-              </div>
-              <div className="scroll">
-                {step === 0 && (
-                  <>
-                    <div className="fgrp"><label className="flbl">First Name</label><input className="inp" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Your name" maxLength={12}/></div>
-                    <div className="fgrp"><label className="flbl">Family Name</label><input className="inp" value={famName} onChange={e => setFamName(e.target.value)} placeholder="Dynasty name" maxLength={12}/></div>
-                    <div className="fgrp"><label className="flbl">Gender</label>
-                      <div className="opts g2">
-                        <div className={`opt ${gender==='m'?'sel':''}`} onClick={() => { sfx.click(); setGender('m'); setCharStyle(null) }}><div className="opt-i">👨</div><div className="opt-t">Male</div></div>
-                        <div className={`opt ${gender==='f'?'sel':''}`} onClick={() => { sfx.click(); setGender('f'); setCharStyle(null) }}><div className="opt-i">👩</div><div className="opt-t">Female</div></div>
-                      </div>
-                    </div>
-                    <div className="fgrp"><label className="flbl">Choose Character</label>
-                      <div className="char-select">
-                        {CHAR_STYLES[gender].map(s => (
-                          <div key={s.id} className={`char-opt ${charStyle === s.id ? 'sel' : ''}`} onClick={() => { sfx.pop(); setCharStyle(s.id) }}>
-                            <PixelChar style={s} gender={gender} size="md"/>
-                            <div style={{fontSize:8,marginTop:4,color:'var(--text2)'}}>{s.name}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <button className="btn full" onClick={() => { sfx.click(); setStep(1) }} disabled={!firstName || !famName || !charStyle}>Next →</button>
-                  </>
-                )}
-                {step === 1 && (
-                  <>
-                    <div className="fgrp"><label className="flbl">Career Path</label>
-                      <div className="opts g2">
-                        {CAREERS.map(c => (
-                          <div key={c.id} className={`opt ${career===c.id?'sel':''}`} onClick={() => { sfx.click(); setCareer(c.id) }}>
-                            <div className="opt-i">{c.i}</div>
-                            <div className="opt-t">{c.n}</div>
-                            <div className="opt-d">{c.d}</div>
-                            <div style={{fontSize:8,marginTop:4,color:'var(--gold)'}}>${c.startInc.toLocaleString()}/mo</div>
-                            <div style={{fontSize:7,color:'var(--text2)'}}>{c.eduTime}yr • {fmt(c.eduCost)} debt</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="preview">
-                      <PixelChar style={CHAR_STYLES[gender].find(s => s.id === charStyle)} gender={gender} size="lg"/>
-                      <div className="prev-n">{firstName} {famName}</div>
-                      <div className="prev-s">{career ? CAREERS.find(c=>c.id===career)?.n : 'Choose career'}</div>
-                    </div>
-                    <button className="btn full" onClick={startGame} disabled={!career}>Start Journey →</button>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* ===== GAME ===== */}
-          {scr === 'game' && char && st && (
-            <>
-              <div className="hdr">
-                <div className="logo">Knight Tycoon</div>
-                <div className="hdr-r">
-                  <span style={{fontSize:8,color:'var(--green)',marginRight:4}}>✓ Saved</span>
-                  <button className={`ibtn ${musicOn?'on':''}`} onClick={togM}>{musicOn?'🎵':'🔇'}</button>
-                  <button className="ibtn" onClick={() => setModal('settings')}>⚙️</button>
-                </div>
-              </div>
-
-              <div className="cbar">
-                <PixelChar style={char.style} gender={char.gender} size="sm"/>
-                <div className="cinfo">
-                  <div className="cname">{char.name} {famName}</div>
-                  <div className="cmeta">
-                    <span>Age {char.age}</span>
-                    <span>{char.rel === 'married' ? '💍' : char.rel === 'engaged' ? '💕' : ''}</span>
-                    <span>{CAREERS.find(c=>c.id===char.career)?.i}</span>
-                  </div>
-                </div>
-                <div className="gbadge">Gen {gen}</div>
-              </div>
-
-              {/* Benefits */}
-              {(char.foodStamps || char.section8 || char.rel === 'married' || char.kids.length > 0 || char.record) && (
-                <div className="benefits">
-                  {char.foodStamps && <div className="benefit food">🍎 SNAP</div>}
-                  {char.section8 && <div className="benefit s8">🏠 Section 8</div>}
-                  {char.rel === 'married' && <div className="benefit married">💍 Married</div>}
-                  {char.kids.length > 0 && <div className="benefit kids">👶 {char.kids.length} Kid{char.kids.length>1?'s':''}</div>}
-                  {char.record && !char.inJail && <div className="benefit" style={{background:'rgba(100,100,100,0.15)',color:'#888',border:'1px solid rgba(100,100,100,0.3)'}}>📋 Record</div>}
-                </div>
-              )}
-
-              {/* Jail Status */}
-              {char.inJail && (
-                <div className="jail-bar">
-                  <div className="jail-icon">⛓️</div>
-                  <div className="jail-info">Currently Incarcerated</div>
-                  <div className="jail-time">{char.jailTime} yr{char.jailTime>1?'s':''} left</div>
-                </div>
-              )}
-
-              {/* Kids Bar */}
-              {char.kids.length > 0 && (
-                <div className="fambar">
-                  <div className="fambar-h">👨‍👩‍👧‍👦 Family</div>
-                  <div className="fambar-kids">
-                    {char.kids.map((k, i) => (
-                      <div key={i} className="kid-chip">
-                        <PixelKid gender={k.gender} age={k.age}/>
-                        <span>{k.name}, {k.age}</span>
-                        <span className="kid-invested">${Math.floor(k.invested/1000)}K inv</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="econ">
-                <div className="econ-phase"><div className={`econ-dot ${econ.col}`}/><span>{econ.n}</span></div>
-                <span style={{color:'var(--gold)',fontWeight:600}}>${st.income.toLocaleString()}/mo</span>
-              </div>
-
-              <div className="stats">
-                <div className="stat"><div className="stat-i">💵</div><div className={`stat-v ${st.cash>=0?'':'r'}`}>{fmt(st.cash)}</div><div className="stat-l">Cash</div></div>
-                <div className="stat"><div className="stat-i">📈</div><div className="stat-v g">{fmt(st.invest)}</div><div className="stat-l">Invested</div></div>
-                <div className="stat" onClick={() => st.debt > 0 && setModal('payoff')}>
-                  <div className="stat-i">💳</div><div className={`stat-v ${st.debt>0?'r':''}`}>{fmt(st.debt)}</div>
-                  <div className="stat-l">{st.debt > 0 ? '↓ Tap to Pay' : 'Debt'}</div>
-                </div>
-              </div>
-              <div className="stats">
-                <div className="stat">
-                  <div className="stat-i">📊</div><div className="stat-v">{st.credit}</div><div className="stat-l">Credit</div>
-                  <div className="stat-bar"><div className="stat-fill" style={{width:`${((st.credit-300)/550)*100}%`,background:'linear-gradient(90deg,#EF4444,#D4AF37,#22C55E)'}}/></div>
-                </div>
-                <div className="stat"><div className="stat-i">❤️</div><div className={`stat-v ${st.health<30?'r':''}`}>{st.health}%</div><div className="stat-l">Health</div></div>
-                <div className="stat"><div className="stat-i">😊</div><div className="stat-v">{st.happy}%</div><div className="stat-l">Happy</div></div>
-              </div>
-
-              {hist.length > 0 && (
-                <div className="tree">
-                  <div className="tree-h"><span>Dynasty</span><span className="tree-v">{fmt(dynW)}</span></div>
-                  <div className="tree-r">
-                    {hist.slice(-3).map((m, i) => (
-                      <React.Fragment key={i}>
-                        <div className="tree-m"><PixelChar style={m.style} gender={m.gender} size="sm"/></div>
-                        <div className="tree-ln"/>
-                      </React.Fragment>
-                    ))}
-                    <div className="tree-m now"><PixelChar style={char.style} gender={char.gender} size="sm"/></div>
-                  </div>
-                </div>
-              )}
-
-              <div className="card-area">
-                {card && (
-                  <div className={`scard ${card.ev?'evt':''} ${card.kid?'kid':''} ${card.pov?'pov':''} ${card.crime?'crime':''} ${card.jail?'jail':''} ${off<-15?'sl':''} ${off>15?'sr':''}`}
-                    style={{transform:`translateX(${off}px) rotate(${off*0.02}deg)`,transition:drag?'none':'transform 0.2s'}}
-                    onMouseDown={e => ds(e.clientX)} onMouseMove={e => dm(e.clientX)} onMouseUp={de} onMouseLeave={() => drag && de()}
-                    onTouchStart={e => ds(e.touches[0].clientX)} onTouchMove={e => dm(e.touches[0].clientX)} onTouchEnd={de}
-                  >
-                    {card.cat && <div className="card-cat">{card.cat}</div>}
-                    <div className="card-icon">{card.i}</div>
-                    <div className="card-title">{card.t}</div>
-                    <div className="card-desc">{card.d}</div>
-                    {card.ev ? (
-                      <div className="evt-fx">
-                        {Object.entries(card.imp).map(([k,v]) => (
-                          <span key={k} className={`fx ${v>0?'g':'r'}`}>
-                            {k==='cash' && `${v>0?'+':''}${fmt(v)}`}
-                            {k==='invest' && `${v>0?'+':''}${fmt(v)} inv`}
-                            {k==='income' && `${v>0?'+':''}$${v}/mo`}
-                            {k==='credit' && `${v>0?'+':''}${v} cr`}
-                            {k==='health' && `${v>0?'+':''}${v} hp`}
-                            {k==='happy' && `${v>0?'+':''}${v} 😊`}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="choices">
-                        <div className="choice l"><span className="ch-arr">←</span>{card.L.t}<div className="ch-fx">{card.L.f}</div></div>
-                        <div className="choice r"><span className="ch-arr">→</span>{card.R.t}<div className="ch-fx">{card.R.f}</div></div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {card && !card.ev && !card.jail && <div className="acts"><button className="abtn no" onClick={() => swipe('left')}>✕</button><button className="abtn yes" onClick={() => swipe('right')}>✓</button></div>}
-              {card?.ev && <div className="acts"><button className="btn" onClick={() => swipe('right')}>Continue</button></div>}
-              {card?.jail && <div className="acts"><button className="btn" onClick={() => swipe('right')} style={{background:'#666'}}>Serve Time</button></div>}
-            </>
-          )}
-
-          {/* ===== TRANSITION ===== */}
-          {scr === 'trans' && char && (
-            <div className="scr">
-              <div className="scr-i">{char.age >= 65 ? '🌅' : '💫'}</div>
-              <div className="scr-t">{char.age >= 65 ? 'Retirement' : 'End of Era'}</div>
-              <div className="scr-s">{char.name} {famName} • Age {char.age}</div>
-              <PixelChar style={char.style} gender={char.gender} size="lg"/>
-
-              <div className="box">
-                <div className="box-t">Estate</div>
-                <div className="box-r"><span>Net Worth</span><span style={{color:netW>=0?'var(--green)':'var(--red)'}}>{fmt(netW)}</span></div>
-                <div className="box-r"><span>Kids Raised</span><span>{char.kids.length}</span></div>
-                <div className="box-r"><span>Kid Investments</span><span style={{color:'var(--purple)'}}>{fmt(st.kidBonus || 0)}</span></div>
-                <div className="box-r"><span>Family Support</span><span style={{color:'var(--green)'}}>+${st.familySupport || 0}/mo</span></div>
-                <div className="box-r hl"><span>Inheritance</span><span>{fmt(st.inh || 0)}</span></div>
-              </div>
-
-              <div className="fgrp"><label className="flbl">Heir's Name</label><input className="inp" value={heirN} onChange={e => setHeirN(e.target.value)} placeholder="Next generation" maxLength={12}/></div>
-              
-              <div className="fgrp"><label className="flbl">Heir's Gender</label>
-                <div className="opts g2">
-                  <div className={`opt ${heirG==='m'?'sel':''}`} onClick={() => { sfx.click(); setHeirG('m'); setHeirStyle(null) }}><div className="opt-i">👨</div><div className="opt-t">Male</div></div>
-                  <div className={`opt ${heirG==='f'?'sel':''}`} onClick={() => { sfx.click(); setHeirG('f'); setHeirStyle(null) }}><div className="opt-i">👩</div><div className="opt-t">Female</div></div>
-                </div>
-              </div>
-
-              <div className="fgrp"><label className="flbl">Heir's Look</label>
-                <div className="char-select">
-                  {CHAR_STYLES[heirG].map(s => (
-                    <div key={s.id} className={`char-opt ${heirStyle === s.id ? 'sel' : ''}`} onClick={() => { sfx.pop(); setHeirStyle(s.id) }}>
-                      <PixelChar style={s} gender={heirG} size="sm"/>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="fgrp"><label className="flbl">Heir's Career</label>
-                <div className="opts g3">
-                  {CAREERS.map(c => (
-                    <div key={c.id} className={`opt ${heirC===c.id?'sel':''}`} onClick={() => { sfx.click(); setHeirC(c.id) }}>
-                      <div className="opt-i">{c.i}</div>
-                      <div className="opt-t">{c.n}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button className="btn" onClick={nextGen} disabled={!heirN || !heirC || !heirStyle}>Continue as {heirN || 'Heir'} →</button>
-            </div>
-          )}
-
-          {/* ===== END ===== */}
-          {scr === 'end' && (
-            <div className="scr">
-              <div className="scr-i">👑</div>
-              <div className="scr-t">The {famName} Dynasty</div>
-              <div className="scr-s">{gen} Generations</div>
-              
-              <div className="dsum">
-                {hist.map((m, i) => (
-                  <div key={i} className="dmem">
-                    <PixelChar style={m.style} gender={m.gender} size="sm"/>
-                    <div className="dmem-i">
-                      <div className="dmem-n">{m.name}</div>
-                      <div className="dmem-m">Gen {i+1} • {m.kids} kids • {CAREERS.find(c=>c.id===m.career)?.i}</div>
-                    </div>
-                    <div className="dmem-w" style={{color:m.worth>=0?'var(--green)':'var(--red)'}}>{fmt(m.worth)}</div>
-                  </div>
-                ))}
-                <div className="dtot"><span className="dtot-l">Legacy</span><span className="dtot-v">{fmt(dynW)}</span></div>
-              </div>
-
-              <div style={{display:'flex',gap:8,marginTop:14}}>
-                <button className="btn sec" onClick={() => { sfx.click(); setScr('title') }}>New Game</button>
-                <button className="btn" onClick={() => {
-                  const t = `👑 ${famName} Dynasty\n${gen} generations\n💰 ${fmt(dynW)} legacy\n\nKnight Tycoon 3.2`;
-                  navigator.share ? navigator.share({text:t}) : (navigator.clipboard.writeText(t), alert('Copied!'));
-                }}>Share 📤</button>
-              </div>
-
-              <div className="promo">
-                <div className="promo-b">BUILD REAL WEALTH</div>
-                <div className="promo-t">Knight Financial</div>
-                <div className="promo-d">Master your credit & finances IRL</div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
+      return ns;
+    }
+    case ACTIONS.TOAST:{
+      return {...state, toast: action.toast};
     }
 
-    ReactDOM.render(<Game/>, document.getElementById('root'));
-  </script>
+    case ACTIONS.SAVE_SLOT:{
+      const store=loadSaveStore();
+      const slot=action.slot;
+      const payload={meta:makeSlotMeta(action.labelEmail), state:state};
+      store.slots[slot]=payload;
+      writeSaveStore(store);
+      return {...state, toast:`Saved to Slot ${slot}${action.labelEmail?` (${action.labelEmail})`:''}.`};
+    }
+    case ACTIONS.LOAD_SLOT:{
+      const store=loadSaveStore();
+      const slot=action.slot;
+      const payload=store.slots[slot];
+      if(!payload?.state) return {...state, toast:`Slot ${slot} empty.`};
+      let ns={...initialGameState(), ...payload.state};
+      ns.screen='game';
+      ns.toast=`Loaded Slot ${slot}.`;
+      if(!ns.card) ns.card=generateCard(ns);
+      ns._sound='draw';
+      return ns;
+    }
+    case ACTIONS.CLEAR_SLOT:{
+      const store=loadSaveStore();
+      const slot=action.slot;
+      store.slots[slot]=null;
+      writeSaveStore(store);
+      return {...state, toast:`Cleared Slot ${slot}.`};
+    }
+    case ACTIONS.IMPORT_CODE:{
+      try{
+        const loaded=importGameCode(action.code);
+        let ns={...initialGameState(), ...loaded};
+        ns.screen='game';
+        ns.toast='Imported save.';
+        if(!ns.card) ns.card=generateCard(ns);
+        ns._sound='draw';
+        return ns;
+      } catch(e){
+        return {...state, toast:`Import failed: ${e.message}`};
+      }
+    }
+
+    default:
+      return state;
+  }
+};
+
+/**********************
+  UI COMPONENTS
+**********************/
+
+const PixelChar=({style, size='md'})=>{
+  const s=style;
+  const scale = size==='sm'?2: size==='lg'?5:3;
+  return (
+    <div style={{width:scale*12,height:scale*16,background:'var(--card2)',borderRadius:10,border:'1px solid rgba(255,255,255,.14)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <svg width={scale*10} height={scale*14} viewBox="0 0 10 14" style={{imageRendering:'pixelated'}}>
+        <rect x="2" y="0" width="6" height="3" fill={s.hair}/>
+        <rect x="1" y="1" width="1" height="2" fill={s.hair}/>
+        <rect x="8" y="1" width="1" height="2" fill={s.hair}/>
+        <rect x="2" y="2" width="6" height="5" fill={s.skin}/>
+        <rect x="3" y="4" width="1" height="1" fill="#111"/>
+        <rect x="6" y="4" width="1" height="1" fill="#111"/>
+        <rect x="2" y="7" width="6" height="4" fill={s.shirt}/>
+        <rect x="1" y="8" width="1" height="2" fill={s.shirt}/>
+        <rect x="8" y="8" width="1" height="2" fill={s.shirt}/>
+        <rect x="2" y="11" width="3" height="3" fill={s.pants}/>
+        <rect x="5" y="11" width="3" height="3" fill={s.pants}/>
+      </svg>
+    </div>
+  );
+};
+
+const Stat=({k,v,sub,bar})=>{
+  return (
+    <div className="stat">
+      <div className="k">{k}</div>
+      <div className="v">{v}</div>
+      {sub && <div className="tiny">{sub}</div>}
+      {bar!=null && (
+        <div className="pbar"><div style={{width:`${clamp(bar,0,100)}%`}}></div></div>
+      )}
+    </div>
+  );
+};
+
+const Modal=({title, children, onClose})=>{
+  return (
+    <div className="modalBack" onMouseDown={onClose}>
+      <div className="modal" onMouseDown={(e)=>e.stopPropagation()}>
+        <div className="row">
+          <h3 style={{margin:0}}>{title}</h3>
+          <button className="btn ghost small" onClick={onClose}>Close</button>
+        </div>
+        <div className="hr" />
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const Toast=({msg})=> msg? <div className="toast">{msg}</div> : null;
+
+/**********************
+  SWIPE CARD (Drag)
+**********************/
+const SwipeCard=({card, onSwipe, disabled})=>{
+  const ref=React.useRef(null);
+  const [drag,setDrag]=React.useState({x:0,y:0,rot:0,dragging:false});
+
+  React.useEffect(()=>{setDrag({x:0,y:0,rot:0,dragging:false})},[card?.key]);
+
+  const start=(e)=>{
+    if(disabled) return;
+    const p=('touches' in e)? e.touches[0] : e;
+    const startX=p.clientX; const startY=p.clientY;
+    setDrag(d=>({...d,dragging:true}));
+    const move=(ev)=>{
+      const q=('touches' in ev)? ev.touches[0] : ev;
+      const dx=q.clientX-startX;
+      const dy=q.clientY-startY;
+      const rot=clamp(dx/15,-18,18);
+      setDrag({x:dx,y:dy,rot,dragging:true});
+    };
+    const end=()=>{
+      const dx=drag.x;
+      const threshold=110;
+      if(Math.abs(dx)>threshold){
+        onSwipe(dx>0?'right':'left');
+      } else {
+        setDrag({x:0,y:0,rot:0,dragging:false});
+      }
+      window.removeEventListener('mousemove',move);
+      window.removeEventListener('mouseup',end);
+      window.removeEventListener('touchmove',move);
+      window.removeEventListener('touchend',end);
+    };
+    window.addEventListener('mousemove',move,{passive:true});
+    window.addEventListener('mouseup',end,{passive:true});
+    window.addEventListener('touchmove',move,{passive:true});
+    window.addEventListener('touchend',end,{passive:true});
+  };
+
+  if(!card) return null;
+
+  const style={
+    transform:`translate(${drag.x}px,${drag.y}px) rotate(${drag.rot}deg)`,
+    transition: drag.dragging? 'none' : 'transform 180ms ease',
+    touchAction:'none',
+  };
+
+  return (
+    <div className="swipeWrap">
+      <div
+        ref={ref}
+        className="card swipeCard"
+        style={style}
+        onMouseDown={start}
+        onTouchStart={start}
+      >
+        <div>
+          <div className="swipeTop">
+            <div>
+              <div className="swipeCat">{card.cat}</div>
+              <div className="swipeTitle">{card.title}</div>
+            </div>
+            <div className="pill">Yearly Turn</div>
+          </div>
+          <div className="swipeBody">{card.body}</div>
+
+          <div className="choiceRow">
+            <div className="choice">
+              <div className="lbl">✕ {card.left.label}</div>
+              <div className="eff">{card.left.eff}</div>
+            </div>
+            <div className="choice">
+              <div className="lbl">✓ {card.right.label}</div>
+              <div className="eff">{card.right.eff}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="swipeHint">
+          <span className="pill">Swipe left: decline</span>
+          <span className="pill">Swipe right: accept</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**********************
+  SCREENS
+**********************/
+
+const TitleScreen=({dispatch, hasAuto})=>{
+  return (
+    <div className="screen">
+      <div className="header">
+        <div className="brand">KNIGHT TYCOON</div>
+        <div className="tiny">v4.1 Balanced Life Sim</div>
+      </div>
+
+      <div className="card soft">
+        <div className="row">
+          <div className="col">
+            <div style={{fontWeight:900,fontSize:18}}>Build a legacy.</div>
+            <div className="small">One swipe = one year. Health & happiness gate your opportunities. Jobs are capped. Business can scale—with risk.</div>
+          </div>
+        </div>
+        <div className="hr" />
+        {hasAuto ? (
+          <button className="btn" onClick={()=>dispatch({type:ACTIONS.LOAD_SLOT, slot:0})}>▶ Continue</button>
+        ) : (
+          <button className="btn" onClick={()=>dispatch({type:ACTIONS.SET_SCREEN, screen:'setup'})}>New Game</button>
+        )}
+        <button className="btn sec" onClick={()=>dispatch({type:ACTIONS.SET_SCREEN, screen:'setup'})}>New Game</button>
+        <button className="btn ghost" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'save'})}>Save / Load</button>
+        <button className="btn ghost" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'import'})}>Import Code</button>
+      </div>
+
+      <div className="card">
+        <strong>How to win (quietly)</strong>
+        <div className="small" style={{marginTop:6,lineHeight:1.4}}>
+          Build cashflow stability, keep health/happiness high, avoid shortcuts, invest consistently, and if you want real wealth—manage a business without destroying your life.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SetupScreen=({dispatch})=>{
+  const [name,setName]=React.useState('Player');
+  const [gender,setGender]=React.useState('m');
+  const [career,setCareer]=React.useState('trades');
+  const styles=(gender==='m'?MALE_STYLES:FEMALE_STYLES);
+  const [styleId,setStyleId]=React.useState(styles[0].id);
+
+  React.useEffect(()=>{setStyleId((gender==='m'?MALE_STYLES:FEMALE_STYLES)[0].id)},[gender]);
+
+  const chosen=styles.find(s=>s.id===styleId) || styles[0];
+
+  return (
+    <div className="screen">
+      <div className="header">
+        <button className="btn ghost small" onClick={()=>dispatch({type:ACTIONS.SET_SCREEN, screen:'title'})}>← Back</button>
+        <div className="brand">SETUP</div>
+        <div style={{width:60}} />
+      </div>
+
+      <div className="card">
+        <div className="small">Name</div>
+        <input className="input" value={name} onChange={(e)=>setName(e.target.value)} />
+        <div className="hr" />
+
+        <div className="row" style={{gap:10}}>
+          <div style={{flex:1}}>
+            <div className="small">Gender</div>
+            <select className="select" value={gender} onChange={(e)=>setGender(e.target.value)}>
+              <option value="m">Male</option>
+              <option value="f">Female</option>
+            </select>
+          </div>
+          <div style={{flex:1}}>
+            <div className="small">Career</div>
+            <select className="select" value={career} onChange={(e)=>setCareer(e.target.value)}>
+              {Object.entries(CAREERS).map(([k,v])=> (
+                <option key={k} value={k}>{v.icon} {k}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="hr" />
+        <div className="row">
+          <div className="col">
+            <div className="small">Character</div>
+            <div className="tiny">No pink shirts for men.</div>
+          </div>
+          <PixelChar style={chosen} size="md" />
+        </div>
+
+        <div className="kidChips">
+          {styles.map(s=> (
+            <button
+              key={s.id}
+              className={"btn small "+(styleId===s.id?'':'ghost')}
+              onClick={()=>setStyleId(s.id)}
+              style={{boxShadow:'none'}}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="hr" />
+        <button
+          className="btn"
+          onClick={()=>dispatch({type:ACTIONS.NEW_GAME, seed:{name,gender,career,style:chosen}})}
+        >
+          Start Life
+        </button>
+      </div>
+
+      <div className="card">
+        <strong>Design rules</strong>
+        <div className="small" style={{marginTop:6,lineHeight:1.4}}>
+          Jobs are stable but capped. Millionaires come through business + discipline. Health and happiness control the quality of opportunities you see.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GameScreen=({state, dispatch})=>{
+  const ch=state.char;
+  const st=state.st;
+  const d=state.dynasty;
+  const econ=state.economy.phase;
+  const tier=qualityTier(state);
+
+  const badges=[];
+  if(ch.relationship==='married') badges.push({t:'Married', c:'blue'});
+  if(ch.kids.length>0) badges.push({t:`Kids: ${ch.kids.length}`, c:'blue'});
+  if(ch.snap) badges.push({t:'SNAP', c:'yellow'});
+  if(ch.section8) badges.push({t:'Section 8', c:'yellow'});
+  if(ch.record) badges.push({t:'Record', c:'red'});
+  if(ch.inJail) badges.push({t:`Jail ${ch.jailYears}y`, c:'red'});
+  if(ch.biz.owns) badges.push({t:'Business', c:'green'});
+
+  const efm=emergencyFundMonths(state);
+
+  return (
+    <div className="screen">
+      <div className="header">
+        <div className="brand">KNIGHT TYCOON</div>
+        <div className="row" style={{gap:8}}>
+          <button className="btn ghost small" onClick={()=>dispatch({type:ACTIONS.SET_SCREEN, screen:'dynasty'})}>🏰</button>
+          <button className="btn ghost small" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'settings'})}>⚙️</button>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="row">
+          <div className="col">
+            <div style={{fontWeight:900,fontSize:16}}>{ch.name}</div>
+            <div className="tiny">Gen {d.gen} • Age {ch.age} • Year {state.year} • Economy: {econ.name} ({state.economy.yearsLeft}y)</div>
+            <div className="tiny">Card Quality: <strong>{tier.toUpperCase()}</strong> • Emergency Fund: {efm.toFixed(1)} months</div>
+          </div>
+          <PixelChar style={ch.style} size="sm" />
+        </div>
+
+        <div className="badges">
+          {badges.map((b,i)=>(<span key={i} className={"badge "+b.c}>{b.t}</span>))}
+        </div>
+      </div>
+
+      <div className="statGrid">
+        <Stat k="Cash" v={fmtMoney(st.cash)} sub={`Cashflow: ${fmtMoney(st.lastCashflow)}/yr`} />
+        <Stat k="Income" v={fmtMoney(st.income + (ch.relationship==='married'?ch.spouseIncome:0) + (ch.biz.owns?st.lastIncomeTotal - (st.income + (ch.relationship==='married'?ch.spouseIncome:0) + benefitValue(state)):0))} sub="Annual total (job+family+biz+benefits)" />
+        <Stat k="Debt" v={fmtMoney(st.debt)} sub={`Credit: ${st.credit}`} />
+        <Stat k="Investments" v={fmtMoney(st.invest)} sub={`Return: ${pct(econ.inv)}/yr`} />
+        <Stat k="Health" v={`${Math.round(st.health)}%`} bar={st.health} sub="Low health blocks options" />
+        <Stat k="Happiness" v={`${Math.round(st.happy)}%`} bar={st.happy} sub="Low happiness poisons cards" />
+      </div>
+
+      <div className="card">
+        <div className="row"><strong>Hidden</strong><span className="tiny">(training layer)</span></div>
+        <div className="small" style={{marginTop:6,lineHeight:1.4}}>
+          Discipline: <strong>{Math.round(ch.hidden.discipline)}</strong> • Reputation: <strong>{Math.round(ch.hidden.reputation)}</strong> • Stress: <strong>{Math.round(ch.hidden.stress)}</strong>
+        </div>
+        <div className="tiny" style={{marginTop:6}}>Stress poisons opportunity. Discipline and reputation protect your future.</div>
+      </div>
+
+      {ch.kids.length>0 && (
+        <div className="card">
+          <div className="row"><strong>Family</strong><span className="tiny">Kids investments help your heir</span></div>
+          <div className="kidChips">
+            {ch.kids.map(k=> (
+              <span key={k.id} className="kidChip">{k.name} • {k.age}y • Invested {fmtMoney(k.invested||0)}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {ch.biz.owns && (
+        <div className="card">
+          <div className="row"><strong>Business</strong><span className="tiny">Only millionaire path</span></div>
+          <div className="small" style={{marginTop:6,lineHeight:1.4}}>
+            Type: <strong>{(BUSINESS_TYPES.find(x=>x.id===ch.biz.type)||BUSINESS_TYPES[0]).name}</strong><br />
+            Revenue: <strong>{fmtMoney(ch.biz.revenue||0)}</strong> • Profit: <strong>{fmtMoney(ch.biz.profit||0)}</strong><br />
+            Employees: <strong>{ch.biz.employees||0}</strong> • Compliance Risk: <strong>{Math.round(ch.biz.complianceRisk||0)}</strong><br />
+            Last Year: <strong>{ch.biz.lastYearOutcome||'—'}</strong>
+          </div>
+        </div>
+      )}
+
+      <SwipeCard
+        card={state.card}
+        disabled={false}
+        onSwipe={(dir)=>dispatch({type:ACTIONS.SWIPE, dir})}
+      />
+
+      <div className="card">
+        <div className="row"><strong>Event Log</strong><span className="tiny">Latest first</span></div>
+        <ul className="small" style={{marginTop:8, paddingLeft:18}}>
+          {state.log.slice(0,6).map((l,i)=><li key={i}>{l}</li>)}
+        </ul>
+      </div>
+
+    </div>
+  );
+};
+
+const DynastyScreen=({state, dispatch})=>{
+  const d=state.dynasty;
+  const st=state.st;
+  const nw=netWorth(st);
+  return (
+    <div className="screen">
+      <div className="header">
+        <button className="btn ghost small" onClick={()=>dispatch({type:ACTIONS.SET_SCREEN, screen:'game'})}>← Back</button>
+        <div className="brand">DYNASTY</div>
+        <button className="btn ghost small" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'timeline'})}>📜</button>
+      </div>
+
+      <div className="card">
+        <div className="row"><strong>Generation {d.gen}</strong><span className="tiny">Peak: {fmtMoney(d.totalWealthPeak)}</span></div>
+        <div className="small" style={{marginTop:6}}>Current Net Worth: <strong>{fmtMoney(nw)}</strong></div>
+        <div className="tiny" style={{marginTop:6}}>Kids investments and family support boost the next heir.</div>
+      </div>
+
+      <div className="card">
+        <strong>Past Generations</strong>
+        <div className="tree" style={{marginTop:10}}>
+          {d.history.length===0 ? (
+            <div className="small">No ancestors yet. Build your story.</div>
+          ) : d.history.slice(0,12).map((x,i)=>(
+            <div key={i} className="treeItem">
+              <div className="row">
+                <strong>Gen {x.gen}: {x.name}</strong>
+                <span className="tiny">End: {x.reason}</span>
+              </div>
+              <div className="tiny" style={{marginTop:6}}>
+                Age {x.ageEnd} • Net Worth {fmtMoney(x.netWorth)} • Kids {x.kids} • Record {x.record?'Yes':'No'}
+              </div>
+              <div className="tiny" style={{marginTop:4}}>
+                Kid Invest {fmtMoney(x.kidInvestSum)} • Business Millionaire {x.businessMillionaire?'Yes':'No'}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**********************
+  MODALS
+**********************/
+
+const SettingsModal=({state, dispatch})=>{
+  const [music,setMusic]=React.useState(state.settings.music);
+  const [sfxOn,setSfxOn]=React.useState(state.settings.sfx);
+  return (
+    <Modal title="Settings" onClose={()=>dispatch({type:ACTIONS.CLOSE_MODAL})}>
+      <div className="row">
+        <span className="small">Music</span>
+        <button className="btn small" onClick={()=>{setMusic(!music);dispatch({type:ACTIONS.SETTINGS, settings:{music:!music}})}}>
+          {music?'ON':'OFF'}
+        </button>
+      </div>
+      <div className="row" style={{marginTop:10}}>
+        <span className="small">SFX</span>
+        <button className="btn small" onClick={()=>{setSfxOn(!sfxOn);dispatch({type:ACTIONS.SETTINGS, settings:{sfx:!sfxOn}})}}>
+          {sfxOn?'ON':'OFF'}
+        </button>
+      </div>
+
+      <div className="hr" />
+      <button className="btn sec" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'save'})}>Save / Load</button>
+      <button className="btn ghost" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'import'})}>Import Code</button>
+      <button className="btn ghost" onClick={()=>dispatch({type:ACTIONS.OPEN_MODAL, modal:'timeline'})}>Life Timeline</button>
+    </Modal>
+  );
+};
+
+const DebtModal=({state, dispatch})=>{
+  const st=state.st;
+  const pays=[500,1000,2500,5000,10000];
+  const pay=(amt)=>{
+    // pay reduces debt and improves credit, reduces stress
+    let delta={cash:-amt, debt:-amt, credit:+Math.min(10,Math.round(amt/1000)), stress:-2, discipline:+1, log:`Paid ${fmtMoney(amt)} toward debt.`};
+    dispatch({type:ACTIONS.TOAST, toast:`Paid ${fmtMoney(amt)}.`});
+    // Apply immediately as a choice-like update without advancing year
+    dispatch({type:'__APPLY_DELTA_INTERNAL', delta});
+  };
+  return (
+    <Modal title="Debt Payments" onClose={()=>dispatch({type:ACTIONS.CLOSE_MODAL})}>
+      <div className="small">Debt: <strong>{fmtMoney(st.debt)}</strong> • Credit: <strong>{st.credit}</strong></div>
+      <div className="tiny" style={{marginTop:6}}>Paying down debt improves freedom and reduces stress.</div>
+      <div className="hr" />
+      <div className="row" style={{flexWrap:'wrap',gap:8}}>
+        {pays.map(a=>(
+          <button key={a} className="btn sec" disabled={st.cash<a || st.debt<=0} style={{opacity:(st.cash<a||st.debt<=0)?0.5:1}} onClick={()=>pay(Math.min(a,st.debt))}>
+            Pay {fmtMoney(Math.min(a,st.debt))}
+          </button>
+        ))}
+      </div>
+      <div style={{marginTop:10}}>
+        <button className="btn" disabled={st.debt<=0 || st.cash<st.debt} style={{opacity:(st.debt<=0 || st.cash<st.debt)?0.5:1}} onClick={()=>pay(st.debt)}>
+          Pay All
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
+const SaveModal=({state, dispatch})=>{
+  const store=loadSaveStore();
+  const [email,setEmail]=React.useState('');
+  const slotMeta=(slot)=>store.slots[slot]?.meta;
+
+  const saveTo=(slot)=>{
+    dispatch({type:ACTIONS.SAVE_SLOT, slot, labelEmail:email});
+  };
+
+  const loadFrom=(slot)=>{
+    dispatch({type:ACTIONS.LOAD_SLOT, slot});
+  };
+
+  const clear=(slot)=>{
+    dispatch({type:ACTIONS.CLEAR_SLOT, slot});
+  };
+
+  const exportCode=exportGameCode(state);
+
+  const copy=(txt)=>{
+    try{navigator.clipboard.writeText(txt);dispatch({type:ACTIONS.TOAST, toast:'Copied.'});}catch{dispatch({type:ACTIONS.TOAST, toast:'Copy failed.'});}
+  };
+
+  return (
+    <Modal title="Save / Load" onClose={()=>dispatch({type:ACTIONS.CLOSE_MODAL})}>
+      <div className="small">Optional Email Label (for your own organization)</div>
+      <input className="input" placeholder="you@email.com (optional)" value={email} onChange={(e)=>setEmail(e.target.value)} />
+      <div className="tiny" style={{marginTop:6}}>Email is only stored locally as a label. No server is used.</div>
+
+      <div className="hr" />
+      <strong>Autosave</strong>
+      <div className="tiny" style={{marginTop:6}}>Autosave updates every swipe.</div>
+      <div className="row" style={{marginTop:8}}>
+        <button className="btn sec" onClick={()=>saveTo(0)}>Save Autoslot</button>
+        <button className="btn" onClick={()=>loadFrom(0)}>Load Autoslot</button>
+      </div>
+
+      <div className="hr" />
+      <strong>Save Slots</strong>
+      {[1,2,3].map(slot=>{
+        const meta=slotMeta(slot);
+        return (
+          <div key={slot} className="card" style={{marginTop:10, boxShadow:'none'}}>
+            <div className="row">
+              <strong>Slot {slot}</strong>
+              <span className="tiny">{meta?new Date(meta.at).toLocaleString(): 'Empty'}</span>
+            </div>
+            <div className="tiny">{meta?.labelEmail?`Label: ${meta.labelEmail}`:''}</div>
+            <div className="row" style={{marginTop:8}}>
+              <button className="btn sec" onClick={()=>saveTo(slot)}>Save</button>
+              <button className="btn" onClick={()=>loadFrom(slot)}>Load</button>
+              <button className="btn ghost" onClick={()=>clear(slot)}>Clear</button>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="hr" />
+      <strong>Transfer Code (for any device)</strong>
+      <div className="tiny" style={{marginTop:6}}>Copy this code and send it to yourself (email/text). Import it on another device.</div>
+      <input className="input" value={exportCode} readOnly />
+      <div className="row" style={{marginTop:8}}>
+        <button className="btn sec" onClick={()=>copy(exportCode)}>Copy Code</button>
+        <button className="btn ghost" onClick={()=>copy(exportCode.split('.')[0])}>Copy Short</button>
+      </div>
+      <div className="tiny" style={{marginTop:6}}>Short code alone works only on the same device. Full code transfers the game.</div>
+    </Modal>
+  );
+};
+
+const ImportModal=({dispatch})=>{
+  const [code,setCode]=React.useState('');
+  return (
+    <Modal title="Import Save Code" onClose={()=>dispatch({type:ACTIONS.CLOSE_MODAL})}>
+      <div className="small">Paste a transfer code to load your game on this device.</div>
+      <textarea className="input" style={{height:110,resize:'none',marginTop:8}} value={code} onChange={(e)=>setCode(e.target.value)} />
+      <div className="row" style={{marginTop:10}}>
+        <button className="btn" onClick={()=>dispatch({type:ACTIONS.IMPORT_CODE, code})}>Import</button>
+        <button className="btn sec" onClick={()=>setCode('')}>Clear</button>
+      </div>
+    </Modal>
+  );
+};
+
+const TimelineModal=({state, dispatch})=>{
+  const ch=state.char;
+  const st=state.st;
+  const nw=netWorth(st);
+  return (
+    <Modal title="Life Timeline" onClose={()=>dispatch({type:ACTIONS.CLOSE_MODAL})}>
+      <div className="small">A quick record of your current life.</div>
+      <div className="hr" />
+      <div className="small" style={{lineHeight:1.5}}>
+        <strong>Name:</strong> {ch.name}<br/>
+        <strong>Age:</strong> {ch.age}<br/>
+        <strong>Relationship:</strong> {ch.relationship}<br/>
+        <strong>Housing:</strong> {HOUSING[ch.housing].name}<br/>
+        <strong>Kids:</strong> {ch.kids.length}<br/>
+        <strong>Career:</strong> {ch.career}<br/>
+        <strong>Business:</strong> {ch.biz.owns ? 'Yes' : 'No'}<br/>
+        <strong>Record:</strong> {ch.record ? 'Yes' : 'No'}<br/>
+        <strong>Net Worth:</strong> {fmtMoney(nw)}
+      </div>
+      <div className="hr" />
+      <strong>Recent Events</strong>
+      <ul className="small" style={{marginTop:8, paddingLeft:18}}>
+        {state.log.slice(0,10).map((l,i)=><li key={i}>{l}</li>)}
+      </ul>
+    </Modal>
+  );
+};
+
+/**********************
+  ROOT APP
+**********************/
+
+function App(){
+  const [state, dispatchBase]=React.useReducer(reducer, null, ()=>{
+    // Initialize: load autosave if exists
+    const store=loadSaveStore();
+    const auto=store.slots[AUTO_SLOT]?.state;
+    const init=initialGameState();
+    if(auto && auto.char && auto.st){
+      return {...init, ...auto, screen:'title'};
+    }
+    return init;
+  });
+
+  // Internal delta apply for debt modal (no year advance)
+  const dispatch=(action)=>{
+    if(action.type==='__APPLY_DELTA_INTERNAL'){
+      // apply delta and keep card
+      const ns=applyDelta(state, action.delta);
+      // keep same card; autosave
+      dispatchBase({type:ACTIONS.TOAST, toast: null});
+      // set state via LOAD_GAME pattern
+      dispatchBase({type:ACTIONS.LOAD_GAME, state:ns, screen: state.screen});
+      return;
+    }
+    dispatchBase(action);
+  };
+
+  // Autosave after any meaningful change (stable)
+  React.useEffect(()=>{
+    // save to autoslot
+    const store=loadSaveStore();
+    store.slots[AUTO_SLOT]={meta:makeSlotMeta('autosave'), state};
+    writeSaveStore(store);
+  },[state.year, state.char?.age, state.st?.cash, state.st?.debt, state.st?.invest, state.char?.relationship, state.char?.kids?.length, state.char?.biz?.owns]);
+
+  // Sound effects router
+  React.useEffect(()=>{
+    sfx.init();
+    sfx.setMusic(state.settings.music);
+    sfx.setSFX(state.settings.sfx);
+    if(state.settings.music) sfx.startJazz();
+    else sfx.stopJazz();
+
+    const key=state._sound;
+    if(!key) return;
+    const map={
+      click:()=>sfx.click(),
+      yes:()=>sfx.yes(),
+      no:()=>sfx.no(),
+      draw:()=>sfx.draw(),
+      good:()=>sfx.good(),
+      bad:()=>sfx.bad(),
+      money:()=>sfx.money(),
+      debt:()=>sfx.debt(),
+      coin:()=>sfx.coin(),
+      marry:()=>sfx.marry(),
+      baby:()=>sfx.baby(),
+      caught:()=>sfx.caught(),
+      jail:()=>sfx.jail(),
+      free:()=>sfx.free(),
+      gavel:()=>sfx.gavel(),
+      lvl:()=>sfx.lvl(),
+    };
+    if(map[key]) map[key]();
+  },[state._sound, state.settings.music, state.settings.sfx]);
+
+  // clear toast after a bit
+  React.useEffect(()=>{
+    if(!state.toast) return;
+    const t=setTimeout(()=>dispatch({type:ACTIONS.TOAST, toast:null}), 1800);
+    return ()=>clearTimeout(t);
+  },[state.toast]);
+
+  const store=loadSaveStore();
+  const hasAuto=!!store.slots[AUTO_SLOT]?.state;
+
+  let content=null;
+  if(state.screen==='title') content=<TitleScreen dispatch={dispatch} hasAuto={hasAuto} />;
+  if(state.screen==='setup') content=<SetupScreen dispatch={dispatch} />;
+  if(state.screen==='game') content=<GameScreen state={state} dispatch={dispatch} />;
+  if(state.screen==='dynasty') content=<DynastyScreen state={state} dispatch={dispatch} />;
+
+  return (
+    <div className="app">
+      {content}
+
+      {state.modal==='settings' && <SettingsModal state={state} dispatch={dispatch} />}
+      {state.modal==='debt' && <DebtModal state={state} dispatch={dispatch} />}
+      {state.modal==='save' && <SaveModal state={state} dispatch={dispatch} />}
+      {state.modal==='import' && <ImportModal dispatch={dispatch} />}
+      {state.modal==='timeline' && <TimelineModal state={state} dispatch={dispatch} />}
+
+      <Toast msg={state.toast} />
+    </div>
+  );
+}
+
+const rootEl=document.getElementById('root');
+if(ReactDOM.createRoot){
+  ReactDOM.createRoot(rootEl).render(<App />);
+} else {
+  ReactDOM.render(<App />, rootEl);
+}
+</script>
 </body>
 </html>
